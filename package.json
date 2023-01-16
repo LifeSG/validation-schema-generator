@@ -1,0 +1,36 @@
+{
+	"name": "validation-schema-generator",
+	"version": "1.0.0-alpha.1",
+	"description": "JSON to validation schema for frontend-engine",
+	"main": "dist/cjs/index.js",
+	"module": "dist/index.js",
+	"typings": "dist/index.d.ts",
+	"scripts": {
+		"build": "./scripts/build.sh",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/LifeSG/validation-schema-generator.git"
+	},
+	"keywords": [
+		"frontend-engine",
+		"validation-schema-generator"
+	],
+	"author": "LifeSG",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/LifeSG/validation-schema-generator/issues"
+	},
+	"homepage": "https://github.com/LifeSG/validation-schema-generator#readme",
+	"peerDependencies": {
+		"yup": "^0.32.11"
+	},
+	"devDependencies": {
+		"ts-loader": "^9.4.2",
+		"typescript": "^4.9.4",
+		"webpack": "^5.75.0",
+		"webpack-cli": "^5.0.1",
+		"yup": "^0.32.11"
+	}
+}

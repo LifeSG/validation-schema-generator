@@ -7,6 +7,7 @@
 	"typings": "dist/index.d.ts",
 	"scripts": {
 		"build": "./scripts/build.sh",
+		"lint": "eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --fix",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"repository": {
@@ -23,10 +24,23 @@
 		"url": "https://github.com/LifeSG/validation-schema-generator/issues"
 	},
 	"homepage": "https://github.com/LifeSG/validation-schema-generator#readme",
+	"lint-staged": {
+		"*.{js,jsx,ts,tsx}": [
+			"npm run lint"
+		]
+	},
 	"peerDependencies": {
 		"yup": "^0.32.11"
 	},
 	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "^5.48.1",
+		"@typescript-eslint/parser": "^5.48.1",
+		"eslint": "^8.32.0",
+		"eslint-config-prettier": "^8.6.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"husky": "^8.0.3",
+		"lint-staged": "^13.1.0",
+		"prettier": "^2.8.3",
 		"ts-loader": "^9.4.2",
 		"typescript": "^4.9.4",
 		"webpack": "^5.75.0",

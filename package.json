@@ -2,8 +2,7 @@
 	"name": "@lifesg/validation-schema-generator",
 	"version": "1.0.0-alpha.1",
 	"description": "JSON to validation schema for frontend-engine",
-	"main": "dist/cjs/index.js",
-	"module": "dist/index.js",
+	"main": "index.js",
 	"typings": "dist/index.d.ts",
 	"scripts": {
 		"build": "./scripts/build.sh",

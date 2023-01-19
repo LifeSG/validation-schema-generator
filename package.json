@@ -1,5 +1,5 @@
 {
-	"name": "validation-schema-generator",
+	"name": "@lifesg/validation-schema-generator",
 	"version": "1.0.0-alpha.1",
 	"description": "JSON to validation schema for frontend-engine",
 	"main": "dist/cjs/index.js",

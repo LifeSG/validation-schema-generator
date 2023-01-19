@@ -7,7 +7,8 @@
 	"scripts": {
 		"build": "./scripts/build.sh",
 		"lint": "eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --fix",
-		"test": "jest --config jest/jest.config.js --coverage"
+		"test": "jest --config jest/jest.config.js --coverage",
+		"prepare": "(test -d ./.git && npx husky install) || true"
 	},
 	"repository": {
 		"type": "git",

@@ -1,5 +1,13 @@
 import * as Yup from "yup";
-import { ICheckboxSchema, IEmailSchema, INumericSchema, IRadioSchema, ITextSchema, ITextareaSchema } from "../fields";
+import {
+	ICheckboxSchema,
+	IEmailSchema,
+	IMultiSelectSchema,
+	INumericSchema,
+	IRadioSchema,
+	ITextSchema,
+	ITextareaSchema,
+} from "../fields";
 
 export const SCHEMA_TYPES = ["string", "number", "boolean", "array", "object"] as const;
 export const CONDITIONS = [
@@ -86,6 +94,7 @@ export interface IFieldSchemaBase<T, V = undefined, U = undefined> {
 export type TFieldSchema<V = undefined> =
 	| ICheckboxSchema<V>
 	| IEmailSchema<V>
+	| IMultiSelectSchema<V>
 	| INumericSchema<V>
 	| IRadioSchema<V>
 	| ITextareaSchema<V>

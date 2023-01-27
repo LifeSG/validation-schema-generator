@@ -2,6 +2,7 @@ import { TFieldSchema, TFields } from "../schema-generator";
 import { checkbox } from "./checkbox";
 import { chips } from "./chips";
 import { contact } from "./contact";
+import { date } from "./date";
 import { email } from "./email";
 import { multiSelect } from "./multi-select";
 import { numeric } from "./numeric";
@@ -31,6 +32,9 @@ export const generateFieldConfigs = (fields: TFields) => {
 				break;
 			case "contact":
 				config = { ...config, ...contact(id, field) };
+				break;
+			case "date":
+				config = { ...config, ...date(id, field) };
 				break;
 			case "email":
 				config = { ...config, ...email(id, field) };

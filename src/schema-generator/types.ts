@@ -1,6 +1,7 @@
 import * as Yup from "yup";
 import {
 	ICheckboxSchema,
+	IChipsSchema,
 	IEmailSchema,
 	IMultiSelectSchema,
 	INumericSchema,
@@ -94,6 +95,7 @@ export interface IFieldSchemaBase<T, V = undefined, U = undefined> {
 
 export type TFieldSchema<V = undefined> =
 	| ICheckboxSchema<V>
+	| IChipsSchema<V>
 	| IEmailSchema<V>
 	| IMultiSelectSchema<V>
 	| INumericSchema<V>

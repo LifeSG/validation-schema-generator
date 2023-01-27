@@ -1,4 +1,5 @@
 export * from "./checkbox";
+export * from "./chips";
 export * from "./email";
 export * from "./generate-field-configs";
 export * from "./multi-select";

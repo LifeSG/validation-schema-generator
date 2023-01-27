@@ -1,3 +1,4 @@
+import * as Yup from "yup";
 import { ITextSchema } from "../fields";
 
 export const SCHEMA_TYPES = ["string", "number", "boolean", "array", "object"] as const;
@@ -38,8 +39,20 @@ interface IRule {
 
 export interface IValidationRule extends IRule {
 	required?: boolean | undefined;
+	when?:
+		| {
+				[id: string]: {
+					is: string | number | boolean | string[] | number[] | boolean[] | IConditionalValidationRule[];
+					then: Omit<IValidationRule, "when">[];
+					otherwise?: Omit<IValidationRule, "when">[] | undefined;
+					yupSchema?: Yup.AnySchema | undefined;
+				};
+		  }
+		| undefined;
 	errorMessage?: string | undefined;
 }
+
+export interface IConditionalValidationRule extends IRule {}
 
 // =============================================================================
 // WEB FRONTEND ENGINE TYPES
@@ -50,7 +63,7 @@ export interface IValidationRule extends IRule {
  */
 export interface IFieldSchemaBase<T, V = undefined, U = undefined> {
 	fieldType: T;
-	validation?: (IValidationRule | V | U)[];
+	validation?: (IValidationRule | V | U)[] | undefined;
 	[otherOptions: string]: unknown;
 }
 

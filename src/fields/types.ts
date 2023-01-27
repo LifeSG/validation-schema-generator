@@ -1,7 +1,7 @@
 import * as Yup from "yup";
 import { TFieldSchema } from "../schema-generator";
 
-interface IFieldConfig<V extends TFieldSchema> {
+export interface IFieldConfig<V extends TFieldSchema> {
 	yupSchema: Yup.AnySchema;
 	validation: V["validation"];
 }

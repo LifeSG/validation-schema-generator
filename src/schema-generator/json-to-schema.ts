@@ -1,7 +1,15 @@
 import * as Yup from "yup";
 import { ObjectShape } from "yup/lib/object";
-import { generateFieldConfigs } from "../fields";
-import { CONDITIONS, IConditionalValidationRule, TCondition, TFieldValidation, TFields, TYupSchemaType } from "./types";
+import { TFieldsConfig, generateFieldConfigs } from "../fields";
+import {
+	CONDITIONS,
+	IConditionalValidationRule,
+	TCondition,
+	TFieldSchema,
+	TFieldValidation,
+	TFields,
+	TYupSchemaType,
+} from "./types";
 
 /**
  * Constructs the entire Yup schema from JSON
@@ -10,11 +18,40 @@ import { CONDITIONS, IConditionalValidationRule, TCondition, TFieldValidation, T
  */
 export const jsonToSchema = <V = undefined>(fields: TFields<V>) => {
 	const yupSchema: ObjectShape = {};
-	const fieldConfigs = generateFieldConfigs(fields);
+	let fieldConfigs = generateFieldConfigs(fields);
+	fieldConfigs = parseWhenKeys(fieldConfigs);
 	Object.entries(fieldConfigs).forEach(([id, { yupSchema: yupFieldSchema, validation }]) => {
 		yupSchema[id] = mapRules(yupFieldSchema, validation || []);
 	});
 	return Yup.object().shape(yupSchema);
+};
+
+/**
+ * Iterates through field configs to look for conditional validation rules (`when` condition)
+ * For each conditional validation rule, it will refer to the source field to generate the corresponding yup schema
+ * @param fieldConfigs config containing the yup schema and validation config on each field
+ * @returns parsed field config
+ */
+const parseWhenKeys = (fieldConfigs: TFieldsConfig<TFieldSchema<undefined>>) => {
+	const parsedFieldConfigs = { ...fieldConfigs };
+	Object.entries(parsedFieldConfigs).forEach(([id, { validation }]) => {
+		const notWhenRules = validation?.filter((rule) => !("when" in rule)) || [];
+		const whenRules =
+			validation
+				?.filter((rule) => "when" in rule)
+				.map((rule) => {
+					const parsedRule = { ...rule };
+					Object.keys(parsedRule.when).forEach((whenFieldId) => {
+						parsedRule.when[whenFieldId] = {
+							...parsedRule.when[whenFieldId],
+							yupSchema: parsedFieldConfigs[whenFieldId].yupSchema,
+						};
+					});
+					return parsedRule;
+				}) || [];
+		parsedFieldConfigs[id].validation = [...notWhenRules, ...whenRules];
+	});
+	return parsedFieldConfigs;
 };
 
 /**
@@ -76,6 +113,42 @@ const mapRules = (yupSchema: Yup.AnySchema, rules: TFieldValidation): Yup.AnySch
 						new RegExp(matches[1], matches[2]),
 						rule.errorMessage
 					);
+				}
+				break;
+			case !!rule.when:
+				{
+					Object.keys(rule.when).forEach((fieldId) => {
+						const isRule = rule.when[fieldId].is;
+						const thenRule = mapRules(
+							mapSchemaType(yupSchema.type as TYupSchemaType),
+							rule.when[fieldId].then
+						);
+						const otherwiseRule =
+							rule.when[fieldId].otherwise &&
+							mapRules(mapSchemaType(yupSchema.type as TYupSchemaType), rule.when[fieldId].otherwise);
+
+						if (Array.isArray(isRule) && (isRule as unknown[]).every((r) => typeof r === "object")) {
+							yupSchema = yupSchema.when(fieldId, (value: unknown) => {
+								const localYupSchema = mapRules(
+									rule.when[fieldId].yupSchema,
+									isRule as IConditionalValidationRule[]
+								);
+								let fulfilled = false;
+								try {
+									localYupSchema.validateSync(value);
+									fulfilled = true;
+								} catch (error) {}
+
+								return fulfilled ? thenRule : otherwiseRule;
+							});
+						} else {
+							yupSchema = yupSchema.when(fieldId, {
+								is: isRule,
+								then: thenRule,
+								otherwise: otherwiseRule,
+							});
+						}
+					});
 				}
 				break;
 		}

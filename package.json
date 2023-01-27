@@ -32,6 +32,9 @@
 			"npm run lint"
 		]
 	},
+	"dependencies": {
+		"libphonenumber-js": "^1.10.18"
+	},
 	"peerDependencies": {
 		"yup": "^0.32.11"
 	},

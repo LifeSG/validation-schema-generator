@@ -156,3 +156,9 @@ const mapRules = (yupSchema: Yup.AnySchema, rules: TFieldValidation): Yup.AnySch
 
 	return yupSchema;
 };
+
+export const _testExports = {
+	mapSchemaType,
+	mapRules,
+	parseWhenKeys,
+};

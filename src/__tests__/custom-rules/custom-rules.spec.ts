@@ -6,17 +6,25 @@ const ERROR_MESSAGE = "test error message";
 
 describe("custom-rules", () => {
 	it.each`
-		type        | condition                 | fieldType    | config                    | valid          | invalid
-		${"string"} | ${"uinfin"}               | ${"text"}    | ${{ uinfin: true }}       | ${"S1234567D"} | ${"S1234567A"}
-		${"string"} | ${"filled"}               | ${"text"}    | ${{ filled: true }}       | ${"hello"}     | ${undefined}
-		${"string"} | ${"empty"}                | ${"text"}    | ${{ empty: true }}        | ${undefined}   | ${"hello"}
-		${"string"} | ${"empty (empty string)"} | ${"text"}    | ${{ empty: true }}        | ${""}          | ${"hello"}
-		${"string"} | ${"equals"}               | ${"text"}    | ${{ equals: "hello" }}    | ${"hello"}     | ${"hi"}
-		${"string"} | ${"notEquals"}            | ${"text"}    | ${{ notEquals: "hello" }} | ${"hi"}        | ${"hello"}
-		${"number"} | ${"filled"}               | ${"numeric"} | ${{ filled: true }}       | ${1}           | ${undefined}
-		${"number"} | ${"empty"}                | ${"numeric"} | ${{ empty: true }}        | ${undefined}   | ${1}
-		${"number"} | ${"equals"}               | ${"numeric"} | ${{ equals: 1 }}          | ${1}           | ${2}
-		${"number"} | ${"notEquals"}            | ${"numeric"} | ${{ notEquals: 1 }}       | ${2}           | ${1}
+		type        | condition                 | fieldType     | config                              | valid                 | invalid
+		${"string"} | ${"uinfin"}               | ${"text"}     | ${{ uinfin: true }}                 | ${"S1234567D"}        | ${"S1234567A"}
+		${"string"} | ${"filled"}               | ${"text"}     | ${{ filled: true }}                 | ${"hello"}            | ${undefined}
+		${"string"} | ${"empty"}                | ${"text"}     | ${{ empty: true }}                  | ${undefined}          | ${"hello"}
+		${"string"} | ${"empty (empty string)"} | ${"text"}     | ${{ empty: true }}                  | ${""}                 | ${"hello"}
+		${"string"} | ${"equals"}               | ${"text"}     | ${{ equals: "hello" }}              | ${"hello"}            | ${"hi"}
+		${"string"} | ${"notEquals"}            | ${"text"}     | ${{ notEquals: "hello" }}           | ${"hi"}               | ${"hello"}
+		${"number"} | ${"filled"}               | ${"numeric"}  | ${{ filled: true }}                 | ${1}                  | ${undefined}
+		${"number"} | ${"empty"}                | ${"numeric"}  | ${{ empty: true }}                  | ${undefined}          | ${1}
+		${"number"} | ${"equals"}               | ${"numeric"}  | ${{ equals: 1 }}                    | ${1}                  | ${2}
+		${"number"} | ${"notEquals"}            | ${"numeric"}  | ${{ notEquals: 1 }}                 | ${2}                  | ${1}
+		${"array"}  | ${"filled"}               | ${"checkbox"} | ${{ filled: true }}                 | ${["hello"]}          | ${[]}
+		${"array"}  | ${"empty"}                | ${"checkbox"} | ${{ empty: true }}                  | ${[]}                 | ${["hello"]}
+		${"array"}  | ${"equals"}               | ${"checkbox"} | ${{ equals: ["hello"] }}            | ${["hello"]}          | ${["hi"]}
+		${"array"}  | ${"notEquals"}            | ${"checkbox"} | ${{ notEquals: ["hello"] }}         | ${["hi"]}             | ${["hello"]}
+		${"array"}  | ${"includes string"}      | ${"checkbox"} | ${{ includes: "hello" }}            | ${["hello"]}          | ${["hi"]}
+		${"array"}  | ${"excludes string"}      | ${"checkbox"} | ${{ excludes: "hello" }}            | ${["hi"]}             | ${["hello"]}
+		${"array"}  | ${"includes array"}       | ${"checkbox"} | ${{ includes: ["hello", "world"] }} | ${["hello", "world"]} | ${["hi"]}
+		${"array"}  | ${"excludes array"}       | ${"checkbox"} | ${{ excludes: ["hello", "world"] }} | ${["hi"]}             | ${["hello", "hi", "world"]}
 	`("should support $condition condition for Yup $type type", ({ fieldType, config, valid, invalid }) => {
 		const schema = jsonToSchema({
 			field: {

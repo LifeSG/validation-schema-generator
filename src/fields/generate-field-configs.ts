@@ -2,6 +2,7 @@ import { TFieldSchema, TFields } from "../schema-generator";
 import { checkbox } from "./checkbox";
 import { email } from "./email";
 import { numeric } from "./numeric";
+import { radio } from "./radio";
 import { text } from "./text";
 import { TFieldsConfig } from "./types";
 
@@ -25,6 +26,9 @@ export const generateFieldConfigs = (fields: TFields) => {
 				break;
 			case "numeric":
 				config = { ...config, ...numeric(id, field) };
+				break;
+			case "radio":
+				config = { ...config, ...radio(id, field) };
 				break;
 			case "text":
 				config = { ...config, ...text(id, field) };

@@ -48,6 +48,43 @@ describe("json-to-schema", () => {
 			expect(error.inner[0].message).toBe(ERROR_MESSAGE);
 			expect(error.inner[1].message).toBe(ERROR_MESSAGE_3);
 		});
+
+		it("should ignore elements and values not specified in schema", () => {
+			const schema = jsonToSchema({
+				field: {
+					fieldType: "text",
+					validation: [
+						{ required: true, errorMessage: ERROR_MESSAGE },
+						{ min: 1, errorMessage: ERROR_MESSAGE_2 },
+					],
+				},
+				element: {
+					fieldType: "alert",
+				},
+			});
+
+			const schemaFields = schema.describe().fields;
+			const schemaTypeList = Object.keys(schemaFields).map((key) => schemaFields[key].type);
+			const schemaTestList = Object.keys(schemaFields).map(
+				(key) => (schemaFields[key] as SchemaDescription).tests
+			);
+
+			expect(schemaTypeList).toEqual(["string"]);
+			expect(
+				isEqual(schemaTestList, [
+					[
+						{ name: "required", params: undefined },
+						{ name: "min", params: { min: 1 } },
+					],
+				])
+			).toBe(true);
+
+			const error = TestHelper.getError(() =>
+				schema.validateSync({ field: undefined, element: "world", something: "else" }, { abortEarly: false })
+			);
+			expect(error.inner).toHaveLength(1);
+			expect(error.inner[0].message).toBe(ERROR_MESSAGE);
+		});
 	});
 
 	describe("mapSchemaType", () => {

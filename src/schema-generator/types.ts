@@ -96,6 +96,32 @@ export interface IFieldSchemaBase<T, V = undefined, U = undefined> {
 	[otherOptions: string]: unknown;
 }
 
+/** to support elements, they don't come with validation schema  */
+interface IElementSchema {
+	fieldType:
+		| "alert"
+		| "text-d1"
+		| "text-d2"
+		| "text-dbody"
+		| "text-h1"
+		| "text-h2"
+		| "text-h3"
+		| "text-h4"
+		| "text-h5"
+		| "text-h6"
+		| "text-body"
+		| "text-bodysmall"
+		| "text-xsmall"
+		| "div"
+		| "span"
+		| "section"
+		| "header"
+		| "footer"
+		| "p";
+	validation?: never;
+	[otherOptions: string]: unknown;
+}
+
 export type TFieldSchema<V = undefined> =
 	| ICheckboxSchema<V>
 	| IChipsSchema<V>
@@ -108,7 +134,8 @@ export type TFieldSchema<V = undefined> =
 	| ISelectSchema<V>
 	| ITextareaSchema<V>
 	| ITextSchema<V>
-	| ITimeSchema<V>;
+	| ITimeSchema<V>
+	| IElementSchema;
 
 export type TFieldValidation = TFieldSchema["validation"];
 

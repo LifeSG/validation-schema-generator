@@ -14,6 +14,9 @@ export const ERROR_MESSAGES = {
 		CANNOT_BE_PAST: "Date cannot be in the past.",
 		INVALID: "Invalid date",
 	},
+	TIME: {
+		INVALID: "Invalid time",
+	},
 	EMAIL: {
 		INVALID: "Invalid email address",
 	},

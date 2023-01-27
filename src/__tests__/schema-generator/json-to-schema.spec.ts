@@ -3,10 +3,7 @@ import * as Yup from "yup";
 import { SchemaDescription } from "yup/lib/schema";
 import { TYupSchemaType, _testExports, addRule, jsonToSchema } from "../../schema-generator";
 import { TestHelper } from "../../utils";
-
-const ERROR_MESSAGE = "test error message";
-const ERROR_MESSAGE_2 = "test error message 2";
-const ERROR_MESSAGE_3 = "test error message 3";
+import { ERROR_MESSAGE, ERROR_MESSAGE_2, ERROR_MESSAGE_3 } from "../common";
 
 describe("json-to-schema", () => {
 	beforeEach(() => {

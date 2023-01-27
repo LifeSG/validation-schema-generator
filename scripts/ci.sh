@@ -2,7 +2,12 @@
 
 echo ==============================================================================
 echo Script: $(basename "$0")
-echo Builds and prepares the distribution
+echo This script is meant to be called by the bamboo CI
+echo This script prepares the package and publishes it
+echo
+echo It has the following assumptions:
+echo 1. The repo has been checked out by the CI
+echo 2. The required environment variables have been set
 echo ==============================================================================
 
 # ==============================================================================
@@ -34,14 +39,17 @@ PROJECT_DIR=$( cd ${SCRIPT_DIR} && cd .. && pwd )
 # Set project directory
 pushd ${PROJECT_DIR}
 
-# Build and pack
-echo "Building"
-npm run build
+# Install node_modules
+echo "[CI] Installing dependencies"
+npm ci
 
-echo "Packaging"
-pushd dist
-npm pack
-popd
+# Run tests (Disable for now)
+# echo "[CI] Running tests"
+# npm test
+
+# Build and pack
+echo "[CI] Running build and generating tgz"
+./scripts/build.sh
 
 # Return to invocation dir
 popd

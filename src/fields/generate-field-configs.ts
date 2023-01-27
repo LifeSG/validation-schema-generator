@@ -4,6 +4,7 @@ import { email } from "./email";
 import { numeric } from "./numeric";
 import { radio } from "./radio";
 import { text } from "./text";
+import { textarea } from "./textarea";
 import { TFieldsConfig } from "./types";
 
 /**
@@ -32,6 +33,9 @@ export const generateFieldConfigs = (fields: TFields) => {
 				break;
 			case "text":
 				config = { ...config, ...text(id, field) };
+				break;
+			case "textarea":
+				config = { ...config, ...textarea(id, field) };
 				break;
 		}
 	});

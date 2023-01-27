@@ -4,4 +4,5 @@ export * from "./generate-field-configs";
 export * from "./numeric";
 export * from "./radio";
 export * from "./text";
+export * from "./textarea";
 export * from "./types";

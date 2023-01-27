@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { ICheckboxSchema, IEmailSchema, INumericSchema, IRadioSchema, ITextSchema } from "../fields";
+import { ICheckboxSchema, IEmailSchema, INumericSchema, IRadioSchema, ITextSchema, ITextareaSchema } from "../fields";
 
 export const SCHEMA_TYPES = ["string", "number", "boolean", "array", "object"] as const;
 export const CONDITIONS = [
@@ -88,6 +88,7 @@ export type TFieldSchema<V = undefined> =
 	| IEmailSchema<V>
 	| INumericSchema<V>
 	| IRadioSchema<V>
+	| ITextareaSchema<V>
 	| ITextSchema<V>;
 
 export type TFieldValidation = TFieldSchema["validation"];

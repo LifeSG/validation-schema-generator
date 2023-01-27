@@ -1,4 +1,5 @@
 import { TFieldSchema, TFields } from "../schema-generator";
+import { email } from "./email";
 import { numeric } from "./numeric";
 import { text } from "./text";
 import { TFieldsConfig } from "./types";
@@ -15,6 +16,9 @@ export const generateFieldConfigs = (fields: TFields) => {
 	Object.entries(fields).forEach(([id, field]) => {
 		const { fieldType } = field;
 		switch (fieldType) {
+			case "email":
+				config = { ...config, ...email(id, field) };
+				break;
 			case "numeric":
 				config = { ...config, ...numeric(id, field) };
 				break;

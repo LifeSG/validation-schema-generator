@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { INumericSchema, ITextSchema } from "../fields";
+import { IEmailSchema, INumericSchema, ITextSchema } from "../fields";
 
 export const SCHEMA_TYPES = ["string", "number", "boolean", "array", "object"] as const;
 export const CONDITIONS = [
@@ -83,7 +83,7 @@ export interface IFieldSchemaBase<T, V = undefined, U = undefined> {
 	[otherOptions: string]: unknown;
 }
 
-export type TFieldSchema<V = undefined> = INumericSchema<V> | ITextSchema<V>;
+export type TFieldSchema<V = undefined> = IEmailSchema<V> | INumericSchema<V> | ITextSchema<V>;
 
 export type TFieldValidation = TFieldSchema["validation"];
 

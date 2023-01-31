@@ -1,4 +1,1 @@
-// STUB
-import { sampleFunction } from "./file";
-
-sampleFunction();
+export { jsonToSchema } from "./schema-generator";

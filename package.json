@@ -6,9 +6,8 @@
 	"module": "dist/index.js",
 	"typings": "dist/index.d.ts",
 	"scripts": {
-		"build": "npm run rollup && npm run post:build",
+		"build": "npm run rollup",
 		"rollup": "rm -rf dist && rollup -c",
-		"post:build": "node ./scripts/post-build.js",
 		"publish-lib": "npm publish ./dist",
 		"lint": "eslint '*/**/*.{js,jsx,ts,tsx}' --quiet --fix",
 		"test": "jest --config jest/jest.config.js --coverage",

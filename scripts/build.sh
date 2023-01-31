@@ -38,6 +38,9 @@ pushd ${PROJECT_DIR}
 echo "Building"
 npm run build
 
+cp ./package.json ./dist/
+cp ./README.md ./dist/
+
 echo "Packaging"
 pushd dist
 npm pack

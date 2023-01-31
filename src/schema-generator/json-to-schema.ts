@@ -97,22 +97,34 @@ const mapRules = (yupSchema: Yup.AnySchema, rules: TFieldValidation): Yup.AnySch
 			case !!rule.positive:
 			case !!rule.negative:
 			case !!rule.integer:
-				yupSchema = (yupSchema as unknown)[condition](rule.errorMessage);
+				try {
+					yupSchema = (yupSchema as unknown)[condition](rule.errorMessage);
+				} catch (error) {
+					console.error(`error applying "${condition}" condition to ${yupSchema.type} schema`);
+				}
 				break;
 			case rule.length > 0:
 			case rule.min > 0:
 			case rule.max > 0:
 			case !!rule.lessThan:
 			case !!rule.moreThan:
-				yupSchema = (yupSchema as unknown)[condition](rule[condition], rule.errorMessage);
+				try {
+					yupSchema = (yupSchema as unknown)[condition](rule[condition], rule.errorMessage);
+				} catch (error) {
+					console.error(`error applying "${condition}" condition to ${yupSchema.type} schema`);
+				}
 				break;
 			case !!rule.matches:
 				{
 					const matches = rule.matches.match(/\/(.*)\/([a-z]+)?/);
-					yupSchema = (yupSchema as Yup.StringSchema).matches(
-						new RegExp(matches[1], matches[2]),
-						rule.errorMessage
-					);
+					try {
+						yupSchema = (yupSchema as Yup.StringSchema).matches(
+							new RegExp(matches[1], matches[2]),
+							rule.errorMessage
+						);
+					} catch (error) {
+						console.error(`error applying "${condition}" condition to ${yupSchema.type} schema`);
+					}
 				}
 				break;
 			case !!rule.when:

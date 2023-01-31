@@ -21,6 +21,7 @@ export const CONDITIONS = [
 export type TYupSchemaType = (typeof SCHEMA_TYPES)[number];
 export type TCondition = (typeof CONDITIONS)[number];
 
+// TODO: apply type-specific rules to individual fields instead to reduce confusion
 /** base validation rule to extend from */
 interface IRule {
 	length?: number | undefined;

@@ -44,7 +44,7 @@ const parseWhenKeys = (fieldConfigs: TFieldsConfig<TFieldSchema<undefined>>) => 
 					Object.keys(parsedRule.when).forEach((whenFieldId) => {
 						parsedRule.when[whenFieldId] = {
 							...parsedRule.when[whenFieldId],
-							yupSchema: parsedFieldConfigs[whenFieldId].yupSchema,
+							yupSchema: parsedFieldConfigs[whenFieldId].yupSchema.clone(),
 						};
 					});
 					return parsedRule;
@@ -142,7 +142,7 @@ const mapRules = (yupSchema: Yup.AnySchema, rules: TFieldValidation): Yup.AnySch
 						if (Array.isArray(isRule) && (isRule as unknown[]).every((r) => typeof r === "object")) {
 							yupSchema = yupSchema.when(fieldId, (value: unknown) => {
 								const localYupSchema = mapRules(
-									rule.when[fieldId].yupSchema,
+									rule.when[fieldId].yupSchema.clone(),
 									isRule as IConditionalValidationRule[]
 								);
 								let fulfilled = false;

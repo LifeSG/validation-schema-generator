@@ -6,16 +6,17 @@ const ERROR_MESSAGE = "test error message";
 
 describe("custom-rules", () => {
 	it.each`
-		type        | condition      | fieldType    | config                    | valid          | invalid
-		${"string"} | ${"uinfin"}    | ${"text"}    | ${{ uinfin: true }}       | ${"S1234567D"} | ${"S1234567A"}
-		${"string"} | ${"filled"}    | ${"text"}    | ${{ filled: true }}       | ${"hello"}     | ${undefined}
-		${"string"} | ${"empty"}     | ${"text"}    | ${{ empty: true }}        | ${undefined}   | ${"hello"}
-		${"string"} | ${"equals"}    | ${"text"}    | ${{ equals: "hello" }}    | ${"hello"}     | ${"hi"}
-		${"string"} | ${"notEquals"} | ${"text"}    | ${{ notEquals: "hello" }} | ${"hi"}        | ${"hello"}
-		${"number"} | ${"filled"}    | ${"numeric"} | ${{ filled: true }}       | ${1}           | ${undefined}
-		${"number"} | ${"empty"}     | ${"numeric"} | ${{ empty: true }}        | ${undefined}   | ${1}
-		${"number"} | ${"equals"}    | ${"numeric"} | ${{ equals: 1 }}          | ${1}           | ${2}
-		${"number"} | ${"notEquals"} | ${"numeric"} | ${{ notEquals: 1 }}       | ${2}           | ${1}
+		type        | condition                 | fieldType    | config                    | valid          | invalid
+		${"string"} | ${"uinfin"}               | ${"text"}    | ${{ uinfin: true }}       | ${"S1234567D"} | ${"S1234567A"}
+		${"string"} | ${"filled"}               | ${"text"}    | ${{ filled: true }}       | ${"hello"}     | ${undefined}
+		${"string"} | ${"empty"}                | ${"text"}    | ${{ empty: true }}        | ${undefined}   | ${"hello"}
+		${"string"} | ${"empty (empty string)"} | ${"text"}    | ${{ empty: true }}        | ${""}          | ${"hello"}
+		${"string"} | ${"equals"}               | ${"text"}    | ${{ equals: "hello" }}    | ${"hello"}     | ${"hi"}
+		${"string"} | ${"notEquals"}            | ${"text"}    | ${{ notEquals: "hello" }} | ${"hi"}        | ${"hello"}
+		${"number"} | ${"filled"}               | ${"numeric"} | ${{ filled: true }}       | ${1}           | ${undefined}
+		${"number"} | ${"empty"}                | ${"numeric"} | ${{ empty: true }}        | ${undefined}   | ${1}
+		${"number"} | ${"equals"}               | ${"numeric"} | ${{ equals: 1 }}          | ${1}           | ${2}
+		${"number"} | ${"notEquals"}            | ${"numeric"} | ${{ notEquals: 1 }}       | ${2}           | ${1}
 	`("should support $condition condition for Yup $type type", ({ fieldType, config, valid, invalid }) => {
 		const schema = jsonToSchema({
 			field: {
@@ -25,6 +26,19 @@ describe("custom-rules", () => {
 		});
 		expect(() => schema.validateSync({ field: valid })).not.toThrowError();
 		expect(TestHelper.getError(() => schema.validateSync({ field: invalid }, { abortEarly: false })).message).toBe(
+			ERROR_MESSAGE
+		);
+	});
+
+	it("should reject 0 in empty condition for Yup number type", () => {
+		const schema = jsonToSchema({
+			field: {
+				fieldType: "numeric",
+				validation: [{ empty: true, errorMessage: ERROR_MESSAGE }],
+			},
+		});
+		expect(() => schema.validateSync({ field: undefined })).not.toThrowError();
+		expect(TestHelper.getError(() => schema.validateSync({ field: 0 }, { abortEarly: false })).message).toBe(
 			ERROR_MESSAGE
 		);
 	});

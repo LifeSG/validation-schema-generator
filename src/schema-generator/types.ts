@@ -17,6 +17,13 @@ export const CONDITIONS = [
 	"lessThan",
 	"moreThan",
 	"when",
+	"filled",
+	"empty",
+	"equals",
+	"notEquals",
+	"includes",
+	"excludes",
+	"uinfin",
 ] as const;
 export type TYupSchemaType = (typeof SCHEMA_TYPES)[number];
 export type TCondition = (typeof CONDITIONS)[number];
@@ -36,6 +43,12 @@ interface IRule {
 	integer?: boolean | undefined;
 	lessThan?: number | undefined;
 	moreThan?: number | undefined;
+	empty?: boolean | undefined;
+	equals?: unknown | undefined;
+	notEquals?: unknown | undefined;
+	includes?: unknown | undefined;
+	excludes?: unknown | undefined;
+	uinfin?: boolean | undefined;
 }
 
 export interface IValidationRule extends IRule {
@@ -53,7 +66,9 @@ export interface IValidationRule extends IRule {
 	errorMessage?: string | undefined;
 }
 
-export interface IConditionalValidationRule extends IRule {}
+export interface IConditionalValidationRule extends IRule {
+	filled?: boolean | undefined;
+}
 
 // =============================================================================
 // WEB FRONTEND ENGINE TYPES

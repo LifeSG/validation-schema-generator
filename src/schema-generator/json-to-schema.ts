@@ -11,6 +11,8 @@ import {
 	TYupSchemaType,
 } from "./types";
 
+const customConditions: string[] = [];
+
 /**
  * Constructs the entire Yup schema from JSON
  * @param fields JSON representation of the fields
@@ -164,9 +166,42 @@ const mapRules = (yupSchema: Yup.AnySchema, rules: TFieldValidation): Yup.AnySch
 				}
 				break;
 		}
+
+		// for custom defined rules
+		const customRuleKey = Object.keys(rule).filter((k) =>
+			customConditions.includes(k as TCondition)
+		)?.[0] as TCondition;
+		if (customRuleKey) {
+			yupSchema = (yupSchema as unknown)[customRuleKey](rule[customRuleKey], rule.errorMessage);
+		}
 	});
 
 	return yupSchema;
+};
+
+/**
+ * Declare custom Yup schema rule
+ * @param type The schema type
+ * @param name Name of the rule
+ * @param fn Validation function, it must return a boolean
+ */
+export const addRule = (
+	type: TYupSchemaType | "mixed",
+	name: string,
+	fn: (value: unknown, arg: unknown, context: Yup.TestContext) => boolean
+) => {
+	if (customConditions.includes(name)) {
+		console.error(`the validation condition "${name}" is not added because it already exists!`);
+		return;
+	}
+	customConditions.push(name);
+	Yup.addMethod<Yup.AnySchema>(Yup[type], name, function (arg: unknown, errorMessage: string) {
+		return this.test({
+			name,
+			message: errorMessage,
+			test: (value, testContext) => fn(value, arg, testContext),
+		});
+	});
 };
 
 export const _testExports = {

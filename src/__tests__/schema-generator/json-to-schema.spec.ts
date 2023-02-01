@@ -1,7 +1,7 @@
 import isEqual from "lodash/isEqual";
 import * as Yup from "yup";
 import { SchemaDescription } from "yup/lib/schema";
-import { TYupSchemaType, _testExports, jsonToSchema } from "../../schema-generator";
+import { TYupSchemaType, _testExports, addRule, jsonToSchema } from "../../schema-generator";
 import { TestHelper } from "../../utils";
 
 const ERROR_MESSAGE = "test error message";
@@ -177,6 +177,42 @@ describe("json-to-schema", () => {
 			expect(TestHelper.getError(() => schema.validateSync({ field1: ["a"], field2: ["a", "b"] })).message).toBe(
 				ERROR_MESSAGE_2
 			);
+		});
+	});
+
+	describe("addRule", () => {
+		it("should be able to add rule for Yup string type", () => {
+			addRule("string", "testString", (value) => value === "hello");
+			const schema = (Yup.string() as any).testString(undefined, ERROR_MESSAGE);
+
+			expect(() => schema.validateSync("hello")).not.toThrowError();
+			expect(TestHelper.getError(() => schema.validateSync("hi")).message).toBe(ERROR_MESSAGE);
+		});
+
+		it("should be able to add rule for Yup number type", () => {
+			addRule("number", "testNumber", (value) => value === 123);
+			const schema = (Yup.number() as any).testNumber(undefined, ERROR_MESSAGE);
+
+			expect(() => schema.validateSync(123)).not.toThrowError();
+			expect(TestHelper.getError(() => schema.validateSync(321)).message).toBe(ERROR_MESSAGE);
+		});
+
+		it("should be able to add rule for Yup array type", () => {
+			addRule("array", "testArray", (value) => isEqual(value, [1, 2, 3]));
+			const schema = (Yup.array() as any).testArray(undefined, ERROR_MESSAGE);
+
+			expect(() => schema.validateSync([1, 2, 3])).not.toThrowError();
+			expect(TestHelper.getError(() => schema.validateSync([3, 2, 1])).message).toBe(ERROR_MESSAGE);
+		});
+
+		it("should not add a new rule but call console.error if it has been added before", () => {
+			jest.spyOn(Yup, "addMethod");
+			jest.spyOn(console, "error");
+			addRule("string", "myTestCondition", (value) => value === "hello");
+			addRule("string", "myTestCondition", (value) => value === "hello");
+
+			expect(Yup.addMethod).toBeCalledTimes(1);
+			expect(console.error).toBeCalledTimes(1);
 		});
 	});
 });

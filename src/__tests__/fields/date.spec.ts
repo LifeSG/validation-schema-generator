@@ -51,6 +51,20 @@ describe("date", () => {
 		);
 	});
 
+	it("should be able to validate date in other formats", () => {
+		const schema = jsonToSchema({
+			field: {
+				fieldType: "date",
+				dateFormat: "d MMMM uuuu",
+			},
+		});
+
+		expect(() => schema.validateSync({ field: "1 January 2022" })).not.toThrowError();
+		expect(TestHelper.getError(() => schema.validateSync({ field: "2023-01-01" })).message).toBe(
+			ERROR_MESSAGES.DATE.INVALID
+		);
+	});
+
 	describe.each`
 		rule           | valid           | invalid         | defaultErrorKey
 		${"future"}    | ${"2023-01-02"} | ${"2022-01-01"} | ${"MUST_BE_FUTURE"}

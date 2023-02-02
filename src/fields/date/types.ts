@@ -7,4 +7,6 @@ export interface IDateInputValidationRule {
 	notPast?: boolean | undefined;
 }
 
-export interface IDateSchema<V = undefined> extends IFieldSchemaBase<"date", V, IDateInputValidationRule> {}
+export interface IDateSchema<V = undefined> extends IFieldSchemaBase<"date", V, IDateInputValidationRule> {
+	dateFormat?: string | undefined;
+}

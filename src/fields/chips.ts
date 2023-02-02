@@ -1,19 +1,25 @@
+import kebabCase from "lodash/kebabCase";
 import * as Yup from "yup";
 import { IFieldSchemaBase, IValidationRule } from "../schema-generator";
 import { ERROR_MESSAGES } from "../shared";
 import { IFieldGenerator, TFieldsConfig } from "./types";
 
+export interface IOption {
+	label: string;
+	value: string;
+}
 export interface IChipsTextareaSchema<V = undefined> {
 	label: string;
 	validation?: (IValidationRule | V)[] | undefined;
 	[otherOptions: string]: unknown;
 }
 export interface IChipsSchema<V = undefined> extends IFieldSchemaBase<"chips", V> {
+	options: IOption[];
 	textarea?: IChipsTextareaSchema<V> | undefined;
 }
 
 export const chips: IFieldGenerator<IChipsSchema> = (id, field) => {
-	const { label, validation, textarea } = field;
+	const { label, options, validation, textarea } = field;
 	const isRequiredRule = validation?.find((rule) => "required" in rule);
 	const fieldsConfig: TFieldsConfig<IChipsSchema> = {
 		[id]: {
@@ -27,7 +33,16 @@ export const chips: IFieldGenerator<IChipsSchema> = (id, field) => {
 
 						return value.length > 0;
 					}
-				),
+				)
+				.test("validate-options", ERROR_MESSAGES.COMMON.INVALID_OPTION, (values) => {
+					if (!values || !values.length) return true;
+
+					return (
+						values.filter((value) => {
+							return value === textarea?.label || options.find((option) => option.value === value);
+						}).length === values.length
+					);
+				}),
 			validation,
 		},
 	};
@@ -46,7 +61,7 @@ export const chips: IFieldGenerator<IChipsSchema> = (id, field) => {
 				},
 			},
 		};
-		fieldsConfig[`chips-${textarea.label}`] = {
+		fieldsConfig[`chips-${kebabCase(textarea?.label)}`] = {
 			yupSchema: Yup.string(),
 			validation: [textareaValidation],
 		};

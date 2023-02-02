@@ -8,6 +8,11 @@ describe("multi-select", () => {
 		const schema = jsonToSchema({
 			field: {
 				fieldType: "multi-select",
+				options: [
+					{ label: "Apple", value: "Apple" },
+					{ label: "Berry", value: "Berry" },
+					{ label: "Cherry", value: "Cherry" },
+				],
 				somethingUnused: "test",
 				validation: [
 					{ required: true, errorMessage: ERROR_MESSAGE },
@@ -16,15 +21,20 @@ describe("multi-select", () => {
 			},
 		});
 
-		expect(() => schema.validateSync({ field: ["hello", "world"] })).not.toThrowError();
+		expect(() => schema.validateSync({ field: ["Apple", "Berry"] })).not.toThrowError();
 		expect(TestHelper.getError(() => schema.validateSync({})).message).toBe(ERROR_MESSAGE);
-		expect(TestHelper.getError(() => schema.validateSync({ field: ["hello"] })).message).toBe(ERROR_MESSAGE_2);
+		expect(TestHelper.getError(() => schema.validateSync({ field: ["Apple"] })).message).toBe(ERROR_MESSAGE_2);
 	});
 
 	it("should throw an error if an empty array is submitted on a required field", () => {
 		const schema = jsonToSchema({
 			field: {
 				fieldType: "multi-select",
+				options: [
+					{ label: "Apple", value: "Apple" },
+					{ label: "Berry", value: "Berry" },
+					{ label: "Cherry", value: "Cherry" },
+				],
 				somethingUnused: "test",
 				validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
 			},
@@ -33,10 +43,33 @@ describe("multi-select", () => {
 		expect(TestHelper.getError(() => schema.validateSync({ field: [] })).message).toBe(ERROR_MESSAGE);
 	});
 
+	it("should throw an error if a value not defined in options is submitted", () => {
+		const schema = jsonToSchema({
+			field: {
+				fieldType: "multi-select",
+				options: [
+					{ label: "Apple", value: "Apple" },
+					{ label: "Berry", value: "Berry" },
+					{ label: "Cherry", value: "Cherry" },
+				],
+				somethingUnused: "test",
+			},
+		});
+
+		expect(TestHelper.getError(() => schema.validateSync({ field: ["Apple", "Durian"] })).message).toBe(
+			ERROR_MESSAGES.COMMON.INVALID_OPTION
+		);
+	});
+
 	it("should use default error message if error message is not specified for required rule", () => {
 		const schema = jsonToSchema({
 			field: {
 				fieldType: "multi-select",
+				options: [
+					{ label: "Apple", value: "Apple" },
+					{ label: "Berry", value: "Berry" },
+					{ label: "Cherry", value: "Cherry" },
+				],
 				somethingUnused: "test",
 				validation: [{ required: true }],
 			},

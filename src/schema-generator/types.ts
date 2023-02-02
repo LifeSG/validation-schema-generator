@@ -5,6 +5,7 @@ import {
 	IMultiSelectSchema,
 	INumericSchema,
 	IRadioSchema,
+	ISelectSchema,
 	ITextSchema,
 	ITextareaSchema,
 } from "../fields";
@@ -97,6 +98,7 @@ export type TFieldSchema<V = undefined> =
 	| IMultiSelectSchema<V>
 	| INumericSchema<V>
 	| IRadioSchema<V>
+	| ISelectSchema<V>
 	| ITextareaSchema<V>
 	| ITextSchema<V>;
 

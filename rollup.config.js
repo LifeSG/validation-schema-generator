@@ -26,13 +26,13 @@ export default {
 	input: "src/index.ts",
 	output: [
 		{
-			file: pkg.module,
+			file: `dist/${pkg.module}`,
 			format: "esm",
 			sourcemap: true,
 			exports: "named",
 		},
 		{
-			file: pkg.main,
+			file: `dist/${pkg.main}`,
 			format: "cjs",
 			sourcemap: true,
 			exports: "named",

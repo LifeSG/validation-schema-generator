@@ -2,9 +2,9 @@
 	"name": "@lifesg/validation-schema-generator",
 	"version": "1.0.0-alpha.1",
 	"description": "JSON to validation schema for frontend-engine",
-	"main": "dist/cjs/index.js",
-	"module": "dist/index.js",
-	"typings": "dist/index.d.ts",
+	"main": "cjs/index.js",
+	"module": "index.js",
+	"typings": "index.d.ts",
 	"scripts": {
 		"build": "npm run rollup",
 		"rollup": "rm -rf dist && rollup -c",

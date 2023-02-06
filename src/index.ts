@@ -1,3 +1,2 @@
-export { jsonToSchema, addRule } from "./schema-generator";
-export * from "./schema-generator/types";
+export * from "./schema-generator";
 import "./custom-rules";

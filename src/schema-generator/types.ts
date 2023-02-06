@@ -117,7 +117,8 @@ interface IElementSchema {
 		| "section"
 		| "header"
 		| "footer"
-		| "p";
+		| "p"
+		| "submit";
 	validation?: never;
 	[otherOptions: string]: unknown;
 }

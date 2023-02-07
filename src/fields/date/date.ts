@@ -27,7 +27,7 @@ export const date: IFieldGenerator<IDateSchema> = (id, { dateFormat = "uuuu-MM-d
 	return {
 		[id]: {
 			yupSchema: Yup.string()
-				.test("is-date", "Invalid date", (value) => {
+				.test("is-date", ERROR_MESSAGES.DATE.INVALID, (value) => {
 					if (!value || value === "") return true;
 					return isValidDate(value, dateFormatter);
 				})

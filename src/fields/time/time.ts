@@ -12,7 +12,7 @@ export const time: IFieldGenerator<ITimeSchema> = (id, { is24HourFormat, validat
 	return {
 		[id]: {
 			yupSchema: Yup.string().test("is-time", ERROR_MESSAGES.TIME.INVALID, (value) => {
-				if (!value || value === "") return true;
+				if (!value) return true;
 
 				return TimeHelper.validate(value, is24HourFormat);
 			}),

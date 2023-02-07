@@ -1,2 +1,4 @@
 export * from "./schema-generator";
-import "./custom-rules";
+import { applyCustomRules } from "./custom-rules";
+
+applyCustomRules();

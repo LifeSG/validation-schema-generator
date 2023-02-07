@@ -42,21 +42,17 @@ export namespace PhoneHelper {
 				return false;
 			}
 
-			let valid = false;
-			const countries = CountryData.filter((data) => data[3] === prefix.replace("+", ""));
-
+			const replacedPrefix = prefix.replace("+", "");
+			const countries = CountryData.filter((data) => data[3] === replacedPrefix);
 			/**
 			 * this is not a foolproof way to determine a country by the calling code
 			 * because multiple countries can have the same calling code (e.g. USA and Canada both use +1)
 			 * hence this is just a simple validation to check if the format matches ANY country
 			 */
-			countries.forEach((country) => {
+			return countries.some((country) => {
 				const phoneNumber = parsePhoneNumber(number, `${country[2]}`.toUpperCase() as CountryCode);
-				if (phoneNumber.isValid()) {
-					valid = true;
-				}
+				return phoneNumber.isValid();
 			});
-			return valid;
 		} catch (error) {
 			return false;
 		}

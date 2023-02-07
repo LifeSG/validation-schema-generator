@@ -32,12 +32,14 @@ export namespace TimeHelper {
 // =============================================================================
 const isValidHour = (hourString: string, is24HourFormat = false): boolean => {
 	const numValue = parseInt(hourString);
-	return is24HourFormat ? numValue >= 0 && numValue <= 23 : numValue >= 1 && numValue <= 12;
+	return Number(hourString) === numValue && is24HourFormat
+		? numValue >= 0 && numValue <= 23
+		: numValue >= 1 && numValue <= 12;
 };
 
-const isValidMinutes = (hourString: string): boolean => {
-	const numValue = parseInt(hourString);
-	return numValue >= 0 && numValue <= 59;
+const isValidMinutes = (minuteString: string): boolean => {
+	const numValue = parseInt(minuteString);
+	return Number(minuteString) === numValue && numValue >= 0 && numValue <= 59;
 };
 
 const isValidTimePeriod = (timePeriodString: string): boolean => {

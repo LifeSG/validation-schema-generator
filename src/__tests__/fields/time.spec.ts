@@ -50,7 +50,9 @@ describe("time", () => {
 			},
 		});
 		expect(() => schema.validateSync({ field: "13:23" })).not.toThrowError();
-		expect(() => schema.validateSync({ field: "13:23h" })).not.toThrowError();
+		expect(TestHelper.getError(() => schema.validateSync({ field: "13:23h" })).message).toBe(
+			ERROR_MESSAGES.TIME.INVALID
+		);
 		expect(TestHelper.getError(() => schema.validateSync({ field: "1:23pm" })).message).toBe(
 			ERROR_MESSAGES.TIME.INVALID
 		);

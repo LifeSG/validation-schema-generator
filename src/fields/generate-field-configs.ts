@@ -1,5 +1,8 @@
 import { TFieldSchema, TFields } from "../schema-generator";
 import { checkbox } from "./checkbox";
+import { chips } from "./chips";
+import { contact } from "./contact";
+import { date } from "./date";
 import { email } from "./email";
 import { multiSelect } from "./multi-select";
 import { numeric } from "./numeric";
@@ -7,6 +10,7 @@ import { radio } from "./radio";
 import { select } from "./select";
 import { text } from "./text";
 import { textarea } from "./textarea";
+import { time } from "./time";
 import { TFieldsConfig } from "./types";
 
 /**
@@ -23,6 +27,15 @@ export const generateFieldConfigs = (fields: TFields) => {
 		switch (fieldType) {
 			case "checkbox":
 				config = { ...config, ...checkbox(id, field) };
+				break;
+			case "chips":
+				config = { ...config, ...chips(id, field) };
+				break;
+			case "contact":
+				config = { ...config, ...contact(id, field) };
+				break;
+			case "date":
+				config = { ...config, ...date(id, field) };
 				break;
 			case "email":
 				config = { ...config, ...email(id, field) };
@@ -44,6 +57,9 @@ export const generateFieldConfigs = (fields: TFields) => {
 				break;
 			case "textarea":
 				config = { ...config, ...textarea(id, field) };
+				break;
+			case "time":
+				config = { ...config, ...time(id, field) };
 				break;
 		}
 	});

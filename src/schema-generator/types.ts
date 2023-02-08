@@ -1,6 +1,9 @@
 import * as Yup from "yup";
 import {
 	ICheckboxSchema,
+	IChipsSchema,
+	IContactSchema,
+	IDateSchema,
 	IEmailSchema,
 	IMultiSelectSchema,
 	INumericSchema,
@@ -8,6 +11,7 @@ import {
 	ISelectSchema,
 	ITextSchema,
 	ITextareaSchema,
+	ITimeSchema,
 } from "../fields";
 
 export const SCHEMA_TYPES = ["string", "number", "boolean", "array", "object"] as const;
@@ -92,15 +96,47 @@ export interface IFieldSchemaBase<T, V = undefined, U = undefined> {
 	[otherOptions: string]: unknown;
 }
 
+/** to support elements, they don't come with validation schema  */
+interface IElementSchema {
+	fieldType:
+		| "alert"
+		| "text-d1"
+		| "text-d2"
+		| "text-dbody"
+		| "text-h1"
+		| "text-h2"
+		| "text-h3"
+		| "text-h4"
+		| "text-h5"
+		| "text-h6"
+		| "text-body"
+		| "text-bodysmall"
+		| "text-xsmall"
+		| "div"
+		| "span"
+		| "section"
+		| "header"
+		| "footer"
+		| "p"
+		| "submit";
+	validation?: never;
+	[otherOptions: string]: unknown;
+}
+
 export type TFieldSchema<V = undefined> =
 	| ICheckboxSchema<V>
+	| IChipsSchema<V>
+	| IContactSchema<V>
+	| IDateSchema<V>
 	| IEmailSchema<V>
 	| IMultiSelectSchema<V>
 	| INumericSchema<V>
 	| IRadioSchema<V>
 	| ISelectSchema<V>
 	| ITextareaSchema<V>
-	| ITextSchema<V>;
+	| ITextSchema<V>
+	| ITimeSchema<V>
+	| IElementSchema;
 
 export type TFieldValidation = TFieldSchema["validation"];
 

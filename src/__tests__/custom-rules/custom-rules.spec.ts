@@ -1,10 +1,14 @@
-import "../../custom-rules";
+import { applyCustomRules } from "../../custom-rules";
 import { jsonToSchema } from "../../schema-generator";
 import { TestHelper } from "../../utils";
 
 const ERROR_MESSAGE = "test error message";
 
 describe("custom-rules", () => {
+	beforeAll(() => {
+		applyCustomRules();
+	});
+
 	it.each`
 		type        | condition                 | fieldType    | config                    | valid          | invalid
 		${"string"} | ${"uinfin"}               | ${"text"}    | ${{ uinfin: true }}       | ${"S1234567D"} | ${"S1234567A"}

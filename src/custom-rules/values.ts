@@ -9,7 +9,8 @@ import { addRule } from "../schema-generator";
  */
 const isEmptyValue = (value: unknown) => (!isNumber(value) ? isEmpty(value) : isNil(value));
 
-addRule("mixed", "filled", (value) => !isEmptyValue(value));
-addRule("mixed", "empty", (value) => isEmptyValue(value));
-addRule("mixed", "equals", (value, match) => !isEmptyValue(value) && isEqual(value, match));
-addRule("mixed", "notEquals", (value, match) => !isEmptyValue(value) && !isEqual(value, match));
+export const filled = () => addRule("mixed", "filled", (value) => !isEmptyValue(value));
+export const empty = () => addRule("mixed", "empty", (value) => isEmptyValue(value));
+export const equals = () => addRule("mixed", "equals", (value, match) => !isEmptyValue(value) && isEqual(value, match));
+export const notEquals = () =>
+	addRule("mixed", "notEquals", (value, match) => !isEmptyValue(value) && !isEqual(value, match));

@@ -1,7 +1,8 @@
 import isEqual from "lodash/isEqual";
 import * as Yup from "yup";
 import { SchemaDescription } from "yup/lib/schema";
-import { TYupSchemaType, _testExports, addRule, jsonToSchema } from "../../schema-generator";
+import { TYupSchemaType, addRule, jsonToSchema } from "../../schema-generator";
+import { _testExports } from "../../schema-generator/json-to-schema";
 import { TestHelper } from "../../utils";
 import { ERROR_MESSAGE, ERROR_MESSAGE_2, ERROR_MESSAGE_3 } from "../common";
 

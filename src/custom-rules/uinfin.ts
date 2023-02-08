@@ -56,4 +56,4 @@ function getUinfinChecksum(uinfin: string): string {
 	return checkSum;
 }
 
-addRule("string", "uinfin", (uinfin: string) => validateUinfin(uinfin));
+export const uinfin = () => addRule("string", "uinfin", (uinfin: string) => validateUinfin(uinfin));

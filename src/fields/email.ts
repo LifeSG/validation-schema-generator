@@ -8,7 +8,13 @@ export interface IEmailSchema<V = undefined> extends IFieldSchemaBase<"email", V
 export const email: IFieldGenerator<IEmailSchema> = (id, { validation }) => {
 	const emailRule = validation?.find((rule) => rule.email);
 
+	let schema = Yup.string();
+	// no need to apply if it is defined as it will be applied in the mapRules() function
+	if (!emailRule?.email) {
+		schema = schema.email(ERROR_MESSAGES.EMAIL.INVALID);
+	}
+
 	return {
-		[id]: { yupSchema: Yup.string().email(emailRule?.errorMessage || ERROR_MESSAGES.EMAIL.INVALID), validation },
+		[id]: { yupSchema: schema, validation },
 	};
 };

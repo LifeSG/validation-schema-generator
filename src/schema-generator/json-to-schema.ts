@@ -1,6 +1,7 @@
 import * as Yup from "yup";
 import { ObjectShape } from "yup/lib/object";
 import { TFieldsConfig, generateFieldConfigs } from "../fields";
+import { ERROR_MESSAGES } from "../shared";
 import {
 	CONDITIONS,
 	IConditionalValidationRule,
@@ -94,6 +95,8 @@ const mapRules = (yupSchema: Yup.AnySchema, rules: TFieldValidation): Yup.AnySch
 				yupSchema = yupSchema.required(rule.errorMessage || "This field is required");
 				break;
 			case !!rule.email:
+				yupSchema = (yupSchema as Yup.StringSchema).email(rule.errorMessage || ERROR_MESSAGES.EMAIL.INVALID);
+				break;
 			case !!rule.url:
 			case !!rule.uuid:
 			case !!rule.positive:

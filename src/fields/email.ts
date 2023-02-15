@@ -10,7 +10,7 @@ export const email: IFieldGenerator<IEmailSchema> = (id, { validation }) => {
 
 	let schema = Yup.string();
 	// no need to apply if it is defined as it will be applied in the mapRules() function
-	if (!emailRule?.email) {
+	if (!emailRule) {
 		schema = schema.email(ERROR_MESSAGES.EMAIL.INVALID);
 	}
 

@@ -61,7 +61,9 @@ export const chips: IFieldGenerator<IChipsSchema> = (id, field) => {
 				},
 			},
 		};
-		fieldsConfig[`chips-${kebabCase(textarea?.label)}`] = {
+		let textareaId = `${id}-textarea`;
+		if (textarea?.label) textareaId = `${textareaId}-${kebabCase(textarea?.label)}`;
+		fieldsConfig[textareaId] = {
 			yupSchema: Yup.string(),
 			validation: [textareaValidation],
 		};

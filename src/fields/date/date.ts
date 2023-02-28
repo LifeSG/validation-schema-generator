@@ -23,6 +23,8 @@ export const date: IFieldGenerator<IDateSchema> = (id, { dateFormat = "uuuu-MM-d
 	const pastRule = validation?.find((rule) => "past" in rule);
 	const notFutureRule = validation?.find((rule) => "notFuture" in rule);
 	const notPastRule = validation?.find((rule) => "notPast" in rule);
+	const minDateRule = validation?.find((rule) => "minDate" in rule);
+	const maxDateRule = validation?.find((rule) => "maxDate" in rule);
 
 	return {
 		[id]: {
@@ -50,6 +52,46 @@ export const date: IFieldGenerator<IDateSchema> = (id, { dateFormat = "uuuu-MM-d
 				.test("not-past", notPastRule?.["errorMessage"] || ERROR_MESSAGES.DATE.CANNOT_BE_PAST, (value) => {
 					if (!isValidDate(value, dateFormatter) || !notPastRule?.["notPast"]) return true;
 					return !LocalDate.parse(value, dateFormatter).isBefore(LocalDate.now());
+				})
+				.test("min-date", undefined, (value, context) => {
+					let minDate: LocalDate;
+					try {
+						minDate = LocalDate.parse(minDateRule?.["minDate"], dateFormatter);
+					} catch (error) {}
+					if (minDate && LocalDate.parse(value).isBefore(minDate)) {
+						return context.createError({
+							message:
+								minDateRule?.["errorMessage"] ||
+								ERROR_MESSAGES.DATE.MIN_DATE(
+									minDate.format(
+										DateTimeFormatter.ofPattern("dd/MM/uuuu")
+											.withResolverStyle(ResolverStyle.STRICT)
+											.withLocale(Locale.ENGLISH)
+									)
+								),
+						});
+					}
+					return true;
+				})
+				.test("max-date", undefined, (value, context) => {
+					let maxDate: LocalDate;
+					try {
+						maxDate = LocalDate.parse(maxDateRule?.["maxDate"], dateFormatter);
+					} catch (error) {}
+					if (maxDate && LocalDate.parse(value).isAfter(maxDate)) {
+						return context.createError({
+							message:
+								maxDateRule?.["errorMessage"] ||
+								ERROR_MESSAGES.DATE.MAX_DATE(
+									maxDate.format(
+										DateTimeFormatter.ofPattern("dd/MM/uuuu")
+											.withResolverStyle(ResolverStyle.STRICT)
+											.withLocale(Locale.ENGLISH)
+									)
+								),
+						});
+					}
+					return true;
 				}),
 			validation,
 		},

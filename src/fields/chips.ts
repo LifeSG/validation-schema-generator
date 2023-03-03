@@ -1,4 +1,3 @@
-import kebabCase from "lodash/kebabCase";
 import * as Yup from "yup";
 import { IFieldSchemaBase, IValidationRule } from "../schema-generator";
 import { ERROR_MESSAGES } from "../shared";
@@ -61,7 +60,7 @@ export const chips: IFieldGenerator<IChipsSchema> = (id, field) => {
 				},
 			},
 		};
-		fieldsConfig[`chips-${kebabCase(textarea?.label)}`] = {
+		fieldsConfig[`${id}-textarea`] = {
 			yupSchema: Yup.string(),
 			validation: [textareaValidation],
 		};

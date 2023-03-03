@@ -111,7 +111,7 @@ describe("chips", () => {
 				],
 				somethingUnused: "test",
 				textarea: {
-					label: "textarea",
+					label: "more info",
 					validation: [
 						{ required: true, errorMessage: ERROR_MESSAGE },
 						{ min: 10, errorMessage: ERROR_MESSAGE_2 },
@@ -120,9 +120,9 @@ describe("chips", () => {
 			},
 		});
 
-		expect(TestHelper.getError(() => schema.validateSync({ field: ["textarea"] })).message).toBe(ERROR_MESSAGE);
+		expect(TestHelper.getError(() => schema.validateSync({ field: ["more info"] })).message).toBe(ERROR_MESSAGE);
 		expect(
-			TestHelper.getError(() => schema.validateSync({ field: ["textarea"], "chips-textarea": "hello" })).message
+			TestHelper.getError(() => schema.validateSync({ field: ["more info"], "field-textarea": "hello" })).message
 		).toBe(ERROR_MESSAGE_2);
 	});
 });

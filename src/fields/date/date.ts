@@ -19,12 +19,24 @@ export const date: IFieldGenerator<IDateSchema> = (id, { dateFormat = "uuuu-MM-d
 	const dateFormatter = DateTimeFormatter.ofPattern(dateFormat)
 		.withResolverStyle(ResolverStyle.STRICT)
 		.withLocale(Locale.ENGLISH);
+	const errorMessageDateFormatter = DateTimeFormatter.ofPattern("dd/MM/uuuu")
+		.withResolverStyle(ResolverStyle.STRICT)
+		.withLocale(Locale.ENGLISH);
 	const futureRule = validation?.find((rule) => "future" in rule);
 	const pastRule = validation?.find((rule) => "past" in rule);
 	const notFutureRule = validation?.find((rule) => "notFuture" in rule);
 	const notPastRule = validation?.find((rule) => "notPast" in rule);
 	const minDateRule = validation?.find((rule) => "minDate" in rule);
 	const maxDateRule = validation?.find((rule) => "maxDate" in rule);
+
+	let minDate: LocalDate;
+	let maxDate: LocalDate;
+	try {
+		minDate = LocalDate.parse(minDateRule?.["minDate"], dateFormatter);
+	} catch (error) {}
+	try {
+		maxDate = LocalDate.parse(maxDateRule?.["maxDate"], dateFormatter);
+	} catch (error) {}
 
 	return {
 		[id]: {
@@ -53,46 +65,24 @@ export const date: IFieldGenerator<IDateSchema> = (id, { dateFormat = "uuuu-MM-d
 					if (!isValidDate(value, dateFormatter) || !notPastRule?.["notPast"]) return true;
 					return !LocalDate.parse(value, dateFormatter).isBefore(LocalDate.now());
 				})
-				.test("min-date", undefined, (value, context) => {
-					let minDate: LocalDate;
-					try {
-						minDate = LocalDate.parse(minDateRule?.["minDate"], dateFormatter);
-					} catch (error) {}
-					if (minDate && LocalDate.parse(value).isBefore(minDate)) {
-						return context.createError({
-							message:
-								minDateRule?.["errorMessage"] ||
-								ERROR_MESSAGES.DATE.MIN_DATE(
-									minDate.format(
-										DateTimeFormatter.ofPattern("dd/MM/uuuu")
-											.withResolverStyle(ResolverStyle.STRICT)
-											.withLocale(Locale.ENGLISH)
-									)
-								),
-						});
+				.test(
+					"min-date",
+					minDateRule?.["errorMessage"] ||
+						ERROR_MESSAGES.DATE.MIN_DATE(minDate?.format(errorMessageDateFormatter)),
+					(value) => {
+						if (!isValidDate(value, dateFormatter) || !minDate) return true;
+						return !LocalDate.parse(value).isBefore(minDate);
 					}
-					return true;
-				})
-				.test("max-date", undefined, (value, context) => {
-					let maxDate: LocalDate;
-					try {
-						maxDate = LocalDate.parse(maxDateRule?.["maxDate"], dateFormatter);
-					} catch (error) {}
-					if (maxDate && LocalDate.parse(value).isAfter(maxDate)) {
-						return context.createError({
-							message:
-								maxDateRule?.["errorMessage"] ||
-								ERROR_MESSAGES.DATE.MAX_DATE(
-									maxDate.format(
-										DateTimeFormatter.ofPattern("dd/MM/uuuu")
-											.withResolverStyle(ResolverStyle.STRICT)
-											.withLocale(Locale.ENGLISH)
-									)
-								),
-						});
+				)
+				.test(
+					"max-date",
+					maxDateRule?.["errorMessage"] ||
+						ERROR_MESSAGES.DATE.MAX_DATE(maxDate?.format(errorMessageDateFormatter)),
+					(value) => {
+						if (!isValidDate(value, dateFormatter) || !maxDate) return true;
+						return !LocalDate.parse(value).isAfter(maxDate);
 					}
-					return true;
-				}),
+				),
 			validation,
 		},
 	};

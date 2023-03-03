@@ -66,12 +66,14 @@ describe("date", () => {
 	});
 
 	describe.each`
-		rule           | valid           | invalid         | defaultErrorKey
-		${"future"}    | ${"2023-01-02"} | ${"2022-01-01"} | ${"MUST_BE_FUTURE"}
-		${"past"}      | ${"2022-12-31"} | ${"2023-01-01"} | ${"MUST_BE_PAST"}
-		${"notFuture"} | ${"2023-01-01"} | ${"2023-01-02"} | ${"CANNOT_BE_FUTURE"}
-		${"notPast"}   | ${"2023-01-01"} | ${"2022-12-31"} | ${"CANNOT_BE_PAST"}
-	`("$rule rule", ({ rule, valid, invalid, defaultErrorKey }) => {
+		rule           | ruleValue       | valid           | invalid         | errorMessage
+		${"future"}    | ${true}         | ${"2023-01-02"} | ${"2022-01-01"} | ${ERROR_MESSAGES.DATE.MUST_BE_FUTURE}
+		${"past"}      | ${true}         | ${"2022-12-31"} | ${"2023-01-01"} | ${ERROR_MESSAGES.DATE.MUST_BE_PAST}
+		${"notFuture"} | ${true}         | ${"2023-01-01"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.CANNOT_BE_FUTURE}
+		${"notPast"}   | ${true}         | ${"2023-01-01"} | ${"2022-12-31"} | ${ERROR_MESSAGES.DATE.CANNOT_BE_PAST}
+		${"minDate"}   | ${"2023-01-02"} | ${"2023-01-02"} | ${"2023-01-01"} | ${ERROR_MESSAGES.DATE.MIN_DATE("02/01/2023")}
+		${"maxDate"}   | ${"2023-01-02"} | ${"2023-01-02"} | ${"2023-01-03"} | ${ERROR_MESSAGES.DATE.MAX_DATE("02/01/2023")}
+	`("$rule rule", ({ rule, ruleValue, valid, invalid, errorMessage }) => {
 		let schema: Yup.ObjectSchema<ObjectShape>;
 
 		beforeEach(() => {
@@ -80,7 +82,7 @@ describe("date", () => {
 			schema = jsonToSchema({
 				field: {
 					fieldType: "date",
-					validation: [{ [rule]: true, errorMessage: ERROR_MESSAGE }],
+					validation: [{ [rule]: ruleValue, errorMessage: ERROR_MESSAGE }],
 				},
 			});
 		});
@@ -97,12 +99,10 @@ describe("date", () => {
 			schema = jsonToSchema({
 				field: {
 					fieldType: "date",
-					validation: [{ [rule]: true }],
+					validation: [{ [rule]: ruleValue }],
 				},
 			});
-			expect(TestHelper.getError(() => schema.validateSync({ field: invalid })).message).toBe(
-				ERROR_MESSAGES.DATE[defaultErrorKey]
-			);
+			expect(TestHelper.getError(() => schema.validateSync({ field: invalid })).message).toBe(errorMessage);
 		});
 	});
 });

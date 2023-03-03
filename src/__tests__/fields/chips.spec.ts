@@ -120,10 +120,9 @@ describe("chips", () => {
 			},
 		});
 
-		expect(TestHelper.getError(() => schema.validateSync({ field: ["textarea"] })).message).toBe(ERROR_MESSAGE);
+		expect(TestHelper.getError(() => schema.validateSync({ field: ["more info"] })).message).toBe(ERROR_MESSAGE);
 		expect(
-			TestHelper.getError(() => schema.validateSync({ field: ["textarea"], "field-textarea-more-info": "hello" }))
-				.message
+			TestHelper.getError(() => schema.validateSync({ field: ["more info"], "field-textarea": "hello" })).message
 		).toBe(ERROR_MESSAGE_2);
 	});
 });

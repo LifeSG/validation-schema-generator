@@ -10,17 +10,17 @@ describe("custom-rules", () => {
 	});
 
 	it.each`
-		type        | condition                 | uiType       | config                    | valid          | invalid
-		${"string"} | ${"uinfin"}               | ${"text"}    | ${{ uinfin: true }}       | ${"S1234567D"} | ${"S1234567A"}
-		${"string"} | ${"filled"}               | ${"text"}    | ${{ filled: true }}       | ${"hello"}     | ${undefined}
-		${"string"} | ${"empty"}                | ${"text"}    | ${{ empty: true }}        | ${undefined}   | ${"hello"}
-		${"string"} | ${"empty (empty string)"} | ${"text"}    | ${{ empty: true }}        | ${""}          | ${"hello"}
-		${"string"} | ${"equals"}               | ${"text"}    | ${{ equals: "hello" }}    | ${"hello"}     | ${"hi"}
-		${"string"} | ${"notEquals"}            | ${"text"}    | ${{ notEquals: "hello" }} | ${"hi"}        | ${"hello"}
-		${"number"} | ${"filled"}               | ${"numeric"} | ${{ filled: true }}       | ${1}           | ${undefined}
-		${"number"} | ${"empty"}                | ${"numeric"} | ${{ empty: true }}        | ${undefined}   | ${1}
-		${"number"} | ${"equals"}               | ${"numeric"} | ${{ equals: 1 }}          | ${1}           | ${2}
-		${"number"} | ${"notEquals"}            | ${"numeric"} | ${{ notEquals: 1 }}       | ${2}           | ${1}
+		type        | condition                 | uiType          | config                    | valid          | invalid
+		${"string"} | ${"uinfin"}               | ${"text-field"} | ${{ uinfin: true }}       | ${"S1234567D"} | ${"S1234567A"}
+		${"string"} | ${"filled"}               | ${"text-field"} | ${{ filled: true }}       | ${"hello"}     | ${undefined}
+		${"string"} | ${"empty"}                | ${"text-field"} | ${{ empty: true }}        | ${undefined}   | ${"hello"}
+		${"string"} | ${"empty (empty string)"} | ${"text-field"} | ${{ empty: true }}        | ${""}          | ${"hello"}
+		${"string"} | ${"equals"}               | ${"text-field"} | ${{ equals: "hello" }}    | ${"hello"}     | ${"hi"}
+		${"string"} | ${"notEquals"}            | ${"text-field"} | ${{ notEquals: "hello" }} | ${"hi"}        | ${"hello"}
+		${"number"} | ${"filled"}               | ${"numeric"}    | ${{ filled: true }}       | ${1}           | ${undefined}
+		${"number"} | ${"empty"}                | ${"numeric"}    | ${{ empty: true }}        | ${undefined}   | ${1}
+		${"number"} | ${"equals"}               | ${"numeric"}    | ${{ equals: 1 }}          | ${1}           | ${2}
+		${"number"} | ${"notEquals"}            | ${"numeric"}    | ${{ notEquals: 1 }}       | ${2}           | ${1}
 	`("should support $condition condition for Yup $type type", ({ uiType, config, valid, invalid }) => {
 		const schema = jsonToSchema({
 			field: {
@@ -81,7 +81,7 @@ describe("custom-rules", () => {
 		it("should pass when given a valid uinfin", async () => {
 			const schema = jsonToSchema({
 				field: {
-					uiType: "text",
+					uiType: "text-field",
 					validation: [{ uinfin: true }],
 				},
 			});
@@ -93,7 +93,7 @@ describe("custom-rules", () => {
 		it("should fail when given an invalid uinfin", () => {
 			const schema = jsonToSchema({
 				field: {
-					uiType: "text",
+					uiType: "text-field",
 					validation: [{ uinfin: true, errorMessage: ERROR_MESSAGE }],
 				},
 			});

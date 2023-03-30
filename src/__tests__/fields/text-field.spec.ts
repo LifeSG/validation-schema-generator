@@ -2,11 +2,11 @@ import { jsonToSchema } from "../../schema-generator";
 import { TestHelper } from "../../utils";
 import { ERROR_MESSAGE, ERROR_MESSAGE_2 } from "../common";
 
-describe("text", () => {
+describe("text-field", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
 			field: {
-				uiType: "text",
+				uiType: "text-field",
 				somethingUnused: "test",
 				validation: [
 					{ required: true, errorMessage: ERROR_MESSAGE },

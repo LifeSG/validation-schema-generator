@@ -8,7 +8,7 @@ import { multiSelect } from "./multi-select";
 import { numeric } from "./numeric";
 import { radio } from "./radio";
 import { select } from "./select";
-import { text } from "./text";
+import { textField } from "./text-field";
 import { textarea } from "./textarea";
 import { time } from "./time";
 import { TFieldsConfig } from "./types";
@@ -51,8 +51,8 @@ export const generateFieldConfigs = (fields: TFields) => {
 			case "select":
 				config = { ...config, ...select(id, field) };
 				break;
-			case "text":
-				config = { ...config, ...text(id, field) };
+			case "text-field":
+				config = { ...config, ...textField(id, field) };
 				break;
 			case "textarea":
 				config = { ...config, ...textarea(id, field) };

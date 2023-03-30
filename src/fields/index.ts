@@ -8,7 +8,7 @@ export * from "./multi-select";
 export * from "./numeric";
 export * from "./select";
 export * from "./radio";
-export * from "./text";
+export * from "./text-field";
 export * from "./textarea";
 export * from "./time";
 export * from "./types";

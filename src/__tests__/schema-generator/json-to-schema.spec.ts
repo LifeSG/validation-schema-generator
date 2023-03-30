@@ -19,7 +19,7 @@ describe("json-to-schema", () => {
 			};
 			const schema = jsonToSchema({
 				field1: {
-					uiType: "text",
+					uiType: "text-field",
 					validation: [
 						{ required: true, errorMessage: ERROR_MESSAGE },
 						{ min: 1, errorMessage: ERROR_MESSAGE_2 },
@@ -53,7 +53,7 @@ describe("json-to-schema", () => {
 		it("should ignore elements and values not specified in schema", () => {
 			const schema = jsonToSchema({
 				field: {
-					uiType: "text",
+					uiType: "text-field",
 					validation: [
 						{ required: true, errorMessage: ERROR_MESSAGE },
 						{ min: 1, errorMessage: ERROR_MESSAGE_2 },

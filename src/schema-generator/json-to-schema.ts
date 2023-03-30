@@ -8,7 +8,7 @@ import {
 	TCondition,
 	TFieldSchema,
 	TFieldValidation,
-	TFields,
+	TSectionsSchema,
 	TYupSchemaType,
 } from "./types";
 
@@ -16,12 +16,12 @@ const customConditions: string[] = [];
 
 /**
  * Constructs the entire Yup schema from JSON
- * @param fields JSON representation of the fields
+ * @param sections JSON representation of the fields
  * @returns Yup schema ready to be used by FrontendEngine
  */
-export const jsonToSchema = <V = undefined>(fields: TFields<V>) => {
+export const jsonToSchema = <V = undefined>(sections: TSectionsSchema<V>) => {
 	const yupSchema: ObjectShape = {};
-	let fieldConfigs = generateFieldConfigs(fields);
+	let fieldConfigs = generateFieldConfigs(sections);
 	fieldConfigs = parseWhenKeys(fieldConfigs);
 	Object.entries(fieldConfigs).forEach(([id, { yupSchema: yupFieldSchema, validation }]) => {
 		yupSchema[id] = mapRules(yupFieldSchema, validation || []);

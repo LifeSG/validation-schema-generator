@@ -2,7 +2,7 @@ import * as Yup from "yup";
 import {
 	ICheckboxSchema,
 	IChipsSchema,
-	IContactSchema,
+	IContactFieldSchema,
 	IDateSchema,
 	IEmailFieldSchema,
 	IMultiSelectSchema,
@@ -126,7 +126,7 @@ interface IElementSchema {
 export type TFieldSchema<V = undefined> =
 	| ICheckboxSchema<V>
 	| IChipsSchema<V>
-	| IContactSchema<V>
+	| IContactFieldSchema<V>
 	| IDateSchema<V>
 	| IEmailFieldSchema<V>
 	| IMultiSelectSchema<V>

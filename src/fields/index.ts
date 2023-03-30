@@ -1,6 +1,6 @@
 export * from "./checkbox";
 export * from "./chips";
-export * from "./contact";
+export * from "./contact-field";
 export * from "./date";
 export * from "./email-field";
 export * from "./generate-field-configs";

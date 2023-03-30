@@ -13,4 +13,5 @@ export interface IContactNumberValidationRule {
 		| undefined;
 }
 
-export interface IContactSchema<V = undefined> extends IFieldSchemaBase<"contact", V, IContactNumberValidationRule> {}
+export interface IContactFieldSchema<V = undefined>
+	extends IFieldSchemaBase<"contact-field", V, IContactNumberValidationRule> {}

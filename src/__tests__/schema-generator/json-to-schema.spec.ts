@@ -25,7 +25,7 @@ describe("json-to-schema", () => {
 						{ min: 1, errorMessage: ERROR_MESSAGE_2 },
 					],
 				},
-				field2: { uiType: "numeric", validation: [{ min: 2, errorMessage: ERROR_MESSAGE_3 }] },
+				field2: { uiType: "numeric-field", validation: [{ min: 2, errorMessage: ERROR_MESSAGE_3 }] },
 			});
 			const schemaFields = schema.describe().fields;
 			const schemaTypeList = Object.keys(schemaFields).map((key) => schemaFields[key].type);

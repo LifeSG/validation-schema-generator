@@ -5,7 +5,7 @@ export * from "./date";
 export * from "./email-field";
 export * from "./generate-field-configs";
 export * from "./multi-select";
-export * from "./numeric";
+export * from "./numeric-field";
 export * from "./select";
 export * from "./radio";
 export * from "./text-field";

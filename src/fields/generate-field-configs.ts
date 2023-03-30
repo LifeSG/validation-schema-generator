@@ -5,7 +5,7 @@ import { contact } from "./contact";
 import { date } from "./date";
 import { emailField } from "./email-field";
 import { multiSelect } from "./multi-select";
-import { numeric } from "./numeric";
+import { numericField } from "./numeric-field";
 import { radio } from "./radio";
 import { select } from "./select";
 import { textField } from "./text-field";
@@ -42,8 +42,8 @@ export const generateFieldConfigs = (fields: TFields) => {
 			case "multi-select":
 				config = { ...config, ...multiSelect(id, field) };
 				break;
-			case "numeric":
-				config = { ...config, ...numeric(id, field) };
+			case "numeric-field":
+				config = { ...config, ...numericField(id, field) };
 				break;
 			case "radio":
 				config = { ...config, ...radio(id, field) };

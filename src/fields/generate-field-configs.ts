@@ -3,7 +3,7 @@ import { checkbox } from "./checkbox";
 import { chips } from "./chips";
 import { contact } from "./contact";
 import { date } from "./date";
-import { email } from "./email";
+import { emailField } from "./email-field";
 import { multiSelect } from "./multi-select";
 import { numeric } from "./numeric";
 import { radio } from "./radio";
@@ -36,8 +36,8 @@ export const generateFieldConfigs = (fields: TFields) => {
 			case "date":
 				config = { ...config, ...date(id, field) };
 				break;
-			case "email":
-				config = { ...config, ...email(id, field) };
+			case "email-field":
+				config = { ...config, ...emailField(id, field) };
 				break;
 			case "multi-select":
 				config = { ...config, ...multiSelect(id, field) };

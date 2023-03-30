@@ -3,9 +3,9 @@ import { IFieldSchemaBase } from "../schema-generator";
 import { ERROR_MESSAGES } from "../shared";
 import { IFieldGenerator } from "./types";
 
-export interface IEmailSchema<V = undefined> extends IFieldSchemaBase<"email", V> {}
+export interface IEmailFieldSchema<V = undefined> extends IFieldSchemaBase<"email-field", V> {}
 
-export const email: IFieldGenerator<IEmailSchema> = (id, { validation }) => {
+export const emailField: IFieldGenerator<IEmailFieldSchema> = (id, { validation }) => {
 	const emailRule = validation?.find((rule) => rule.email);
 
 	let schema = Yup.string();

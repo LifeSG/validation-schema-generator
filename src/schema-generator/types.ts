@@ -91,14 +91,14 @@ export interface IConditionalValidationRule extends IRule {
  * the shape is intended to be lenient and to allow unknown keys
  */
 export interface IFieldSchemaBase<T, V = undefined, U = undefined> {
-	fieldType: T;
+	uiType: T;
 	validation?: (IValidationRule | V | U)[] | undefined;
 	[otherOptions: string]: unknown;
 }
 
 /** to support elements, they don't come with validation schema  */
 interface IElementSchema {
-	fieldType:
+	uiType:
 		| "alert"
 		| "text-d1"
 		| "text-d2"

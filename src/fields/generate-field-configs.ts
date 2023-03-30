@@ -10,7 +10,7 @@ import { radio } from "./radio";
 import { select } from "./select";
 import { textField } from "./text-field";
 import { textarea } from "./textarea";
-import { time } from "./time";
+import { timeField } from "./time-field";
 import { TFieldsConfig } from "./types";
 
 /**
@@ -57,8 +57,8 @@ export const generateFieldConfigs = (fields: TFields) => {
 			case "textarea":
 				config = { ...config, ...textarea(id, field) };
 				break;
-			case "time":
-				config = { ...config, ...time(id, field) };
+			case "time-field":
+				config = { ...config, ...timeField(id, field) };
 				break;
 		}
 	});

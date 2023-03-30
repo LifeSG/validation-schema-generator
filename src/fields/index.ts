@@ -10,5 +10,5 @@ export * from "./select";
 export * from "./radio";
 export * from "./text-field";
 export * from "./textarea";
-export * from "./time";
+export * from "./time-field";
 export * from "./types";

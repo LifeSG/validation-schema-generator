@@ -11,7 +11,7 @@ import {
 	ISelectSchema,
 	ITextFieldSchema,
 	ITextareaSchema,
-	ITimeSchema,
+	ITimeFieldSchema,
 } from "../fields";
 
 export const SCHEMA_TYPES = ["string", "number", "boolean", "array", "object"] as const;
@@ -135,7 +135,7 @@ export type TFieldSchema<V = undefined> =
 	| ISelectSchema<V>
 	| ITextareaSchema<V>
 	| ITextFieldSchema<V>
-	| ITimeSchema<V>
+	| ITimeFieldSchema<V>
 	| IElementSchema;
 
 export type TFieldValidation = TFieldSchema["validation"];

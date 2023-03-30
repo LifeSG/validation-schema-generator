@@ -7,7 +7,7 @@ describe("select", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "select",
+				uiType: "select",
 				options: [
 					{ label: "Apple", value: "Apple" },
 					{ label: "Berry", value: "Berry" },
@@ -28,7 +28,7 @@ describe("select", () => {
 	it("should throw an error if a value not defined in options is submitted", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "select",
+				uiType: "select",
 				options: [
 					{ label: "Apple", value: "Apple" },
 					{ label: "Berry", value: "Berry" },

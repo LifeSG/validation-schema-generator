@@ -7,7 +7,7 @@ describe("time", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "time",
+				uiType: "time",
 				somethingUnused: "test",
 				validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
 			},
@@ -22,7 +22,7 @@ describe("time", () => {
 	it("should be able to validate 12-hour format in h:mma format", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "time",
+				uiType: "time",
 				somethingUnused: "test",
 			},
 		});
@@ -44,7 +44,7 @@ describe("time", () => {
 	it("should be able to validate 24-hour format in H:mm format", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "time",
+				uiType: "time",
 				is24HourFormat: true,
 				somethingUnused: "test",
 			},

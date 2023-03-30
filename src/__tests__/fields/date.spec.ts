@@ -10,7 +10,7 @@ describe("date", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "date",
+				uiType: "date",
 				somethingUnused: "test",
 				validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
 			},
@@ -23,7 +23,7 @@ describe("date", () => {
 	it("should validate date in uuuu-MM-dd format", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "date",
+				uiType: "date",
 				validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
 			},
 		});
@@ -54,7 +54,7 @@ describe("date", () => {
 	it("should be able to validate date in other formats", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "date",
+				uiType: "date",
 				dateFormat: "d MMMM uuuu",
 			},
 		});
@@ -81,7 +81,7 @@ describe("date", () => {
 			jest.spyOn(LocalDate, "now").mockReturnValue(LocalDate.parse("2023-01-01"));
 			schema = jsonToSchema({
 				field: {
-					fieldType: "date",
+					uiType: "date",
 					validation: [{ [rule]: ruleValue, errorMessage: ERROR_MESSAGE }],
 				},
 			});
@@ -98,7 +98,7 @@ describe("date", () => {
 		it("should use default error message if error message is not specified", () => {
 			schema = jsonToSchema({
 				field: {
-					fieldType: "date",
+					uiType: "date",
 					validation: [{ [rule]: ruleValue }],
 				},
 			});

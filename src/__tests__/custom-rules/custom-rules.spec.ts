@@ -10,7 +10,7 @@ describe("custom-rules", () => {
 	});
 
 	it.each`
-		type        | condition                 | fieldType    | config                    | valid          | invalid
+		type        | condition                 | uiType       | config                    | valid          | invalid
 		${"string"} | ${"uinfin"}               | ${"text"}    | ${{ uinfin: true }}       | ${"S1234567D"} | ${"S1234567A"}
 		${"string"} | ${"filled"}               | ${"text"}    | ${{ filled: true }}       | ${"hello"}     | ${undefined}
 		${"string"} | ${"empty"}                | ${"text"}    | ${{ empty: true }}        | ${undefined}   | ${"hello"}
@@ -21,10 +21,10 @@ describe("custom-rules", () => {
 		${"number"} | ${"empty"}                | ${"numeric"} | ${{ empty: true }}        | ${undefined}   | ${1}
 		${"number"} | ${"equals"}               | ${"numeric"} | ${{ equals: 1 }}          | ${1}           | ${2}
 		${"number"} | ${"notEquals"}            | ${"numeric"} | ${{ notEquals: 1 }}       | ${2}           | ${1}
-	`("should support $condition condition for Yup $type type", ({ fieldType, config, valid, invalid }) => {
+	`("should support $condition condition for Yup $type type", ({ uiType, config, valid, invalid }) => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType,
+				uiType,
 				validation: [{ ...config, errorMessage: ERROR_MESSAGE }],
 			},
 		});
@@ -48,7 +48,7 @@ describe("custom-rules", () => {
 	`("should support $condition condition for Yup $type type", ({ config, valid, invalid }) => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "checkbox",
+				uiType: "checkbox",
 				options: [
 					{ label: "Apple", value: "Apple" },
 					{ label: "Berry", value: "Berry" },
@@ -67,7 +67,7 @@ describe("custom-rules", () => {
 	it("should reject 0 in empty condition for Yup number type", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "numeric",
+				uiType: "numeric",
 				validation: [{ empty: true, errorMessage: ERROR_MESSAGE }],
 			},
 		});
@@ -81,7 +81,7 @@ describe("custom-rules", () => {
 		it("should pass when given a valid uinfin", async () => {
 			const schema = jsonToSchema({
 				field: {
-					fieldType: "text",
+					uiType: "text",
 					validation: [{ uinfin: true }],
 				},
 			});
@@ -93,7 +93,7 @@ describe("custom-rules", () => {
 		it("should fail when given an invalid uinfin", () => {
 			const schema = jsonToSchema({
 				field: {
-					fieldType: "text",
+					uiType: "text",
 					validation: [{ uinfin: true, errorMessage: ERROR_MESSAGE }],
 				},
 			});

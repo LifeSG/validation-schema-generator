@@ -7,7 +7,7 @@ describe("email", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "email",
+				uiType: "email",
 				somethingUnused: "test",
 				validation: [
 					{ required: true, errorMessage: ERROR_MESSAGE },
@@ -23,7 +23,7 @@ describe("email", () => {
 	it("should use default email error message if error message is not specified", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "email",
+				uiType: "email",
 				somethingUnused: "test",
 				validation: [{ email: true }],
 			},

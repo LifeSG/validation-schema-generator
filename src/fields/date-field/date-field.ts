@@ -3,7 +3,7 @@ import { Locale } from "@js-joda/locale_en-us";
 import * as Yup from "yup";
 import { ERROR_MESSAGES } from "../../shared";
 import { IFieldGenerator } from "../types";
-import { IDateSchema } from "./types";
+import { IDateFieldSchema } from "./types";
 
 const isValidDate = (value: string, formatter: DateTimeFormatter): boolean => {
 	if (!value || value === ERROR_MESSAGES.DATE.INVALID) return false;
@@ -15,7 +15,7 @@ const isValidDate = (value: string, formatter: DateTimeFormatter): boolean => {
 	}
 };
 
-export const date: IFieldGenerator<IDateSchema> = (id, { dateFormat = "uuuu-MM-dd", validation }) => {
+export const dateField: IFieldGenerator<IDateFieldSchema> = (id, { dateFormat = "uuuu-MM-dd", validation }) => {
 	const dateFormatter = DateTimeFormatter.ofPattern(dateFormat)
 		.withResolverStyle(ResolverStyle.STRICT)
 		.withLocale(Locale.ENGLISH);

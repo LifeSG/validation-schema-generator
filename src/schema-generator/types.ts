@@ -3,7 +3,7 @@ import {
 	ICheckboxSchema,
 	IChipsSchema,
 	IContactFieldSchema,
-	IDateSchema,
+	IDateFieldSchema,
 	IEmailFieldSchema,
 	IMultiSelectSchema,
 	INumericFieldSchema,
@@ -127,7 +127,7 @@ export type TFieldSchema<V = undefined> =
 	| ICheckboxSchema<V>
 	| IChipsSchema<V>
 	| IContactFieldSchema<V>
-	| IDateSchema<V>
+	| IDateFieldSchema<V>
 	| IEmailFieldSchema<V>
 	| IMultiSelectSchema<V>
 	| INumericFieldSchema<V>

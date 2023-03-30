@@ -9,6 +9,6 @@ export interface IDateInputValidationRule {
 	maxDate?: string | undefined;
 }
 
-export interface IDateSchema<V = undefined> extends IFieldSchemaBase<"date", V, IDateInputValidationRule> {
+export interface IDateFieldSchema<V = undefined> extends IFieldSchemaBase<"date-field", V, IDateInputValidationRule> {
 	dateFormat?: string | undefined;
 }

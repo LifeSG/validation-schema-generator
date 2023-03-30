@@ -2,7 +2,7 @@ import { TFieldSchema, TFields } from "../schema-generator";
 import { checkbox } from "./checkbox";
 import { chips } from "./chips";
 import { contactField } from "./contact-field";
-import { date } from "./date";
+import { dateField } from "./date-field";
 import { emailField } from "./email-field";
 import { multiSelect } from "./multi-select";
 import { numericField } from "./numeric-field";
@@ -33,8 +33,8 @@ export const generateFieldConfigs = (fields: TFields) => {
 			case "contact-field":
 				config = { ...config, ...contactField(id, field) };
 				break;
-			case "date":
-				config = { ...config, ...date(id, field) };
+			case "date-field":
+				config = { ...config, ...dateField(id, field) };
 				break;
 			case "email-field":
 				config = { ...config, ...emailField(id, field) };

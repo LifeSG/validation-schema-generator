@@ -99,7 +99,6 @@ export interface IFieldSchemaBase<T, V = undefined, U = undefined> {
 /** to support elements, they don't come with validation schema  */
 interface IBaseElementSchema {
 	validation?: never | undefined;
-	showIf?: TRenderRules[] | undefined;
 	[otherOptions: string]: unknown;
 }
 interface IElementSchema extends IBaseElementSchema {

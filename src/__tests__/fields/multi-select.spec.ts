@@ -6,18 +6,23 @@ import { ERROR_MESSAGE, ERROR_MESSAGE_2 } from "../common";
 describe("multi-select", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
-			field: {
-				uiType: "multi-select",
-				options: [
-					{ label: "Apple", value: "Apple" },
-					{ label: "Berry", value: "Berry" },
-					{ label: "Cherry", value: "Cherry" },
-				],
-				somethingUnused: "test",
-				validation: [
-					{ required: true, errorMessage: ERROR_MESSAGE },
-					{ min: 2, errorMessage: ERROR_MESSAGE_2 },
-				],
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "multi-select",
+						options: [
+							{ label: "Apple", value: "Apple" },
+							{ label: "Berry", value: "Berry" },
+							{ label: "Cherry", value: "Cherry" },
+						],
+						somethingUnused: "test",
+						validation: [
+							{ required: true, errorMessage: ERROR_MESSAGE },
+							{ min: 2, errorMessage: ERROR_MESSAGE_2 },
+						],
+					},
+				},
 			},
 		});
 
@@ -28,15 +33,20 @@ describe("multi-select", () => {
 
 	it("should throw an error if an empty array is submitted on a required field", () => {
 		const schema = jsonToSchema({
-			field: {
-				uiType: "multi-select",
-				options: [
-					{ label: "Apple", value: "Apple" },
-					{ label: "Berry", value: "Berry" },
-					{ label: "Cherry", value: "Cherry" },
-				],
-				somethingUnused: "test",
-				validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "multi-select",
+						options: [
+							{ label: "Apple", value: "Apple" },
+							{ label: "Berry", value: "Berry" },
+							{ label: "Cherry", value: "Cherry" },
+						],
+						somethingUnused: "test",
+						validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+					},
+				},
 			},
 		});
 
@@ -45,14 +55,19 @@ describe("multi-select", () => {
 
 	it("should throw an error if a value not defined in options is submitted", () => {
 		const schema = jsonToSchema({
-			field: {
-				uiType: "multi-select",
-				options: [
-					{ label: "Apple", value: "Apple" },
-					{ label: "Berry", value: "Berry" },
-					{ label: "Cherry", value: "Cherry" },
-				],
-				somethingUnused: "test",
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "multi-select",
+						options: [
+							{ label: "Apple", value: "Apple" },
+							{ label: "Berry", value: "Berry" },
+							{ label: "Cherry", value: "Cherry" },
+						],
+						somethingUnused: "test",
+					},
+				},
 			},
 		});
 
@@ -63,15 +78,20 @@ describe("multi-select", () => {
 
 	it("should use default error message if error message is not specified for required rule", () => {
 		const schema = jsonToSchema({
-			field: {
-				uiType: "multi-select",
-				options: [
-					{ label: "Apple", value: "Apple" },
-					{ label: "Berry", value: "Berry" },
-					{ label: "Cherry", value: "Cherry" },
-				],
-				somethingUnused: "test",
-				validation: [{ required: true }],
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "multi-select",
+						options: [
+							{ label: "Apple", value: "Apple" },
+							{ label: "Berry", value: "Berry" },
+							{ label: "Cherry", value: "Cherry" },
+						],
+						somethingUnused: "test",
+						validation: [{ required: true }],
+					},
+				},
 			},
 		});
 

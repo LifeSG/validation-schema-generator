@@ -6,7 +6,7 @@ describe("textarea", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "textarea",
+				uiType: "textarea",
 				somethingUnused: "test",
 				validation: [
 					{ required: true, errorMessage: ERROR_MESSAGE },

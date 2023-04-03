@@ -23,8 +23,7 @@ import { TFieldsConfig } from "./types";
 export const generateFieldConfigs = (fields: TFields) => {
 	let config: TFieldsConfig<TFieldSchema> = {};
 	Object.entries(fields).forEach(([id, field]) => {
-		const { fieldType } = field;
-		switch (fieldType) {
+		switch (field.uiType) {
 			case "checkbox":
 				config = { ...config, ...checkbox(id, field) };
 				break;

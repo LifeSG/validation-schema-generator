@@ -6,7 +6,7 @@ describe("numeric", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "numeric",
+				uiType: "numeric",
 				somethingUnused: "test",
 				validation: [
 					{ required: true, errorMessage: ERROR_MESSAGE },

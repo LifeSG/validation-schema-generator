@@ -7,7 +7,7 @@ describe("radio", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "radio",
+				uiType: "radio",
 				options: [
 					{ label: "Apple", value: "Apple" },
 					{ label: "Berry", value: "Berry" },
@@ -28,7 +28,7 @@ describe("radio", () => {
 	it("should throw an error if a value not defined in options is submitted", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "radio",
+				uiType: "radio",
 				options: [
 					{ label: "Apple", value: "Apple" },
 					{ label: "Berry", value: "Berry" },

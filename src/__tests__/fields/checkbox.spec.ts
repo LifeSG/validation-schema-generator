@@ -7,7 +7,7 @@ describe("checkbox", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "checkbox",
+				uiType: "checkbox",
 				options: [
 					{ label: "Apple", value: "Apple" },
 					{ label: "Berry", value: "Berry" },
@@ -29,7 +29,7 @@ describe("checkbox", () => {
 	it("should throw an error if an empty array is submitted on a required field", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "checkbox",
+				uiType: "checkbox",
 				options: [
 					{ label: "Apple", value: "Apple" },
 					{ label: "Berry", value: "Berry" },
@@ -46,7 +46,7 @@ describe("checkbox", () => {
 	it("should throw an error if a value not defined in options is submitted", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "checkbox",
+				uiType: "checkbox",
 				options: [
 					{ label: "Apple", value: "Apple" },
 					{ label: "Berry", value: "Berry" },
@@ -64,7 +64,7 @@ describe("checkbox", () => {
 	it("should use default error message if error message is not specified for required rule", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "checkbox",
+				uiType: "checkbox",
 				options: [
 					{ label: "Apple", value: "Apple" },
 					{ label: "Berry", value: "Berry" },

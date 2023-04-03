@@ -7,7 +7,7 @@ describe("contact", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "contact",
+				uiType: "contact",
 				somethingUnused: "test",
 				validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
 			},
@@ -28,7 +28,7 @@ describe("contact", () => {
 		`("should accept $scenario", ({ type, valid, invalid }) => {
 			const schema = jsonToSchema({
 				field: {
-					fieldType: "contact",
+					uiType: "contact",
 					somethingUnused: "test",
 					validation: [{ contactNumber: { singaporeNumber: type }, errorMessage: ERROR_MESSAGE }],
 				},
@@ -41,7 +41,7 @@ describe("contact", () => {
 		it("should use default error message if error message is not specified", () => {
 			const schema = jsonToSchema({
 				field: {
-					fieldType: "contact",
+					uiType: "contact",
 					somethingUnused: "test",
 					validation: [{ contactNumber: { singaporeNumber: "default" } }],
 				},
@@ -57,7 +57,7 @@ describe("contact", () => {
 		it("should accept valid numbers", () => {
 			const schema = jsonToSchema({
 				field: {
-					fieldType: "contact",
+					uiType: "contact",
 					somethingUnused: "test",
 					validation: [{ contactNumber: { internationalNumber: true }, errorMessage: ERROR_MESSAGE }],
 				},
@@ -74,7 +74,7 @@ describe("contact", () => {
 		it("should accept ambiguous calling codes as long as it is valid in a country", () => {
 			const schema = jsonToSchema({
 				field: {
-					fieldType: "contact",
+					uiType: "contact",
 					somethingUnused: "test",
 					validation: [{ contactNumber: { internationalNumber: true }, errorMessage: ERROR_MESSAGE }],
 				},
@@ -87,7 +87,7 @@ describe("contact", () => {
 		it("should reject invalid numbers", () => {
 			const schema = jsonToSchema({
 				field: {
-					fieldType: "contact",
+					uiType: "contact",
 					somethingUnused: "test",
 					validation: [{ contactNumber: { internationalNumber: true }, errorMessage: ERROR_MESSAGE }],
 				},
@@ -110,7 +110,7 @@ describe("contact", () => {
 		it("should use default error message if error message is not specified", () => {
 			const schema = jsonToSchema({
 				field: {
-					fieldType: "contact",
+					uiType: "contact",
 					somethingUnused: "test",
 					validation: [{ contactNumber: { internationalNumber: true } }],
 				},

@@ -7,7 +7,7 @@ describe("chips", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "chips",
+				uiType: "chips",
 				options: [
 					{ label: "Apple", value: "Apple" },
 					{ label: "Berry", value: "Berry" },
@@ -29,7 +29,7 @@ describe("chips", () => {
 	it("should throw an error if an empty array is submitted on a required field", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "chips",
+				uiType: "chips",
 				options: [
 					{ label: "Apple", value: "Apple" },
 					{ label: "Berry", value: "Berry" },
@@ -46,7 +46,7 @@ describe("chips", () => {
 	it("should throw an error if a value not defined in options is submitted", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "chips",
+				uiType: "chips",
 				options: [
 					{ label: "Apple", value: "Apple" },
 					{ label: "Berry", value: "Berry" },
@@ -64,7 +64,7 @@ describe("chips", () => {
 	it("should use default error message if error message is not specified for required rule", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "chips",
+				uiType: "chips",
 				options: [
 					{ label: "Apple", value: "Apple" },
 					{ label: "Berry", value: "Berry" },
@@ -83,7 +83,7 @@ describe("chips", () => {
 	it("should accept if value includes textarea", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "chips",
+				uiType: "chips",
 				options: [
 					{ label: "Apple", value: "Apple" },
 					{ label: "Berry", value: "Berry" },
@@ -103,7 +103,7 @@ describe("chips", () => {
 	it("should support textarea validation config", () => {
 		const schema = jsonToSchema({
 			field: {
-				fieldType: "chips",
+				uiType: "chips",
 				options: [
 					{ label: "Apple", value: "Apple" },
 					{ label: "Berry", value: "Berry" },

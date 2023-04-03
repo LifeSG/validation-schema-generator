@@ -102,6 +102,30 @@ describe("json-to-schema", () => {
 			expect(error.inner).toHaveLength(1);
 			expect(error.inner[0].message).toBe(ERROR_MESSAGE);
 		});
+
+		it("should ignore elements with referenceKey", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "text-field",
+							validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+						},
+						custom: {
+							referenceKey: "my-custom-field",
+							validation: [{ required: true, errorMessage: ERROR_MESSAGE_2 }],
+						},
+					},
+				},
+			});
+
+			const error = TestHelper.getError(() =>
+				schema.validateSync({ field: undefined, custom: undefined }, { abortEarly: false })
+			);
+			expect(error.inner).toHaveLength(1);
+			expect(error.inner[0].message).toBe(ERROR_MESSAGE);
+		});
 	});
 
 	describe("mapSchemaType", () => {

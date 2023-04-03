@@ -33,6 +33,7 @@ export const generateFieldConfigs = (sections: TSectionsSchema) => {
 const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentSchema>) => {
 	let config: TFieldsConfig<TFieldSchema> = {};
 	Object.entries(childrenSchema).forEach(([id, componentSchema]) => {
+		if ("referenceKey" in componentSchema) return {};
 		const { uiType, children } = componentSchema;
 
 		switch (uiType) {

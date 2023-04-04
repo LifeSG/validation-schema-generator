@@ -1,6 +1,7 @@
 import * as Yup from "yup";
 import { ObjectShape } from "yup/lib/object";
 import { TFieldsConfig, generateFieldConfigs } from "../fields";
+import { parseConditionalRenders } from "./conditional-render";
 import { TFieldSchema, TSectionsSchema } from "./types";
 import { YupHelper } from "./yup-helper";
 
@@ -16,7 +17,11 @@ export const jsonToSchema = <V = undefined>(sections: TSectionsSchema<V>) => {
 	Object.entries(fieldConfigs).forEach(([id, { yupSchema: yupFieldSchema, validation }]) => {
 		yupSchema[id] = YupHelper.mapRules(yupFieldSchema, validation || []);
 	});
-	return Yup.object().shape(yupSchema);
+
+	return Yup.object()
+		.shape(yupSchema)
+		.meta({ schema: yupSchema })
+		.test("conditional-render", undefined, (values, context) => parseConditionalRenders(sections, values, context));
 };
 
 /**

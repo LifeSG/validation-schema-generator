@@ -1,5 +1,6 @@
 import isEqual from "lodash/isEqual";
 import { SchemaDescription } from "yup/lib/schema";
+import { applyCustomRules } from "../../custom-rules";
 import { jsonToSchema } from "../../schema-generator";
 import { TestHelper } from "../../utils";
 import { ERROR_MESSAGE, ERROR_MESSAGE_2, ERROR_MESSAGE_3, ERROR_MESSAGE_4 } from "../common";
@@ -123,6 +124,72 @@ describe("json-to-schema", () => {
 			);
 			expect(error.inner).toHaveLength(1);
 			expect(error.inner[0].message).toBe(ERROR_MESSAGE);
+		});
+	});
+
+	describe("conditionalRender", () => {
+		it("should not apply validation for conditionally hidden fields", () => {
+			applyCustomRules();
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field1: {
+							uiType: "text-field",
+							validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+						},
+						wrapper: {
+							uiType: "div",
+							children: {
+								field2: {
+									uiType: "numeric-field",
+									validation: [{ required: true, errorMessage: ERROR_MESSAGE_2 }],
+									showIf: [{ field1: [{ equals: "show field 2" }] }],
+								},
+							},
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({ field1: "hello" })).not.toThrowError();
+
+			const error = TestHelper.getError(() =>
+				schema.validateSync({ field1: "show field 2" }, { abortEarly: false })
+			);
+			expect(error.inner[0].message).toBe(ERROR_MESSAGE_2);
+		});
+
+		it("should not apply validation if field parent is conditionally hidden", () => {
+			applyCustomRules();
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field1: {
+							uiType: "text-field",
+							validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+						},
+						wrapper: {
+							uiType: "div",
+							showIf: [{ field1: [{ equals: "show wrapper" }] }],
+							children: {
+								field2: {
+									uiType: "numeric-field",
+									validation: [{ required: true, errorMessage: ERROR_MESSAGE_2 }],
+								},
+							},
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({ field1: "hello" })).not.toThrowError();
+
+			const error = TestHelper.getError(() =>
+				schema.validateSync({ field1: "show wrapper" }, { abortEarly: false })
+			);
+			expect(error.inner[0].message).toBe(ERROR_MESSAGE_2);
 		});
 	});
 });

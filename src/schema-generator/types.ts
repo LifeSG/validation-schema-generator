@@ -86,6 +86,11 @@ export interface IConditionalValidationRule extends IRule {
 	filled?: boolean | undefined;
 }
 
+export interface IRenderRule extends IRule {
+	filled?: boolean | undefined;
+}
+export type TRenderRules = Record<string, IRenderRule[]>;
+
 // =============================================================================
 // WEB FRONTEND ENGINE TYPES
 // =============================================================================
@@ -97,6 +102,7 @@ export interface IFieldSchemaBase<T, V = undefined, U = undefined> {
 	uiType: T;
 	validation?: (IValidationRule | V | U)[] | undefined;
 	referenceKey?: never | undefined;
+	showIf?: TRenderRules[] | undefined;
 	[otherOptions: string]: unknown;
 }
 
@@ -104,6 +110,7 @@ export interface IFieldSchemaBase<T, V = undefined, U = undefined> {
 interface IBaseElementSchema {
 	validation?: never | undefined;
 	referenceKey?: never | undefined;
+	showIf?: TRenderRules[] | undefined;
 	[otherOptions: string]: unknown;
 }
 interface IElementSchema extends IBaseElementSchema {
@@ -135,6 +142,7 @@ interface ISectionSchema<V = undefined> {
 	children: Record<string, TComponentSchema<V>>;
 	validation?: never | undefined;
 	referenceKey?: never | undefined;
+	showIf?: never | undefined;
 	[otherOptions: string]: unknown;
 }
 

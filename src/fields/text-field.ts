@@ -2,8 +2,8 @@ import * as Yup from "yup";
 import { IFieldSchemaBase } from "../schema-generator";
 import { IFieldGenerator } from "./types";
 
-export interface ITextSchema<V = undefined> extends IFieldSchemaBase<"text", V> {}
+export interface ITextFieldSchema<V = undefined> extends IFieldSchemaBase<"text-field", V> {}
 
-export const text: IFieldGenerator<ITextSchema> = (id, { validation }) => ({
+export const textField: IFieldGenerator<ITextFieldSchema> = (id, { validation }) => ({
 	[id]: { yupSchema: Yup.string(), validation },
 });

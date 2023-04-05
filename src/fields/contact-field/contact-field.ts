@@ -2,9 +2,9 @@ import * as Yup from "yup";
 import { ERROR_MESSAGES } from "../../shared";
 import { IFieldGenerator } from "../types";
 import { PhoneHelper } from "./phone-helper";
-import { IContactSchema } from "./types";
+import { IContactFieldSchema } from "./types";
 
-export const contact: IFieldGenerator<IContactSchema> = (id, { validation }) => {
+export const contactField: IFieldGenerator<IContactFieldSchema> = (id, { validation }) => {
 	const contactNumberRule = validation?.find((rule) => "contactNumber" in rule);
 	const singaporeRule = contactNumberRule?.["contactNumber"]?.["singaporeNumber"];
 	const errorMessage = contactNumberRule?.["errorMessage"];

@@ -19,13 +19,13 @@ describe("json-to-schema", () => {
 			};
 			const schema = jsonToSchema({
 				field1: {
-					uiType: "text",
+					uiType: "text-field",
 					validation: [
 						{ required: true, errorMessage: ERROR_MESSAGE },
 						{ min: 1, errorMessage: ERROR_MESSAGE_2 },
 					],
 				},
-				field2: { uiType: "numeric", validation: [{ min: 2, errorMessage: ERROR_MESSAGE_3 }] },
+				field2: { uiType: "numeric-field", validation: [{ min: 2, errorMessage: ERROR_MESSAGE_3 }] },
 			});
 			const schemaFields = schema.describe().fields;
 			const schemaTypeList = Object.keys(schemaFields).map((key) => schemaFields[key].type);
@@ -53,7 +53,7 @@ describe("json-to-schema", () => {
 		it("should ignore elements and values not specified in schema", () => {
 			const schema = jsonToSchema({
 				field: {
-					uiType: "text",
+					uiType: "text-field",
 					validation: [
 						{ required: true, errorMessage: ERROR_MESSAGE },
 						{ min: 1, errorMessage: ERROR_MESSAGE_2 },

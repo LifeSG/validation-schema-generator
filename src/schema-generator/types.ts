@@ -2,16 +2,16 @@ import * as Yup from "yup";
 import {
 	ICheckboxSchema,
 	IChipsSchema,
-	IContactSchema,
-	IDateSchema,
-	IEmailSchema,
+	IContactFieldSchema,
+	IDateFieldSchema,
+	IEmailFieldSchema,
 	IMultiSelectSchema,
-	INumericSchema,
+	INumericFieldSchema,
 	IRadioSchema,
 	ISelectSchema,
-	ITextSchema,
+	ITextFieldSchema,
 	ITextareaSchema,
-	ITimeSchema,
+	ITimeFieldSchema,
 } from "../fields";
 
 export const SCHEMA_TYPES = ["string", "number", "boolean", "array", "object"] as const;
@@ -126,16 +126,16 @@ interface IElementSchema {
 export type TFieldSchema<V = undefined> =
 	| ICheckboxSchema<V>
 	| IChipsSchema<V>
-	| IContactSchema<V>
-	| IDateSchema<V>
-	| IEmailSchema<V>
+	| IContactFieldSchema<V>
+	| IDateFieldSchema<V>
+	| IEmailFieldSchema<V>
 	| IMultiSelectSchema<V>
-	| INumericSchema<V>
+	| INumericFieldSchema<V>
 	| IRadioSchema<V>
 	| ISelectSchema<V>
 	| ITextareaSchema<V>
-	| ITextSchema<V>
-	| ITimeSchema<V>
+	| ITextFieldSchema<V>
+	| ITimeFieldSchema<V>
 	| IElementSchema;
 
 export type TFieldValidation = TFieldSchema["validation"];

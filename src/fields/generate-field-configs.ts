@@ -1,16 +1,16 @@
 import { TFieldSchema, TFields } from "../schema-generator";
 import { checkbox } from "./checkbox";
 import { chips } from "./chips";
-import { contact } from "./contact";
-import { date } from "./date";
-import { email } from "./email";
+import { contactField } from "./contact-field";
+import { dateField } from "./date-field";
+import { emailField } from "./email-field";
 import { multiSelect } from "./multi-select";
-import { numeric } from "./numeric";
+import { numericField } from "./numeric-field";
 import { radio } from "./radio";
 import { select } from "./select";
-import { text } from "./text";
+import { textField } from "./text-field";
 import { textarea } from "./textarea";
-import { time } from "./time";
+import { timeField } from "./time-field";
 import { TFieldsConfig } from "./types";
 
 /**
@@ -30,20 +30,20 @@ export const generateFieldConfigs = (fields: TFields) => {
 			case "chips":
 				config = { ...config, ...chips(id, field) };
 				break;
-			case "contact":
-				config = { ...config, ...contact(id, field) };
+			case "contact-field":
+				config = { ...config, ...contactField(id, field) };
 				break;
-			case "date":
-				config = { ...config, ...date(id, field) };
+			case "date-field":
+				config = { ...config, ...dateField(id, field) };
 				break;
-			case "email":
-				config = { ...config, ...email(id, field) };
+			case "email-field":
+				config = { ...config, ...emailField(id, field) };
 				break;
 			case "multi-select":
 				config = { ...config, ...multiSelect(id, field) };
 				break;
-			case "numeric":
-				config = { ...config, ...numeric(id, field) };
+			case "numeric-field":
+				config = { ...config, ...numericField(id, field) };
 				break;
 			case "radio":
 				config = { ...config, ...radio(id, field) };
@@ -51,14 +51,14 @@ export const generateFieldConfigs = (fields: TFields) => {
 			case "select":
 				config = { ...config, ...select(id, field) };
 				break;
-			case "text":
-				config = { ...config, ...text(id, field) };
+			case "text-field":
+				config = { ...config, ...textField(id, field) };
 				break;
 			case "textarea":
 				config = { ...config, ...textarea(id, field) };
 				break;
-			case "time":
-				config = { ...config, ...time(id, field) };
+			case "time-field":
+				config = { ...config, ...timeField(id, field) };
 				break;
 		}
 	});

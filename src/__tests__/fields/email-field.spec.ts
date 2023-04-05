@@ -3,11 +3,11 @@ import { ERROR_MESSAGES } from "../../shared";
 import { TestHelper } from "../../utils";
 import { ERROR_MESSAGE, ERROR_MESSAGE_2 } from "../common";
 
-describe("email", () => {
+describe("email-field", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
 			field: {
-				uiType: "email",
+				uiType: "email-field",
 				somethingUnused: "test",
 				validation: [
 					{ required: true, errorMessage: ERROR_MESSAGE },
@@ -23,7 +23,7 @@ describe("email", () => {
 	it("should use default email error message if error message is not specified", () => {
 		const schema = jsonToSchema({
 			field: {
-				uiType: "email",
+				uiType: "email-field",
 				somethingUnused: "test",
 				validation: [{ email: true }],
 			},

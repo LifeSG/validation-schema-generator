@@ -97,7 +97,11 @@ export interface IFieldSchemaBase<T, V = undefined, U = undefined> {
 }
 
 /** to support elements, they don't come with validation schema  */
-interface IElementSchema {
+interface IBaseElementSchema {
+	validation?: never | undefined;
+	[otherOptions: string]: unknown;
+}
+interface IElementSchema extends IBaseElementSchema {
 	uiType:
 		| "alert"
 		| "text-d1"
@@ -112,17 +116,23 @@ interface IElementSchema {
 		| "text-body"
 		| "text-bodysmall"
 		| "text-xsmall"
-		| "div"
-		| "span"
-		| "section"
-		| "header"
-		| "footer"
-		| "p"
 		| "submit";
-	validation?: never;
+}
+
+export interface IWrapperSchema<V = undefined> extends IBaseElementSchema {
+	uiType: "div" | "span" | "header" | "footer" | "p" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p";
+	children: Record<string, TComponentSchema<V>>;
+}
+
+/** topmost component under sections  */
+interface ISectionSchema<V = undefined> {
+	uiType: "section";
+	children: Record<string, TComponentSchema<V>>;
+	validation?: never | undefined;
 	[otherOptions: string]: unknown;
 }
 
+/** field schemas only */
 export type TFieldSchema<V = undefined> =
 	| ICheckboxSchema<V>
 	| IChipsSchema<V>
@@ -135,9 +145,10 @@ export type TFieldSchema<V = undefined> =
 	| ISelectSchema<V>
 	| ITextareaSchema<V>
 	| ITextFieldSchema<V>
-	| ITimeFieldSchema<V>
-	| IElementSchema;
+	| ITimeFieldSchema<V>;
 
+/** fields, elements, custom component schemas */
+export type TComponentSchema<V = undefined> = TFieldSchema<V> | IWrapperSchema | IElementSchema;
 export type TFieldValidation = TFieldSchema["validation"];
 
 /**
@@ -146,5 +157,5 @@ export type TFieldValidation = TFieldSchema["validation"];
  */
 type NoInfer<T, U> = [T][T extends U ? 0 : never];
 
-/** a collection of fields from web-frontend-engine */
-export type TFields<V = undefined> = Record<string, TFieldSchema<NoInfer<V, IValidationRule>>>;
+/** a collection of sections from web-frontend-engine */
+export type TSectionsSchema<V = undefined> = Record<string, ISectionSchema<NoInfer<V, IValidationRule>>>;

@@ -1,4 +1,6 @@
-import { TFieldSchema, TFields } from "../schema-generator";
+import isEmpty from "lodash/isEmpty";
+import isObject from "lodash/isObject";
+import { TComponentSchema, TFieldSchema, TSectionsSchema } from "../schema-generator";
 import { checkbox } from "./checkbox";
 import { chips } from "./chips";
 import { contactField } from "./contact-field";
@@ -20,47 +22,73 @@ import { TFieldsConfig } from "./types";
  *
  * a field config generator may come up with multiple fields and change the validation config (e.g. chips with textarea)
  */
-export const generateFieldConfigs = (fields: TFields) => {
+export const generateFieldConfigs = (sections: TSectionsSchema) => {
 	let config: TFieldsConfig<TFieldSchema> = {};
-	Object.entries(fields).forEach(([id, field]) => {
-		switch (field.uiType) {
+	Object.values(sections).forEach(({ children }) => {
+		config = { ...config, ...generateChildrenFieldConfigs(children) };
+	});
+	return config;
+};
+
+const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentSchema>) => {
+	let config: TFieldsConfig<TFieldSchema> = {};
+	Object.entries(childrenSchema).forEach(([id, componentSchema]) => {
+		const { uiType, children } = componentSchema;
+
+		switch (uiType) {
 			case "checkbox":
-				config = { ...config, ...checkbox(id, field) };
+				config = { ...config, ...checkbox(id, componentSchema) };
 				break;
 			case "chips":
-				config = { ...config, ...chips(id, field) };
+				config = { ...config, ...chips(id, componentSchema) };
 				break;
 			case "contact-field":
-				config = { ...config, ...contactField(id, field) };
+				config = { ...config, ...contactField(id, componentSchema) };
 				break;
 			case "date-field":
-				config = { ...config, ...dateField(id, field) };
+				config = { ...config, ...dateField(id, componentSchema) };
 				break;
 			case "email-field":
-				config = { ...config, ...emailField(id, field) };
+				config = { ...config, ...emailField(id, componentSchema) };
 				break;
 			case "multi-select":
-				config = { ...config, ...multiSelect(id, field) };
+				config = { ...config, ...multiSelect(id, componentSchema) };
 				break;
 			case "numeric-field":
-				config = { ...config, ...numericField(id, field) };
+				config = { ...config, ...numericField(id, componentSchema) };
 				break;
 			case "radio":
-				config = { ...config, ...radio(id, field) };
+				config = { ...config, ...radio(id, componentSchema) };
 				break;
 			case "select":
-				config = { ...config, ...select(id, field) };
+				config = { ...config, ...select(id, componentSchema) };
 				break;
 			case "text-field":
-				config = { ...config, ...textField(id, field) };
+				config = { ...config, ...textField(id, componentSchema) };
 				break;
 			case "textarea":
-				config = { ...config, ...textarea(id, field) };
+				config = { ...config, ...textarea(id, componentSchema) };
 				break;
 			case "time-field":
-				config = { ...config, ...timeField(id, field) };
+				config = { ...config, ...timeField(id, componentSchema) };
+				break;
+			case "div":
+			case "span":
+			case "header":
+			case "footer":
+			case "p":
+			case "h1":
+			case "h2":
+			case "h3":
+			case "h4":
+			case "h5":
+			case "h6":
+				if (!isEmpty(children) && isObject(children)) {
+					config = { ...config, ...generateChildrenFieldConfigs(children) };
+				}
 				break;
 		}
 	});
+
 	return config;
 };

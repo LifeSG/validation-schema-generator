@@ -1,7 +1,6 @@
-import isEqual from "lodash/isEqual";
-import { SchemaDescription } from "yup/lib/schema";
 import { applyCustomRules } from "../../custom-rules";
 import { jsonToSchema } from "../../schema-generator";
+import { ERROR_MESSAGES } from "../../shared";
 import { TestHelper } from "../../utils";
 import { ERROR_MESSAGE, ERROR_MESSAGE_2, ERROR_MESSAGE_3, ERROR_MESSAGE_4 } from "../common";
 
@@ -60,49 +59,27 @@ describe("json-to-schema", () => {
 			expect(error.inner[2].message).toBe(ERROR_MESSAGE_4);
 		});
 
-		it("should ignore elements and values not specified in schema", () => {
+		it("should throw error if there are unknown fields", () => {
 			const schema = jsonToSchema({
 				section: {
 					uiType: "section",
 					children: {
 						field: {
 							uiType: "text-field",
-							validation: [
-								{ required: true, errorMessage: ERROR_MESSAGE },
-								{ min: 1, errorMessage: ERROR_MESSAGE_2 },
-							],
-						},
-						element: {
-							uiType: "alert",
+							validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
 						},
 					},
 				},
 			});
 
-			const schemaFields = schema.describe().fields;
-			const schemaTypeList = Object.keys(schemaFields).map((key) => schemaFields[key].type);
-			const schemaTestList = Object.keys(schemaFields).map(
-				(key) => (schemaFields[key] as SchemaDescription).tests
-			);
-
-			expect(schemaTypeList).toEqual(["string"]);
-			expect(
-				isEqual(schemaTestList, [
-					[
-						{ name: "required", params: undefined },
-						{ name: "min", params: { min: 1 } },
-					],
-				])
-			).toBe(true);
-
 			const error = TestHelper.getError(() =>
-				schema.validateSync({ field: undefined, element: "world", something: "else" }, { abortEarly: false })
+				schema.validateSync({ field: "hello", custom: "world" }, { abortEarly: false })
 			);
 			expect(error.inner).toHaveLength(1);
-			expect(error.inner[0].message).toBe(ERROR_MESSAGE);
+			expect(error.inner[0].message).toBe(ERROR_MESSAGES.UNSPECIFIED_FIELD("custom"));
 		});
 
-		it("should ignore elements with referenceKey", () => {
+		it("should not apply validation schema for fields with referenceKey", () => {
 			const schema = jsonToSchema({
 				section: {
 					uiType: "section",
@@ -128,8 +105,11 @@ describe("json-to-schema", () => {
 	});
 
 	describe("conditionalRender", () => {
-		it("should not apply validation for conditionally hidden fields", () => {
+		beforeAll(() => {
 			applyCustomRules();
+		});
+
+		it("should not apply validation for conditionally hidden fields", () => {
 			const schema = jsonToSchema({
 				section: {
 					uiType: "section",
@@ -151,17 +131,18 @@ describe("json-to-schema", () => {
 					},
 				},
 			});
+			expect(() => schema.validateSync({ field1: "do not show field 2" })).not.toThrowError();
 
-			expect(() => schema.validateSync({ field1: "hello" })).not.toThrowError();
-
-			const error = TestHelper.getError(() =>
-				schema.validateSync({ field1: "show field 2" }, { abortEarly: false })
+			let error = TestHelper.getError(() =>
+				schema.validateSync({ field1: "do not show field 2", field2: 123 }, { abortEarly: false })
 			);
+			expect(error.inner[0].message).toBe(ERROR_MESSAGES.UNSPECIFIED_FIELD("field2"));
+
+			error = TestHelper.getError(() => schema.validateSync({ field1: "show field 2" }, { abortEarly: false }));
 			expect(error.inner[0].message).toBe(ERROR_MESSAGE_2);
 		});
 
 		it("should not apply validation if field parent is conditionally hidden", () => {
-			applyCustomRules();
 			const schema = jsonToSchema({
 				section: {
 					uiType: "section",
@@ -184,11 +165,14 @@ describe("json-to-schema", () => {
 				},
 			});
 
-			expect(() => schema.validateSync({ field1: "hello" })).not.toThrowError();
+			expect(() => schema.validateSync({ field1: "do not show wrapper" })).not.toThrowError();
 
-			const error = TestHelper.getError(() =>
-				schema.validateSync({ field1: "show wrapper" }, { abortEarly: false })
+			let error = TestHelper.getError(() =>
+				schema.validateSync({ field1: "do not show field 2", field2: 123 }, { abortEarly: false })
 			);
+			expect(error.inner[0].message).toBe(ERROR_MESSAGES.UNSPECIFIED_FIELD("field2"));
+
+			error = TestHelper.getError(() => schema.validateSync({ field1: "show wrapper" }, { abortEarly: false }));
 			expect(error.inner[0].message).toBe(ERROR_MESSAGE_2);
 		});
 	});

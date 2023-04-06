@@ -22,4 +22,5 @@ export const ERROR_MESSAGES = {
 	EMAIL: {
 		INVALID: "Invalid email address",
 	},
+	UNSPECIFIED_FIELD: (id: string) => `this field has unspecified keys: ${id}`, // match Yup.noUnknown() error
 };

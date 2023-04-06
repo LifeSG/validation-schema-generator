@@ -5,6 +5,8 @@ import { Assign, ObjectShape, TypeOfShape } from "yup/lib/object";
 import { AnyObject } from "yup/lib/types";
 import { YupHelper } from "./yup-helper";
 import { TComponentSchema, TRenderRules, TSectionsSchema, TYupSchemaType } from "./types";
+import { ERROR_MESSAGES } from "../shared";
+import { ValueHelper } from "../utils";
 
 /**
  * Remove conditionally rendered fields from yup schema if the conditions are not fulfilled
@@ -21,12 +23,13 @@ export const parseConditionalRenders = (
 	yupContext: Yup.TestContext<AnyObject>
 ) => {
 	if (isEmpty(formValues)) return true;
-	let yupSchema: ObjectShape = { ...yupContext.schema.describe().meta.schema };
-	Object.values(sections).forEach((section) => {
-		yupSchema = parseChildrenConditionalRenders(section.children, yupSchema, formValues);
+	yupContext.schema.withMutation((schema: Yup.ObjectSchema<Assign<ObjectShape, ObjectShape>>) => {
+		let yupSchema: ObjectShape = yupContext.schema.clone().describe().meta.schema;
+		Object.values(sections).forEach((section) => {
+			yupSchema = parseChildrenConditionalRenders(section.children, yupSchema, formValues);
+		});
+		schema.shape(yupSchema);
 	});
-	yupContext.schema.fields = yupSchema;
-
 	return true;
 };
 
@@ -42,7 +45,7 @@ const parseChildrenConditionalRenders = (
 	yupSchema: ObjectShape,
 	formValues: TypeOfShape<Assign<ObjectShape, ObjectShape>>
 ) => {
-	let parsedYupSchema = { ...yupSchema };
+	let parsedYupSchema: ObjectShape = { ...yupSchema };
 	Object.entries(childrenSchema).forEach(([id, componentSchema]) => {
 		if (canRender(componentSchema.showIf as TRenderRules[], yupSchema, formValues)) {
 			if (!isEmpty(componentSchema.children) && isObject(componentSchema.children)) {
@@ -55,9 +58,13 @@ const parseChildrenConditionalRenders = (
 				};
 			}
 		} else {
-			const idsToDelete = [id, ...listAllChildIds(componentSchema.children)];
-			idsToDelete.forEach((idToDelete) => {
-				delete parsedYupSchema[idToDelete];
+			const hiddenFieldIdList = [id, ...listAllChildIds(componentSchema.children)];
+			hiddenFieldIdList.forEach((hiddenFieldId) => {
+				parsedYupSchema[hiddenFieldId] = Yup.mixed().test(
+					"empty",
+					ERROR_MESSAGES.UNSPECIFIED_FIELD(hiddenFieldId),
+					(value) => ValueHelper.isEmpty(value)
+				);
 			});
 		}
 	});

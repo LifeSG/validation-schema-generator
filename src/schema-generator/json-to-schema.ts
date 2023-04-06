@@ -19,7 +19,9 @@ export const jsonToSchema = <V = undefined>(sections: TSectionsSchema<V>) => {
 	});
 
 	return Yup.object()
+		.strict()
 		.shape(yupSchema)
+		.noUnknown()
 		.meta({ schema: yupSchema })
 		.test("conditional-render", undefined, (values, context) => parseConditionalRenders(sections, values, context));
 };

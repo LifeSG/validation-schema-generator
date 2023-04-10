@@ -6,7 +6,6 @@ import { AnyObject } from "yup/lib/types";
 import { YupHelper } from "./yup-helper";
 import { TComponentSchema, TRenderRules, TSectionsSchema, TYupSchemaType } from "./types";
 import { ERROR_MESSAGES } from "../shared";
-import { ValueHelper } from "../utils";
 
 /**
  * Remove conditionally rendered fields from yup schema if the conditions are not fulfilled
@@ -63,7 +62,7 @@ const parseChildrenConditionalRenders = (
 				parsedYupSchema[hiddenFieldId] = Yup.mixed().test(
 					"empty",
 					ERROR_MESSAGES.UNSPECIFIED_FIELD(hiddenFieldId),
-					(value) => ValueHelper.isEmpty(value)
+					(value) => value === undefined
 				);
 			});
 		}

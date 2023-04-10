@@ -14,6 +14,9 @@ import {
 	ITimeFieldSchema,
 } from "../fields";
 
+// =============================================================================
+// CONDITIONS AND RULES
+// =============================================================================
 export const SCHEMA_TYPES = ["string", "number", "boolean", "array", "object"] as const;
 export const CONDITIONS = [
 	"required",
@@ -93,12 +96,14 @@ export interface IConditionalValidationRule extends IRule {
 export interface IFieldSchemaBase<T, V = undefined, U = undefined> {
 	uiType: T;
 	validation?: (IValidationRule | V | U)[] | undefined;
+	referenceKey?: never | undefined;
 	[otherOptions: string]: unknown;
 }
 
 /** to support elements, they don't come with validation schema  */
 interface IBaseElementSchema {
 	validation?: never | undefined;
+	referenceKey?: never | undefined;
 	[otherOptions: string]: unknown;
 }
 interface IElementSchema extends IBaseElementSchema {
@@ -129,6 +134,14 @@ interface ISectionSchema<V = undefined> {
 	uiType: "section";
 	children: Record<string, TComponentSchema<V>>;
 	validation?: never | undefined;
+	referenceKey?: never | undefined;
+	[otherOptions: string]: unknown;
+}
+
+/** to support custom components from other form / frontend engines */
+interface ICustomComponentSchema {
+	referenceKey: string;
+	uiType?: never | undefined;
 	[otherOptions: string]: unknown;
 }
 
@@ -148,7 +161,11 @@ export type TFieldSchema<V = undefined> =
 	| ITimeFieldSchema<V>;
 
 /** fields, elements, custom component schemas */
-export type TComponentSchema<V = undefined> = TFieldSchema<V> | IWrapperSchema | IElementSchema;
+export type TComponentSchema<V = undefined> =
+	| TFieldSchema<V>
+	| IWrapperSchema
+	| IElementSchema
+	| ICustomComponentSchema;
 export type TFieldValidation = TFieldSchema["validation"];
 
 /**

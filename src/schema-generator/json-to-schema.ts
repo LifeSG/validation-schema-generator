@@ -20,6 +20,7 @@ export const jsonToSchema = <V = undefined>(sections: TSectionsSchema<V>) => {
 
 	return Yup.object()
 		.strict()
+		.required()
 		.shape(yupSchema)
 		.noUnknown()
 		.meta({ schema: yupSchema })

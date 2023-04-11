@@ -14,6 +14,7 @@ import { textField } from "./text-field";
 import { textarea } from "./textarea";
 import { timeField } from "./time-field";
 import { TFieldsConfig } from "./types";
+import { referenceKey } from "./reference-key";
 
 /**
  * parse JSON schema by running each field through its respective field config generator
@@ -33,7 +34,10 @@ export const generateFieldConfigs = (sections: TSectionsSchema) => {
 const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentSchema>) => {
 	let config: TFieldsConfig<TFieldSchema> = {};
 	Object.entries(childrenSchema).forEach(([id, componentSchema]) => {
-		if ("referenceKey" in componentSchema) return {};
+		if ("referenceKey" in componentSchema) {
+			config = { ...config, ...referenceKey(id) };
+			return;
+		}
 		const { uiType, children } = componentSchema;
 
 		switch (uiType) {

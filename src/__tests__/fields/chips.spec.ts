@@ -122,7 +122,7 @@ describe("chips", () => {
 		});
 
 		expect(() =>
-			schema.validateSync({ field: ["Apple", "More info"], "chips-more-info": "hello" })
+			schema.validateSync({ field: ["Apple", "More info"], "field-textarea": "hello" })
 		).not.toThrowError();
 	});
 	it("should support textarea validation config", () => {

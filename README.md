@@ -1,4 +1,4 @@
-# validation-schema-generator
+# LifeSG Validation Schema Generator [![npm version](https://img.shields.io/npm/v/@lifesg/validation-schema-generator.svg?style=flat)](https://www.npmjs.com/package/@lifesg/validation-schema-generator)
 
 -   typescript-based
 -   JSON to Yup conversion
@@ -26,27 +26,37 @@ Generate a validation schema to validate against a set of values.
 import { jsonToSchema } from "@lifesg/validation-schema-generator";
 
 const schema = jsonToSchema({
-	field1: {
-		fieldType: "contact",
-		label: "Contact number",
-		validation: [
-			{ required: true },
-			{ contactNumber: { singaporeNumber: "default" }, errorMessage: "Invalid contact number" },
-		],
+	section1: {
+		uiType: "section",
+		children: {
+			field1: {
+				uiType: "contact-field",
+				label: "Contact number",
+				validation: [
+					{ required: true },
+					{ contactNumber: { singaporeNumber: "default" }, errorMessage: "Invalid contact number" },
+				],
+			},
+			field2: {
+				uiType: "radio",
+				label: "Radio",
+				options: [
+					{ label: "A", value: "Apple" },
+					{ label: "B", value: "Berry" },
+				],
+				validation: [{ required: true }, { min: 2, errorMessage: "Min. 2 items" }],
+			},
+		},
 	},
-	field2: {
-		fieldType: "radio",
-		label: "Radio",
-		options: [
-			{ label: "A", value: "Apple" },
-			{ label: "B", value: "Berry" },
-		],
-		validation: [{ required: true }, { min: 2, errorMessage: "Min. 2 items" }],
-	},
-	field3: {
-		fieldType: "text",
-		label: "Text field",
-		validation: [{ required: true }],
+	section2: {
+		uiType: "section",
+		children: {
+			field3: {
+				uiType: "text-field",
+				label: "Text field",
+				validation: [{ required: true }],
+			},
+		},
 	},
 });
 
@@ -70,9 +80,14 @@ import { addRule, jsonToSchema } from "@lifesg/validation-schema-generator";
 addRule("string", "testString", (value) => value === "hello");
 
 const schema = jsonToSchema<{ testString?: boolean }>({
-	field: {
-		fieldType: "text",
-		validation: [{ testString: true, errorMessage: "error message" }],
+	mySection: {
+		uiType: "section",
+		children: {
+			field: {
+				uiType: "text-field",
+				validation: [{ testString: true, errorMessage: "error message" }],
+			},
+		},
 	},
 });
 
@@ -83,16 +98,16 @@ await schema.validate({ field: "invalid" });
 
 -   checkbox
 -   chips
--   contact
--   date
--   email
+-   contact-field
+-   date-field
+-   email-field
 -   multi-select
 -   numeric
 -   radio
 -   select
--   text
+-   text-field
 -   textarea
--   time
+-   time-field
 
 For more information on the usage of each field, please refer to the frontend engine storybook at https://designsystem.life.gov.sg/web-frontend-engine/index.html.
 
@@ -111,13 +126,18 @@ The validation property of a field in a JSON form schema (refer to [web-frontend
 ```ts
 // sample form schema
 {
-	"fields": {
-		"myField": {
-			"fieldType": "text",
-			"label": "My field",
-			"validation": [ // <-- validation config
-				{ "required": true, "errorMessage": "this field is required" } // <-- rule
-			]
+	sections: {
+		mySection: {
+			uiType: "section",
+			children: {
+				myField: {
+					uiType: "text",
+					label: "My field",
+					validation: [ // <-- validation config
+						{ required: true, errorMessage: "this field is required" } // <-- rule
+					]
+				}
+			}
 		}
 	}
 }

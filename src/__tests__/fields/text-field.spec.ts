@@ -2,16 +2,21 @@ import { jsonToSchema } from "../../schema-generator";
 import { TestHelper } from "../../utils";
 import { ERROR_MESSAGE, ERROR_MESSAGE_2 } from "../common";
 
-describe("text", () => {
+describe("text-field", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
-			field: {
-				fieldType: "text",
-				somethingUnused: "test",
-				validation: [
-					{ required: true, errorMessage: ERROR_MESSAGE },
-					{ max: 5, errorMessage: ERROR_MESSAGE_2 },
-				],
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "text-field",
+						somethingUnused: "test",
+						validation: [
+							{ required: true, errorMessage: ERROR_MESSAGE },
+							{ max: 5, errorMessage: ERROR_MESSAGE_2 },
+						],
+					},
+				},
 			},
 		});
 		expect(() => schema.validateSync({ field: "hello" })).not.toThrowError();

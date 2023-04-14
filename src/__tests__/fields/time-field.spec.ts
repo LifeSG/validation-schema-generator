@@ -3,13 +3,18 @@ import { ERROR_MESSAGES } from "../../shared";
 import { TestHelper } from "../../utils";
 import { ERROR_MESSAGE } from "../common";
 
-describe("time", () => {
+describe("time-field", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
-			field: {
-				fieldType: "time",
-				somethingUnused: "test",
-				validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "time-field",
+						somethingUnused: "test",
+						validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+					},
+				},
 			},
 		});
 		expect(() => schema.validateSync({ field: "1:23pm" })).not.toThrowError();
@@ -21,9 +26,14 @@ describe("time", () => {
 
 	it("should be able to validate 12-hour format in h:mma format", () => {
 		const schema = jsonToSchema({
-			field: {
-				fieldType: "time",
-				somethingUnused: "test",
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "time-field",
+						somethingUnused: "test",
+					},
+				},
 			},
 		});
 		expect(() => schema.validateSync({ field: "1:23pm" })).not.toThrowError();
@@ -43,10 +53,15 @@ describe("time", () => {
 
 	it("should be able to validate 24-hour format in H:mm format", () => {
 		const schema = jsonToSchema({
-			field: {
-				fieldType: "time",
-				is24HourFormat: true,
-				somethingUnused: "test",
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "time-field",
+						is24HourFormat: true,
+						somethingUnused: "test",
+					},
+				},
 			},
 		});
 		expect(() => schema.validateSync({ field: "13:23" })).not.toThrowError();

@@ -3,13 +3,18 @@ import { ERROR_MESSAGES } from "../../shared";
 import { TestHelper } from "../../utils";
 import { ERROR_MESSAGE } from "../common";
 
-describe("contact", () => {
+describe("contact-field", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
-			field: {
-				fieldType: "contact",
-				somethingUnused: "test",
-				validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "contact-field",
+						somethingUnused: "test",
+						validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+					},
+				},
 			},
 		});
 		expect(() => schema.validateSync({ field: "+65 91234567" })).not.toThrowError();
@@ -27,10 +32,15 @@ describe("contact", () => {
 			${'mobile numbers starting with "8" and no home numbers if "mobile" is specified'} | ${"mobile"}  | ${"+65 81234567"} | ${"+65 61234567"}
 		`("should accept $scenario", ({ type, valid, invalid }) => {
 			const schema = jsonToSchema({
-				field: {
-					fieldType: "contact",
-					somethingUnused: "test",
-					validation: [{ contactNumber: { singaporeNumber: type }, errorMessage: ERROR_MESSAGE }],
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "contact-field",
+							somethingUnused: "test",
+							validation: [{ contactNumber: { singaporeNumber: type }, errorMessage: ERROR_MESSAGE }],
+						},
+					},
 				},
 			});
 
@@ -40,10 +50,15 @@ describe("contact", () => {
 
 		it("should use default error message if error message is not specified", () => {
 			const schema = jsonToSchema({
-				field: {
-					fieldType: "contact",
-					somethingUnused: "test",
-					validation: [{ contactNumber: { singaporeNumber: "default" } }],
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "contact-field",
+							somethingUnused: "test",
+							validation: [{ contactNumber: { singaporeNumber: "default" } }],
+						},
+					},
 				},
 			});
 
@@ -56,10 +71,15 @@ describe("contact", () => {
 	describe("international numbers", () => {
 		it("should accept valid numbers", () => {
 			const schema = jsonToSchema({
-				field: {
-					fieldType: "contact",
-					somethingUnused: "test",
-					validation: [{ contactNumber: { internationalNumber: true }, errorMessage: ERROR_MESSAGE }],
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "contact-field",
+							somethingUnused: "test",
+							validation: [{ contactNumber: { internationalNumber: true }, errorMessage: ERROR_MESSAGE }],
+						},
+					},
 				},
 			});
 
@@ -73,10 +93,15 @@ describe("contact", () => {
 
 		it("should accept ambiguous calling codes as long as it is valid in a country", () => {
 			const schema = jsonToSchema({
-				field: {
-					fieldType: "contact",
-					somethingUnused: "test",
-					validation: [{ contactNumber: { internationalNumber: true }, errorMessage: ERROR_MESSAGE }],
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "contact-field",
+							somethingUnused: "test",
+							validation: [{ contactNumber: { internationalNumber: true }, errorMessage: ERROR_MESSAGE }],
+						},
+					},
 				},
 			});
 
@@ -86,10 +111,15 @@ describe("contact", () => {
 
 		it("should reject invalid numbers", () => {
 			const schema = jsonToSchema({
-				field: {
-					fieldType: "contact",
-					somethingUnused: "test",
-					validation: [{ contactNumber: { internationalNumber: true }, errorMessage: ERROR_MESSAGE }],
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "contact-field",
+							somethingUnused: "test",
+							validation: [{ contactNumber: { internationalNumber: true }, errorMessage: ERROR_MESSAGE }],
+						},
+					},
 				},
 			});
 
@@ -109,10 +139,15 @@ describe("contact", () => {
 
 		it("should use default error message if error message is not specified", () => {
 			const schema = jsonToSchema({
-				field: {
-					fieldType: "contact",
-					somethingUnused: "test",
-					validation: [{ contactNumber: { internationalNumber: true } }],
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "contact-field",
+							somethingUnused: "test",
+							validation: [{ contactNumber: { internationalNumber: true } }],
+						},
+					},
 				},
 			});
 

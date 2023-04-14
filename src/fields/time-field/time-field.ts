@@ -4,11 +4,11 @@ import { ERROR_MESSAGES } from "../../shared";
 import { IFieldGenerator } from "../types";
 import { TimeHelper } from "./time-helper";
 
-export interface ITimeSchema<V = undefined> extends IFieldSchemaBase<"time", V> {
+export interface ITimeFieldSchema<V = undefined> extends IFieldSchemaBase<"time-field", V> {
 	is24HourFormat?: boolean | undefined;
 }
 
-export const time: IFieldGenerator<ITimeSchema> = (id, { is24HourFormat, validation }) => {
+export const timeField: IFieldGenerator<ITimeFieldSchema> = (id, { is24HourFormat, validation }) => {
 	return {
 		[id]: {
 			yupSchema: Yup.string().test("is-time", ERROR_MESSAGES.TIME.INVALID, (value) => {

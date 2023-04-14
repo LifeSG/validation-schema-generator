@@ -48,22 +48,29 @@ export const chips: IFieldGenerator<IChipsSchema> = (id, field) => {
 
 	// formats textarea validation as conditional validation because it can't tell when to validate (i.e. doesn't know if user picked chip to show textarea)
 	let textareaValidation: IValidationRule = {};
-	if (textarea?.label && textarea?.validation) {
-		const textareaWithoutWhenRule = textarea?.validation?.filter((rule) => !("when" in rule));
-		const textareaWhenRule = textarea?.validation?.find((rule) => "when" in rule);
-		textareaValidation = {
-			when: {
-				...(textareaWhenRule?.when || {}),
-				[id]: {
-					is: [{ includes: [label] }],
-					then: textareaWithoutWhenRule,
+	if (textarea?.label) {
+		if (textarea?.validation) {
+			const textareaWithoutWhenRule = textarea?.validation?.filter((rule) => !("when" in rule));
+			const textareaWhenRule = textarea?.validation?.find((rule) => "when" in rule);
+			textareaValidation = {
+				when: {
+					...(textareaWhenRule?.when || {}),
+					[id]: {
+						is: [{ includes: [label] }],
+						then: textareaWithoutWhenRule,
+					},
 				},
-			},
-		};
-		fieldsConfig[`${id}-textarea`] = {
-			yupSchema: Yup.string(),
-			validation: [textareaValidation],
-		};
+			};
+			fieldsConfig[`${id}-textarea`] = {
+				yupSchema: Yup.string(),
+				validation: [textareaValidation],
+			};
+		} else {
+			fieldsConfig[`${id}-textarea`] = {
+				yupSchema: Yup.mixed().nullable(),
+				validation: [],
+			};
+		}
 	}
 
 	return fieldsConfig;

@@ -1,17 +1,20 @@
-import { TFieldSchema, TFields } from "../schema-generator";
+import isEmpty from "lodash/isEmpty";
+import isObject from "lodash/isObject";
+import { TComponentSchema, TFieldSchema, TSectionsSchema } from "../schema-generator";
 import { checkbox } from "./checkbox";
 import { chips } from "./chips";
-import { contact } from "./contact";
-import { date } from "./date";
-import { email } from "./email";
+import { contactField } from "./contact-field";
+import { dateField } from "./date-field";
+import { emailField } from "./email-field";
 import { multiSelect } from "./multi-select";
-import { numeric } from "./numeric";
+import { numericField } from "./numeric-field";
 import { radio } from "./radio";
 import { select } from "./select";
-import { text } from "./text";
+import { textField } from "./text-field";
 import { textarea } from "./textarea";
-import { time } from "./time";
+import { timeField } from "./time-field";
 import { TFieldsConfig } from "./types";
+import { referenceKey } from "./reference-key";
 
 /**
  * parse JSON schema by running each field through its respective field config generator
@@ -20,48 +23,77 @@ import { TFieldsConfig } from "./types";
  *
  * a field config generator may come up with multiple fields and change the validation config (e.g. chips with textarea)
  */
-export const generateFieldConfigs = (fields: TFields) => {
+export const generateFieldConfigs = (sections: TSectionsSchema) => {
 	let config: TFieldsConfig<TFieldSchema> = {};
-	Object.entries(fields).forEach(([id, field]) => {
-		const { fieldType } = field;
-		switch (fieldType) {
+	Object.values(sections).forEach(({ children }) => {
+		config = { ...config, ...generateChildrenFieldConfigs(children) };
+	});
+	return config;
+};
+
+const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentSchema>) => {
+	let config: TFieldsConfig<TFieldSchema> = {};
+	Object.entries(childrenSchema).forEach(([id, componentSchema]) => {
+		if ("referenceKey" in componentSchema) {
+			config = { ...config, ...referenceKey(id) };
+			return;
+		}
+		const { uiType, children } = componentSchema;
+
+		switch (uiType) {
 			case "checkbox":
-				config = { ...config, ...checkbox(id, field) };
+				config = { ...config, ...checkbox(id, componentSchema) };
 				break;
 			case "chips":
-				config = { ...config, ...chips(id, field) };
+				config = { ...config, ...chips(id, componentSchema) };
 				break;
-			case "contact":
-				config = { ...config, ...contact(id, field) };
+			case "contact-field":
+				config = { ...config, ...contactField(id, componentSchema) };
 				break;
-			case "date":
-				config = { ...config, ...date(id, field) };
+			case "date-field":
+				config = { ...config, ...dateField(id, componentSchema) };
 				break;
-			case "email":
-				config = { ...config, ...email(id, field) };
+			case "email-field":
+				config = { ...config, ...emailField(id, componentSchema) };
 				break;
 			case "multi-select":
-				config = { ...config, ...multiSelect(id, field) };
+				config = { ...config, ...multiSelect(id, componentSchema) };
 				break;
-			case "numeric":
-				config = { ...config, ...numeric(id, field) };
+			case "numeric-field":
+				config = { ...config, ...numericField(id, componentSchema) };
 				break;
 			case "radio":
-				config = { ...config, ...radio(id, field) };
+				config = { ...config, ...radio(id, componentSchema) };
 				break;
 			case "select":
-				config = { ...config, ...select(id, field) };
+				config = { ...config, ...select(id, componentSchema) };
 				break;
-			case "text":
-				config = { ...config, ...text(id, field) };
+			case "text-field":
+				config = { ...config, ...textField(id, componentSchema) };
 				break;
 			case "textarea":
-				config = { ...config, ...textarea(id, field) };
+				config = { ...config, ...textarea(id, componentSchema) };
 				break;
-			case "time":
-				config = { ...config, ...time(id, field) };
+			case "time-field":
+				config = { ...config, ...timeField(id, componentSchema) };
+				break;
+			case "div":
+			case "span":
+			case "header":
+			case "footer":
+			case "p":
+			case "h1":
+			case "h2":
+			case "h3":
+			case "h4":
+			case "h5":
+			case "h6":
+				if (!isEmpty(children) && isObject(children)) {
+					config = { ...config, ...generateChildrenFieldConfigs(children) };
+				}
 				break;
 		}
 	});
+
 	return config;
 };

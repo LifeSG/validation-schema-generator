@@ -2,18 +2,21 @@ import * as Yup from "yup";
 import {
 	ICheckboxSchema,
 	IChipsSchema,
-	IContactSchema,
-	IDateSchema,
-	IEmailSchema,
+	IContactFieldSchema,
+	IDateFieldSchema,
+	IEmailFieldSchema,
 	IMultiSelectSchema,
-	INumericSchema,
+	INumericFieldSchema,
 	IRadioSchema,
 	ISelectSchema,
-	ITextSchema,
+	ITextFieldSchema,
 	ITextareaSchema,
-	ITimeSchema,
+	ITimeFieldSchema,
 } from "../fields";
 
+// =============================================================================
+// CONDITIONS AND RULES
+// =============================================================================
 export const SCHEMA_TYPES = ["string", "number", "boolean", "array", "object"] as const;
 export const CONDITIONS = [
 	"required",
@@ -83,6 +86,11 @@ export interface IConditionalValidationRule extends IRule {
 	filled?: boolean | undefined;
 }
 
+export interface IRenderRule extends IRule {
+	filled?: boolean | undefined;
+}
+export type TRenderRules = Record<string, IRenderRule[]>;
+
 // =============================================================================
 // WEB FRONTEND ENGINE TYPES
 // =============================================================================
@@ -91,14 +99,22 @@ export interface IConditionalValidationRule extends IRule {
  * the shape is intended to be lenient and to allow unknown keys
  */
 export interface IFieldSchemaBase<T, V = undefined, U = undefined> {
-	fieldType: T;
+	uiType: T;
 	validation?: (IValidationRule | V | U)[] | undefined;
+	referenceKey?: never | undefined;
+	showIf?: TRenderRules[] | undefined;
 	[otherOptions: string]: unknown;
 }
 
 /** to support elements, they don't come with validation schema  */
-interface IElementSchema {
-	fieldType:
+interface IBaseElementSchema {
+	validation?: never | undefined;
+	referenceKey?: never | undefined;
+	showIf?: TRenderRules[] | undefined;
+	[otherOptions: string]: unknown;
+}
+interface IElementSchema extends IBaseElementSchema {
+	uiType:
 		| "alert"
 		| "text-d1"
 		| "text-d2"
@@ -112,32 +128,52 @@ interface IElementSchema {
 		| "text-body"
 		| "text-bodysmall"
 		| "text-xsmall"
-		| "div"
-		| "span"
-		| "section"
-		| "header"
-		| "footer"
-		| "p"
 		| "submit";
-	validation?: never;
+}
+
+export interface IWrapperSchema<V = undefined> extends IBaseElementSchema {
+	uiType: "div" | "span" | "header" | "footer" | "p" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p";
+	children: Record<string, TComponentSchema<V>>;
+}
+
+/** topmost component under sections  */
+interface ISectionSchema<V = undefined> {
+	uiType: "section";
+	children: Record<string, TComponentSchema<V>>;
+	validation?: never | undefined;
+	referenceKey?: never | undefined;
+	showIf?: never | undefined;
 	[otherOptions: string]: unknown;
 }
 
+/** to support custom components from other form / frontend engines */
+interface ICustomComponentSchema {
+	referenceKey: string;
+	uiType?: never | undefined;
+	[otherOptions: string]: unknown;
+}
+
+/** field schemas only */
 export type TFieldSchema<V = undefined> =
 	| ICheckboxSchema<V>
 	| IChipsSchema<V>
-	| IContactSchema<V>
-	| IDateSchema<V>
-	| IEmailSchema<V>
+	| IContactFieldSchema<V>
+	| IDateFieldSchema<V>
+	| IEmailFieldSchema<V>
 	| IMultiSelectSchema<V>
-	| INumericSchema<V>
+	| INumericFieldSchema<V>
 	| IRadioSchema<V>
 	| ISelectSchema<V>
 	| ITextareaSchema<V>
-	| ITextSchema<V>
-	| ITimeSchema<V>
-	| IElementSchema;
+	| ITextFieldSchema<V>
+	| ITimeFieldSchema<V>;
 
+/** fields, elements, custom component schemas */
+export type TComponentSchema<V = undefined> =
+	| TFieldSchema<V>
+	| IWrapperSchema
+	| IElementSchema
+	| ICustomComponentSchema;
 export type TFieldValidation = TFieldSchema["validation"];
 
 /**
@@ -146,5 +182,5 @@ export type TFieldValidation = TFieldSchema["validation"];
  */
 type NoInfer<T, U> = [T][T extends U ? 0 : never];
 
-/** a collection of fields from web-frontend-engine */
-export type TFields<V = undefined> = Record<string, TFieldSchema<NoInfer<V, IValidationRule>>>;
+/** a collection of sections from web-frontend-engine */
+export type TSectionsSchema<V = undefined> = Record<string, ISectionSchema<NoInfer<V, IValidationRule>>>;

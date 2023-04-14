@@ -6,18 +6,23 @@ import { ERROR_MESSAGE, ERROR_MESSAGE_2 } from "../common";
 describe("radio", () => {
 	it("should be able to generate a validation schema", () => {
 		const schema = jsonToSchema({
-			field: {
-				fieldType: "radio",
-				options: [
-					{ label: "Apple", value: "Apple" },
-					{ label: "Berry", value: "Berry" },
-					{ label: "Cherry", value: "Cherry" },
-				],
-				somethingUnused: "test",
-				validation: [
-					{ required: true, errorMessage: ERROR_MESSAGE },
-					{ max: 5, errorMessage: ERROR_MESSAGE_2 },
-				],
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "radio",
+						options: [
+							{ label: "Apple", value: "Apple" },
+							{ label: "Berry", value: "Berry" },
+							{ label: "Cherry", value: "Cherry" },
+						],
+						somethingUnused: "test",
+						validation: [
+							{ required: true, errorMessage: ERROR_MESSAGE },
+							{ max: 5, errorMessage: ERROR_MESSAGE_2 },
+						],
+					},
+				},
 			},
 		});
 		expect(() => schema.validateSync({ field: "Apple" })).not.toThrowError();
@@ -27,14 +32,19 @@ describe("radio", () => {
 
 	it("should throw an error if a value not defined in options is submitted", () => {
 		const schema = jsonToSchema({
-			field: {
-				fieldType: "radio",
-				options: [
-					{ label: "Apple", value: "Apple" },
-					{ label: "Berry", value: "Berry" },
-					{ label: "Cherry", value: "Cherry" },
-				],
-				somethingUnused: "test",
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "radio",
+						options: [
+							{ label: "Apple", value: "Apple" },
+							{ label: "Berry", value: "Berry" },
+							{ label: "Cherry", value: "Cherry" },
+						],
+						somethingUnused: "test",
+					},
+				},
 			},
 		});
 

@@ -13,6 +13,7 @@ import { select } from "./select";
 import { textField } from "./text-field";
 import { textarea } from "./textarea";
 import { timeField } from "./time-field";
+import { unitNumberField } from "./unit-number-field";
 import { TFieldsConfig } from "./types";
 import { referenceKey } from "./reference-key";
 
@@ -76,6 +77,9 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 				break;
 			case "time-field":
 				config = { ...config, ...timeField(id, componentSchema) };
+				break;
+			case "unit-number-field":
+				config = { ...config, ...unitNumberField(id, componentSchema) };
 				break;
 			case "div":
 			case "span":

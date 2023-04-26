@@ -128,7 +128,8 @@ interface IElementSchema extends IBaseElementSchema {
 		| "text-body"
 		| "text-bodysmall"
 		| "text-xsmall"
-		| "submit";
+		| "submit"
+		| "reset";
 }
 
 export interface IWrapperSchema<V = undefined> extends IBaseElementSchema {

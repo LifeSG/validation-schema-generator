@@ -21,7 +21,7 @@ describe("unit-number-field", () => {
 		expect(TestHelper.getError(() => schema.validateSync({})).message).toBe(ERROR_MESSAGE);
 	});
 
-	it("should display invalid unit number error message", () => {
+	it("should use default error message if error message is not specified", () => {
 		const schema = jsonToSchema({
 			section: {
 				uiType: "section",
@@ -36,5 +36,22 @@ describe("unit-number-field", () => {
 		expect(TestHelper.getError(() => schema.validateSync({ field: "01-" })).message).toBe(
 			ERROR_MESSAGES.UNIT_NUMBER.INVALID
 		);
+	});
+
+	it("should use custom error message if custom error message is specified", () => {
+		const customError = "Please enter a valid unit number.";
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "unit-number-field",
+						somethingUnused: "test",
+						validation: [{ unitNumberFormat: true, errorMessage: customError }],
+					},
+				},
+			},
+		});
+		expect(TestHelper.getError(() => schema.validateSync({ field: "01-" })).message).toBe(customError);
 	});
 });

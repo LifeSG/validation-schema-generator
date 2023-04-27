@@ -12,6 +12,7 @@ import {
 	ITextFieldSchema,
 	ITextareaSchema,
 	ITimeFieldSchema,
+	IUnitNumberFieldSchema,
 } from "../fields";
 
 // =============================================================================
@@ -167,7 +168,8 @@ export type TFieldSchema<V = undefined> =
 	| ISelectSchema<V>
 	| ITextareaSchema<V>
 	| ITextFieldSchema<V>
-	| ITimeFieldSchema<V>;
+	| ITimeFieldSchema<V>
+	| IUnitNumberFieldSchema<V>;
 
 /** fields, elements, custom component schemas */
 export type TComponentSchema<V = undefined> =

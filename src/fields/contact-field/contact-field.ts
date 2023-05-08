@@ -7,6 +7,7 @@ import { IContactFieldSchema } from "./types";
 export const contactField: IFieldGenerator<IContactFieldSchema> = (id, { validation }) => {
 	const contactNumberRule = validation?.find((rule) => "contactNumber" in rule);
 	const singaporeRule = contactNumberRule?.["contactNumber"]?.["singaporeNumber"];
+	const fixedCountryName = contactNumberRule?.["contactNumber"]?.["fixedCountry"];
 	const errorMessage = contactNumberRule?.["errorMessage"];
 
 	return {
@@ -27,10 +28,19 @@ export const contactField: IFieldGenerator<IContactFieldSchema> = (id, { validat
 					}
 				})
 				.test(
+					"fixedCountry",
+					errorMessage || ERROR_MESSAGES.CONTACT.INVALID_FIXED_COUNTRY(fixedCountryName),
+					(value) => {
+						if (!value || !fixedCountryName) return true;
+
+						return PhoneHelper.isInternationalNumber(value, fixedCountryName);
+					}
+				)
+				.test(
 					"internationalNumber",
 					errorMessage || ERROR_MESSAGES.CONTACT.INVALID_INTERNATIONAL_NUMBER,
 					(value) => {
-						if (!value || singaporeRule) return true;
+						if (!value || singaporeRule || fixedCountryName) return true;
 						return PhoneHelper.isInternationalNumber(value);
 					}
 				),

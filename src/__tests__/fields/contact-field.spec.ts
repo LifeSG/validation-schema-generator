@@ -68,6 +68,78 @@ describe("contact-field", () => {
 		});
 	});
 
+	describe("fixed country number", () => {
+		it("should validate specific country", () => {
+			const country = "France";
+
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "contact-field",
+							somethingUnused: "test",
+							validation: [{ contactNumber: { fixedCountry: country }, errorMessage: ERROR_MESSAGE }],
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({ field: "+33 5-12-34-56-78" })).not.toThrowError();
+		});
+
+		it("should reject invalid numbers", () => {
+			const country = "Japan";
+
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "contact-field",
+							somethingUnused: "test",
+							validation: [{ contactNumber: { fixedCountry: country }, errorMessage: ERROR_MESSAGE }],
+						},
+					},
+				},
+			});
+
+			expect(TestHelper.getError(() => schema.validateSync({ field: "+11 52-1234-5678" })).message).toBe(
+				ERROR_MESSAGE
+			); // invalid calling code
+			expect(TestHelper.getError(() => schema.validateSync({ field: "+81 0-1234-5678" })).message).toBe(
+				ERROR_MESSAGE
+			); // invalid area code
+			expect(TestHelper.getError(() => schema.validateSync({ field: "+81 8811 2211" })).message).toBe(
+				ERROR_MESSAGE
+			); // invalid number
+			expect(TestHelper.getError(() => schema.validateSync({ field: "+81 52 123-45678" })).message).toBe(
+				ERROR_MESSAGE
+			); // invalid spaces
+		});
+
+		it("should use default error message if error message is not specified", () => {
+			const country = "Germany";
+
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "contact-field",
+							somethingUnused: "test",
+							validation: [{ contactNumber: { fixedCountry: country } }],
+						},
+					},
+				},
+			});
+
+			expect(TestHelper.getError(() => schema.validateSync({ field: "invalid" })).message).toBe(
+				ERROR_MESSAGES.CONTACT.INVALID_FIXED_COUNTRY(country)
+			);
+		});
+	});
+
 	describe("international numbers", () => {
 		it("should accept valid numbers", () => {
 			const schema = jsonToSchema({

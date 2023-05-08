@@ -5,6 +5,7 @@ export const ERROR_MESSAGES = {
 	},
 	CONTACT: {
 		INVALID_SINGAPORE_NUMBER: "Invalid Singapore number",
+		INVALID_FIXED_COUNTRY: (country: string) => `Invalid ${country} number`,
 		INVALID_INTERNATIONAL_NUMBER: "Invalid international number",
 	},
 	DATE: {

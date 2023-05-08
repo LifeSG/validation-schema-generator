@@ -135,7 +135,7 @@ describe("contact-field", () => {
 			});
 
 			expect(TestHelper.getError(() => schema.validateSync({ field: "invalid" })).message).toBe(
-				ERROR_MESSAGES.CONTACT.INVALID_FIXED_COUNTRY(country)
+				ERROR_MESSAGES.CONTACT.INVALID_INTERNATIONAL_NUMBER
 			);
 		});
 	});

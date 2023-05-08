@@ -1,3 +1,4 @@
+import { TCountry } from "../../fields";
 import { jsonToSchema } from "../../schema-generator";
 import { ERROR_MESSAGES } from "../../shared";
 import { TestHelper } from "../../utils";
@@ -70,7 +71,7 @@ describe("contact-field", () => {
 
 	describe("fixed country number", () => {
 		it("should validate specific country", () => {
-			const country = "France";
+			const country = "France" as TCountry;
 
 			const schema = jsonToSchema({
 				section: {
@@ -79,7 +80,9 @@ describe("contact-field", () => {
 						field: {
 							uiType: "contact-field",
 							somethingUnused: "test",
-							validation: [{ contactNumber: { fixedCountry: country }, errorMessage: ERROR_MESSAGE }],
+							validation: [
+								{ contactNumber: { internationalNumber: country }, errorMessage: ERROR_MESSAGE },
+							],
 						},
 					},
 				},
@@ -89,7 +92,7 @@ describe("contact-field", () => {
 		});
 
 		it("should reject invalid numbers", () => {
-			const country = "Japan";
+			const country = "Japan" as TCountry;
 
 			const schema = jsonToSchema({
 				section: {
@@ -98,7 +101,9 @@ describe("contact-field", () => {
 						field: {
 							uiType: "contact-field",
 							somethingUnused: "test",
-							validation: [{ contactNumber: { fixedCountry: country }, errorMessage: ERROR_MESSAGE }],
+							validation: [
+								{ contactNumber: { internationalNumber: country }, errorMessage: ERROR_MESSAGE },
+							],
 						},
 					},
 				},
@@ -128,7 +133,7 @@ describe("contact-field", () => {
 						field: {
 							uiType: "contact-field",
 							somethingUnused: "test",
-							validation: [{ contactNumber: { fixedCountry: country } }],
+							validation: [{ contactNumber: { internationalNumber: country } }],
 						},
 					},
 				},

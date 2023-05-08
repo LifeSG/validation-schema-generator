@@ -4,19 +4,12 @@ import { CountryData } from "./data";
 export interface IContactNumberValidationRule {
 	contactNumber?:
 		| {
-				internationalNumber: true;
+				internationalNumber: boolean | Omit<TCountry, "Singapore">;
 				singaporeNumber?: never;
-				fixedCountry?: never;
 		  }
 		| {
 				internationalNumber?: never;
 				singaporeNumber: "default" | "house" | "mobile";
-				fixedCountry?: never;
-		  }
-		| {
-				internationalNumber?: never;
-				singaporeNumber?: never;
-				fixedCountry: TCountry;
 		  }
 		| undefined;
 }

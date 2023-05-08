@@ -7,8 +7,10 @@ import { IContactFieldSchema } from "./types";
 export const contactField: IFieldGenerator<IContactFieldSchema> = (id, { validation }) => {
 	const contactNumberRule = validation?.find((rule) => "contactNumber" in rule);
 	const singaporeRule = contactNumberRule?.["contactNumber"]?.["singaporeNumber"];
-	const fixedCountryName = contactNumberRule?.["contactNumber"]?.["fixedCountry"];
+	const internationalNumberRule = contactNumberRule?.["contactNumber"]?.["internationalNumber"];
 	const errorMessage = contactNumberRule?.["errorMessage"];
+
+	const fixedCountryName = typeof internationalNumberRule === "boolean" ? undefined : internationalNumberRule;
 
 	return {
 		[id]: {

@@ -69,82 +69,6 @@ describe("contact-field", () => {
 		});
 	});
 
-	describe("fixed country number", () => {
-		it("should validate specific country", () => {
-			const country = "France" as TCountry;
-
-			const schema = jsonToSchema({
-				section: {
-					uiType: "section",
-					children: {
-						field: {
-							uiType: "contact-field",
-							somethingUnused: "test",
-							validation: [
-								{ contactNumber: { internationalNumber: country }, errorMessage: ERROR_MESSAGE },
-							],
-						},
-					},
-				},
-			});
-
-			expect(() => schema.validateSync({ field: "+33 5-12-34-56-78" })).not.toThrowError();
-		});
-
-		it("should reject invalid numbers", () => {
-			const country = "Japan" as TCountry;
-
-			const schema = jsonToSchema({
-				section: {
-					uiType: "section",
-					children: {
-						field: {
-							uiType: "contact-field",
-							somethingUnused: "test",
-							validation: [
-								{ contactNumber: { internationalNumber: country }, errorMessage: ERROR_MESSAGE },
-							],
-						},
-					},
-				},
-			});
-
-			expect(TestHelper.getError(() => schema.validateSync({ field: "+11 52-1234-5678" })).message).toBe(
-				ERROR_MESSAGE
-			); // invalid calling code
-			expect(TestHelper.getError(() => schema.validateSync({ field: "+81 0-1234-5678" })).message).toBe(
-				ERROR_MESSAGE
-			); // invalid area code
-			expect(TestHelper.getError(() => schema.validateSync({ field: "+81 8811 2211" })).message).toBe(
-				ERROR_MESSAGE
-			); // invalid number
-			expect(TestHelper.getError(() => schema.validateSync({ field: "+81 52 123-45678" })).message).toBe(
-				ERROR_MESSAGE
-			); // invalid spaces
-		});
-
-		it("should use default error message if error message is not specified", () => {
-			const country = "Germany";
-
-			const schema = jsonToSchema({
-				section: {
-					uiType: "section",
-					children: {
-						field: {
-							uiType: "contact-field",
-							somethingUnused: "test",
-							validation: [{ contactNumber: { internationalNumber: country } }],
-						},
-					},
-				},
-			});
-
-			expect(TestHelper.getError(() => schema.validateSync({ field: "invalid" })).message).toBe(
-				ERROR_MESSAGES.CONTACT.INVALID_INTERNATIONAL_NUMBER
-			);
-		});
-	});
-
 	describe("international numbers", () => {
 		it("should accept valid numbers", () => {
 			const schema = jsonToSchema({
@@ -184,6 +108,59 @@ describe("contact-field", () => {
 
 			expect(() => schema.validateSync({ field: "+1 212-555-3456" })).not.toThrowError(); // new york, USA
 			expect(() => schema.validateSync({ field: "+1 236-555-3456" })).not.toThrowError(); // vancouver, canada
+		});
+
+		it("should validate against specific country when specified", () => {
+			const country = "France" as TCountry;
+
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "contact-field",
+							somethingUnused: "test",
+							validation: [
+								{ contactNumber: { internationalNumber: country }, errorMessage: ERROR_MESSAGE },
+							],
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({ field: "+33 5-12-34-56-78" })).not.toThrowError();
+		});
+
+		it("should reject if number format does not match specified country", () => {
+			const country = "Japan" as TCountry;
+
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "contact-field",
+							somethingUnused: "test",
+							validation: [
+								{ contactNumber: { internationalNumber: country }, errorMessage: ERROR_MESSAGE },
+							],
+						},
+					},
+				},
+			});
+
+			expect(TestHelper.getError(() => schema.validateSync({ field: "+11 52-1234-5678" })).message).toBe(
+				ERROR_MESSAGE
+			); // invalid calling code
+			expect(TestHelper.getError(() => schema.validateSync({ field: "+81 0-1234-5678" })).message).toBe(
+				ERROR_MESSAGE
+			); // invalid area code
+			expect(TestHelper.getError(() => schema.validateSync({ field: "+81 8811 2211" })).message).toBe(
+				ERROR_MESSAGE
+			); // invalid number
+			expect(TestHelper.getError(() => schema.validateSync({ field: "+81 52 123-45678" })).message).toBe(
+				ERROR_MESSAGE
+			); // invalid spaces
 		});
 
 		it("should reject invalid numbers", () => {

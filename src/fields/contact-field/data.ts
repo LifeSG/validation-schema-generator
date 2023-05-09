@@ -229,4 +229,4 @@ export const CountryData = [
 	["Yemen", ["middle-east"], "ye", "967"],
 	["Zambia", ["africa"], "zm", "260"],
 	["Zimbabwe", ["africa"], "zw", "263"],
-];
+] as const;

@@ -1,9 +1,10 @@
 import { IFieldSchemaBase } from "../../schema-generator";
+import { CountryData } from "./data";
 
 export interface IContactNumberValidationRule {
 	contactNumber?:
 		| {
-				internationalNumber: true;
+				internationalNumber: boolean | Omit<TCountry, "Singapore">;
 				singaporeNumber?: never;
 		  }
 		| {
@@ -12,6 +13,8 @@ export interface IContactNumberValidationRule {
 		  }
 		| undefined;
 }
+
+export type TCountry = (typeof CountryData)[number][0];
 
 export interface IContactFieldSchema<V = undefined>
 	extends IFieldSchemaBase<"contact-field", V, IContactNumberValidationRule> {}

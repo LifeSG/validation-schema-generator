@@ -41,6 +41,7 @@ export const CONDITIONS = [
 	"includes",
 	"excludes",
 	"uinfin",
+	"equalsField",
 ] as const;
 export type TYupSchemaType = (typeof SCHEMA_TYPES)[number];
 export type TCondition = (typeof CONDITIONS)[number];
@@ -66,6 +67,7 @@ interface IRule {
 	includes?: unknown | undefined;
 	excludes?: unknown | undefined;
 	uinfin?: boolean | undefined;
+	equalsField?: unknown | undefined;
 }
 
 export interface IValidationRule extends IRule {

@@ -1,3 +1,4 @@
+import { equalsField } from "./equalsField";
 import { excludes } from "./excludes";
 import { includes } from "./includes";
 import { uinfin } from "./uinfin";
@@ -14,4 +15,5 @@ export const applyCustomRules = () => {
 	equals();
 	filled();
 	notEquals();
+	equalsField();
 };

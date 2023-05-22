@@ -125,4 +125,117 @@ describe("custom-rules", () => {
 			expect(TestHelper.getError(() => schema.validateSync({ field: "S1234567A" })).message).toBe(ERROR_MESSAGE);
 		});
 	});
+
+	describe("equalsField", () => {
+		it.each`
+			type        | uiType             | field1    | field2
+			${"string"} | ${"text-field"}    | ${"text"} | ${"text"}
+			${"number"} | ${"numeric-field"} | ${10}     | ${10}
+		`("should not throw error if both inputs are same $type", ({ uiType, field1, field2 }) => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field1: {
+							uiType,
+							validation: [{ required: true }],
+						},
+						field2: {
+							uiType,
+							validation: [{ equalsField: "field1" }],
+						},
+					},
+				},
+			});
+			expect(() => schema.validateSync({ field1, field2 })).not.toThrowError();
+		});
+
+		it.each`
+			type        | uiType             | field1    | field2
+			${"string"} | ${"text-field"}    | ${"text"} | ${"test"}
+			${"number"} | ${"numeric-field"} | ${10}     | ${11}
+		`("should throw error if both inputs are not same $type", ({ uiType, field1, field2 }) => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field1: {
+							uiType,
+							validation: [{ required: true }],
+						},
+						field2: {
+							uiType,
+							validation: [{ equalsField: "field1", errorMessage: ERROR_MESSAGE }],
+						},
+					},
+				},
+			});
+			expect(TestHelper.getError(() => schema.validateSync({ field1, field2 })).message).toBe(ERROR_MESSAGE);
+		});
+
+		it.each`
+			type             | field1                | field2
+			${"array"}       | ${["Apple", "Berry"]} | ${["Apple", "Berry"]}
+			${"one element"} | ${["Apple"]}          | ${["Apple"]}
+		`("should not throw error if both inputs are same $type inputs", ({ field1, field2 }) => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field1: {
+							uiType: "checkbox",
+							options: [
+								{ label: "Apple", value: "Apple" },
+								{ label: "Berry", value: "Berry" },
+								{ label: "Cherry", value: "Cherry" },
+							],
+							validation: [{ required: true }],
+						},
+						field2: {
+							uiType: "checkbox",
+							options: [
+								{ label: "Apple", value: "Apple" },
+								{ label: "Berry", value: "Berry" },
+								{ label: "Cherry", value: "Cherry" },
+							],
+							validation: [{ equalsField: "field1" }],
+						},
+					},
+				},
+			});
+			expect(() => schema.validateSync({ field1, field2 })).not.toThrowError();
+		});
+
+		it("should throw error if both inputs are not same array inputs", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field1: {
+							uiType: "checkbox",
+							options: [
+								{ label: "Apple", value: "Apple" },
+								{ label: "Berry", value: "Berry" },
+								{ label: "Cherry", value: "Cherry" },
+							],
+							validation: [{ required: true }],
+						},
+						field2: {
+							uiType: "checkbox",
+							options: [
+								{ label: "Apple", value: "Apple" },
+								{ label: "Berry", value: "Berry" },
+								{ label: "Cherry", value: "Cherry" },
+							],
+							validation: [{ equalsField: "field1", errorMessage: ERROR_MESSAGE }],
+						},
+					},
+				},
+			});
+			expect(
+				TestHelper.getError(() => schema.validateSync({ field1: ["Apple", "Berry"], field2: ["Apple"] }))
+					.message
+			).toBe(ERROR_MESSAGE);
+		});
+	});
 });

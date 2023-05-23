@@ -128,9 +128,10 @@ describe("custom-rules", () => {
 
 	describe("equalsField", () => {
 		it.each`
-			type        | uiType             | field1    | field2
-			${"string"} | ${"text-field"}    | ${"text"} | ${"text"}
-			${"number"} | ${"numeric-field"} | ${10}     | ${10}
+			type        | uiType             | field1       | field2
+			${"string"} | ${"text-field"}    | ${"text"}    | ${"text"}
+			${"number"} | ${"numeric-field"} | ${10}        | ${10}
+			${"empty"}  | ${"text-field"}    | ${undefined} | ${undefined}
 		`("should not throw error if both inputs are same $type", ({ uiType, field1, field2 }) => {
 			const schema = jsonToSchema({
 				section: {
@@ -138,7 +139,7 @@ describe("custom-rules", () => {
 					children: {
 						field1: {
 							uiType,
-							validation: [{ required: true }],
+							validation: [],
 						},
 						field2: {
 							uiType,
@@ -177,6 +178,7 @@ describe("custom-rules", () => {
 			type             | field1                | field2
 			${"array"}       | ${["Apple", "Berry"]} | ${["Apple", "Berry"]}
 			${"one element"} | ${["Apple"]}          | ${["Apple"]}
+			${"empty array"} | ${[]}                 | ${[]}
 		`("should not throw error if both inputs are same $type inputs", ({ field1, field2 }) => {
 			const schema = jsonToSchema({
 				section: {
@@ -189,7 +191,7 @@ describe("custom-rules", () => {
 								{ label: "Berry", value: "Berry" },
 								{ label: "Cherry", value: "Cherry" },
 							],
-							validation: [{ required: true }],
+							validation: [],
 						},
 						field2: {
 							uiType: "checkbox",

@@ -206,7 +206,12 @@ describe("custom-rules", () => {
 			expect(() => schema.validateSync({ field1, field2 })).not.toThrowError();
 		});
 
-		it("should throw error if both inputs are not same array inputs", () => {
+		it.each`
+			field1                | field2
+			${["Apple", "Berry"]} | ${[]}
+			${["Apple", "Berry"]} | ${["Apple"]}
+			${["Apple", "Berry"]} | ${["Apple", "Cherry"]}
+		`("should throw error if both inputs are not same array inputs", ({ field1, field2 }) => {
 			const schema = jsonToSchema({
 				section: {
 					uiType: "section",
@@ -232,10 +237,7 @@ describe("custom-rules", () => {
 					},
 				},
 			});
-			expect(
-				TestHelper.getError(() => schema.validateSync({ field1: ["Apple", "Berry"], field2: ["Apple"] }))
-					.message
-			).toBe(ERROR_MESSAGE);
+			expect(TestHelper.getError(() => schema.validateSync({ field1, field2 })).message).toBe(ERROR_MESSAGE);
 		});
 	});
 });

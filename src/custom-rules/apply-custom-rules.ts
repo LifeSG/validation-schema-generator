@@ -1,4 +1,4 @@
-import { equalsField } from "./equalsField";
+import { equalsField } from "./equals-field";
 import { excludes } from "./excludes";
 import { includes } from "./includes";
 import { uinfin } from "./uinfin";

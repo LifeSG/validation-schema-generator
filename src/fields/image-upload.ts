@@ -12,6 +12,7 @@ interface IImageDimensions {
 }
 
 interface IImageUploadValidationRule extends IValidationRule {
+	compress?: boolean | undefined;
 	// rule is supported but no validation is needed as it only needs to validation the outputType
 	fileType?: TImageUploadAcceptedFileType[] | undefined;
 	maxSizeInKb?: number | undefined;
@@ -26,7 +27,7 @@ export interface IImageUploadSchema<V = undefined>
 
 export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 	id,
-	{ dimensions, outputType = "jpg", validation }
+	{ compress, dimensions, outputType = "jpg", validation }
 ) => {
 	const isRequiredRule = validation?.find((rule) => "required" in rule);
 	const maxFileSizeRule = validation?.find((rule) => "maxSizeInKb" in rule);
@@ -101,7 +102,14 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 					"dimensions",
 					ERROR_MESSAGES.UPLOAD("photo").DIMENSIONS(dimensions?.width, dimensions?.height),
 					(value) => {
-						if (!value || !Array.isArray(value) || !dimensions || !dimensions.width || !dimensions.height)
+						if (
+							!value ||
+							!Array.isArray(value) ||
+							!compress ||
+							!dimensions ||
+							!dimensions.width ||
+							!dimensions.height
+						)
 							return true;
 
 						return value.reduce((accumulator, file) => {

@@ -16,6 +16,7 @@ import { timeField } from "./time-field";
 import { unitNumberField } from "./unit-number-field";
 import { TFieldsConfig } from "./types";
 import { referenceKey } from "./reference-key";
+import { imageUpload } from "./image-upload";
 
 /**
  * parse JSON schema by running each field through its respective field config generator
@@ -56,6 +57,9 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 				break;
 			case "email-field":
 				config = { ...config, ...emailField(id, componentSchema) };
+				break;
+			case "image-upload":
+				config = { ...config, ...imageUpload(id, componentSchema) };
 				break;
 			case "multi-select":
 				config = { ...config, ...multiSelect(id, componentSchema) };

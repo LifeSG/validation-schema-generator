@@ -6,4 +6,12 @@ export namespace TestHelper {
 			return error;
 		}
 	};
+
+	export const getAsyncError = async (fn: () => unknown) => {
+		try {
+			return await fn();
+		} catch (error) {
+			return error;
+		}
+	};
 }

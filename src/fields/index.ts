@@ -4,6 +4,7 @@ export * from "./contact-field";
 export * from "./date-field";
 export * from "./email-field";
 export * from "./generate-field-configs";
+export * from "./image-upload";
 export * from "./multi-select";
 export * from "./numeric-field";
 export * from "./select";

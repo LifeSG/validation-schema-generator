@@ -64,14 +64,11 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 						ERROR_MESSAGES.UPLOAD("photo").MAX_FILE_SIZE(maxFileSizeRule?.["maxSizeInKb"]),
 					(value) => {
 						if (!value || !Array.isArray(value) || !maxFileSizeRule?.["maxSizeInKb"]) return true;
-						return value.reduce((accumulator, file) => {
-							if (
-								!accumulator ||
-								FileHelper.getFilesizeFromBase64(file.dataURL) > maxFileSizeRule?.["maxSizeInKb"] * 1024
-							)
-								return false;
-							return true;
-						}, true);
+						return value.every(
+							(file) =>
+								FileHelper.getFilesizeFromBase64(file.dataURL) <=
+								maxFileSizeRule?.["maxSizeInKb"] * 1024
+						);
 					}
 				)
 				.test(
@@ -111,16 +108,12 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 						)
 							return true;
 
-						return value.reduce((accumulator, file) => {
+						return value.every((file) => {
 							const fileDimensions = ImageHelper.getDimensionsFromBase64(file.dataURL);
-							if (
-								!accumulator ||
-								fileDimensions?.width > dimensions.width ||
-								fileDimensions?.height > dimensions.height
-							)
-								return false;
-							return true;
-						}, true);
+							return (
+								fileDimensions?.width <= dimensions.width && fileDimensions?.height <= dimensions.height
+							);
+						});
 					}
 				),
 			validation,

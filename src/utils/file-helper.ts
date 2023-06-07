@@ -2,18 +2,6 @@ import { fromBuffer } from "file-type";
 
 export namespace FileHelper {
 	/**
-	 * formats bytes to bigger units
-	 */
-	export const bytesToSize = (bytes: number) => {
-		const sizes = ["B", "KB", "MB", "GB", "TB"];
-		let rounding = 1;
-		if (bytes == 0) return "0 B";
-		const i: number = Math.floor(Math.log(bytes) / Math.log(1024));
-		if (i === 0 || i === 1) rounding = 0;
-		return Number(bytes / Math.pow(1024, i)).toFixed(rounding) + " " + sizes[i];
-	};
-
-	/**
 	 * estimate filesize from base64 string
 	 * https://stackoverflow.com/questions/53228948/how-to-get-image-file-size-from-base-64-string-in-javascript#answer-53229045
 	 */

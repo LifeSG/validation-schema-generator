@@ -12,7 +12,6 @@ interface IImageDimensions {
 }
 
 interface IImageUploadValidationRule extends IValidationRule {
-	compress?: boolean | undefined;
 	// rule is supported but no validation is needed as it only needs to validation the outputType
 	fileType?: TImageUploadAcceptedFileType[] | undefined;
 	maxSizeInKb?: number | undefined;

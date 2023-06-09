@@ -8,6 +8,7 @@ export * from "./image-upload";
 export * from "./multi-select";
 export * from "./numeric-field";
 export * from "./select";
+export * from "./switch";
 export * from "./radio";
 export * from "./text-field";
 export * from "./textarea";

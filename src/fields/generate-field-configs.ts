@@ -10,6 +10,7 @@ import { multiSelect } from "./multi-select";
 import { numericField } from "./numeric-field";
 import { radio } from "./radio";
 import { select } from "./select";
+// import { switch } from "./switch";
 import { textField } from "./text-field";
 import { textarea } from "./textarea";
 import { timeField } from "./time-field";
@@ -73,6 +74,9 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 			case "select":
 				config = { ...config, ...select(id, componentSchema) };
 				break;
+			// case "switch":
+			// 	config = { ...config, ...switch(id, componentSchema) };
+			// 	break;
 			case "text-field":
 				config = { ...config, ...textField(id, componentSchema) };
 				break;

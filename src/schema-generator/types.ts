@@ -10,6 +10,7 @@ import {
 	INumericFieldSchema,
 	IRadioSchema,
 	ISelectSchema,
+	ISwitchSchema,
 	ITextFieldSchema,
 	ITextareaSchema,
 	ITimeFieldSchema,
@@ -133,6 +134,7 @@ interface IElementSchema extends IBaseElementSchema {
 		| "text-bodysmall"
 		| "text-xsmall"
 		| "submit"
+		| "switch"
 		| "reset";
 }
 
@@ -170,6 +172,7 @@ export type TFieldSchema<V = undefined> =
 	| INumericFieldSchema<V>
 	| IRadioSchema<V>
 	| ISelectSchema<V>
+	| ISwitchSchema<V>
 	| ITextareaSchema<V>
 	| ITextFieldSchema<V>
 	| ITimeFieldSchema<V>

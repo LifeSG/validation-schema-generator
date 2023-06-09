@@ -134,7 +134,6 @@ interface IElementSchema extends IBaseElementSchema {
 		| "text-bodysmall"
 		| "text-xsmall"
 		| "submit"
-		| "switch"
 		| "reset";
 }
 

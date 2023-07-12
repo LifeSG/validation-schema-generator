@@ -1,6 +1,6 @@
 import { ObjectSchema } from "yup";
 import { applyCustomRules } from "../../custom-rules";
-import { jsonToSchema } from "../../schema-generator";
+import { TSectionsSchema, jsonToSchema } from "../../schema-generator";
 import { ERROR_MESSAGES } from "../../shared";
 import { TestHelper } from "../../utils";
 import { ERROR_MESSAGE, ERROR_MESSAGE_2, ERROR_MESSAGE_3, ERROR_MESSAGE_4 } from "../common";
@@ -103,6 +103,96 @@ describe("json-to-schema", () => {
 			);
 			expect(error.inner).toHaveLength(1);
 			expect(error.inner[0].message).toBe(ERROR_MESSAGE);
+		});
+
+		describe("overrides", () => {
+			const SCHEMA: TSectionsSchema = {
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "text-field",
+							validation: [
+								{ required: true, errorMessage: ERROR_MESSAGE },
+								{ min: 2, errorMessage: ERROR_MESSAGE_2 },
+							],
+						},
+					},
+				},
+				section2: {
+					uiType: "section",
+					children: {
+						field2: {
+							uiType: "text-field",
+							validation: [
+								{ required: true, errorMessage: ERROR_MESSAGE_3 },
+								{ min: 2, errorMessage: ERROR_MESSAGE_4 },
+							],
+						},
+					},
+				},
+			};
+
+			it("should be able to override the schema", () => {
+				const schema = jsonToSchema(SCHEMA, {
+					field: {
+						validation: [{ errorMessage: "overridden error 1" }],
+					},
+					field2: {
+						validation: [{ errorMessage: "overridden error 2" }],
+					},
+				});
+
+				expect(() => schema.validateSync({ field: "hello", field2: "world" })).not.toThrowError();
+
+				const error = TestHelper.getError(() =>
+					schema.validateSync({ field: undefined, field2: undefined }, { abortEarly: false })
+				);
+				expect(error.inner).toHaveLength(2);
+				expect(error.inner[0].message).toBe("overridden error 2");
+				expect(error.inner[1].message).toBe("overridden error 1");
+			});
+
+			it("should remove entries on overriding with null values", () => {
+				const schema = jsonToSchema(SCHEMA, {
+					field: {
+						validation: [null, { min: 5 }],
+					},
+					section2: null,
+				});
+
+				expect(() => schema.validateSync({ field: undefined })).not.toThrowError();
+
+				const error = TestHelper.getError(() => schema.validateSync({ field: "hi" }, { abortEarly: false }));
+				expect(error.inner).toHaveLength(1);
+				expect(error.inner[0].message).toBe(ERROR_MESSAGE_2);
+			});
+
+			it("should not change or remove entries on overriding with undefined values", () => {
+				const schema = jsonToSchema(SCHEMA, {
+					field: {
+						validation: [undefined, { min: 5 }],
+					},
+					section2: undefined,
+					field2: {
+						validation: [undefined, { min: 5 }],
+					},
+				});
+
+				const error = TestHelper.getError(() =>
+					schema.validateSync({ field: undefined, field2: undefined }, { abortEarly: false })
+				);
+				expect(error.inner).toHaveLength(2);
+				expect(error.inner[0].message).toBe(ERROR_MESSAGE_3);
+				expect(error.inner[1].message).toBe(ERROR_MESSAGE);
+
+				const error2 = TestHelper.getError(() =>
+					schema.validateSync({ field: "hi", field2: "hi" }, { abortEarly: false })
+				);
+				expect(error2.inner).toHaveLength(2);
+				expect(error2.inner[0].message).toBe(ERROR_MESSAGE_4);
+				expect(error2.inner[1].message).toBe(ERROR_MESSAGE_2);
+			});
 		});
 	});
 

@@ -19,4 +19,5 @@ module.exports = async () => ({
 	},
 	verbose: true,
 	bail: true,
+	reporters: ["default", ["jest-junit", { outputName: "junit.xml" }]],
 });

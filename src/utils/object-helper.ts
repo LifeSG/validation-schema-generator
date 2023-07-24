@@ -23,6 +23,10 @@ export namespace ObjectHelper {
 		/** restrict which nested keys to find in */
 		searchIn?: string[] | undefined;
 	}
+	/**
+	 * Returns the first occurrence of the key regardless of the
+	 * object hierarchy
+	 */
 	export const getNestedValueByKey = <T>(
 		data: Record<string, T>,
 		key: string,
@@ -40,6 +44,7 @@ export namespace ObjectHelper {
 						...options,
 						skipRoot: false,
 					});
+
 					if (!isEmpty(matches)) return matches;
 				}
 			}

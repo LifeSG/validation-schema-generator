@@ -1,18 +1,26 @@
 import * as Yup from "yup";
+import cloneDeep from "lodash/cloneDeep";
+import isEmpty from "lodash/isEmpty";
+import merge from "lodash/merge";
 import { ObjectShape } from "yup/lib/object";
 import { TFieldsConfig, generateFieldConfigs } from "../fields";
 import { parseConditionalRenders } from "./conditional-render";
-import { TFieldSchema, TSectionsSchema } from "./types";
+import { ISectionSchema, RecursivePartial, TComponentSchema, TFieldSchema, TSectionsSchema } from "./types";
 import { YupHelper } from "./yup-helper";
+import { ObjectHelper } from "../utils";
 
 /**
  * Constructs the entire Yup schema from JSON
  * @param sections JSON representation of the fields
  * @returns Yup schema ready to be used by FrontendEngine
  */
-export const jsonToSchema = <V = undefined>(sections: TSectionsSchema<V>) => {
+export const jsonToSchema = <V = undefined>(
+	sections: TSectionsSchema<V>,
+	overrides?: RecursivePartial<Record<string, ISectionSchema | TComponentSchema>> | undefined
+) => {
 	const yupSchema: ObjectShape = {};
-	let fieldConfigs = generateFieldConfigs(sections);
+	const overriddenSections = overrideSchema(sections, overrides);
+	let fieldConfigs = generateFieldConfigs(overriddenSections);
 	fieldConfigs = parseWhenKeys(fieldConfigs);
 	Object.entries(fieldConfigs).forEach(([id, { yupSchema: yupFieldSchema, validation }]) => {
 		yupSchema[id] = YupHelper.mapRules(yupFieldSchema, validation || []);
@@ -25,6 +33,30 @@ export const jsonToSchema = <V = undefined>(sections: TSectionsSchema<V>) => {
 		.noUnknown()
 		.meta({ schema: yupSchema })
 		.test("conditional-render", undefined, (values, context) => parseConditionalRenders(sections, values, context));
+};
+
+export const overrideSchema = (
+	schema: TSectionsSchema | Record<string, TComponentSchema>,
+	overrides: RecursivePartial<Record<string, ISectionSchema | TComponentSchema>>
+) => {
+	if (isEmpty(overrides) || typeof schema === "string") return schema;
+
+	const overriddenSchema = cloneDeep(schema);
+	Object.keys(overriddenSchema).forEach((childId) => {
+		const overrideEntry = ObjectHelper.getNestedValueByKey(overrides, childId, {
+			searchIn: ["children"],
+		});
+		merge(overriddenSchema, overrideEntry);
+
+		if (overriddenSchema[childId]?.children) {
+			overriddenSchema[childId].children = overrideSchema(
+				overriddenSchema[childId].children as Record<string, TComponentSchema>,
+				overrides
+			);
+		}
+	});
+
+	return ObjectHelper.removeNil(overriddenSchema);
 };
 
 /**

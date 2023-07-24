@@ -143,7 +143,7 @@ export interface IWrapperSchema<V = undefined> extends IBaseElementSchema {
 }
 
 /** topmost component under sections  */
-interface ISectionSchema<V = undefined> {
+export interface ISectionSchema<V = undefined> {
 	uiType: "section";
 	children: Record<string, TComponentSchema<V>>;
 	validation?: never | undefined;
@@ -190,6 +190,10 @@ export type TFieldValidation = TFieldSchema["validation"];
  * https://stackoverflow.com/questions/56687668/a-way-to-disable-type-argument-inference-in-generics
  */
 type NoInfer<T, U> = [T][T extends U ? 0 : never];
+
+export type RecursivePartial<T> = {
+	[P in keyof T]?: RecursivePartial<T[P]>;
+};
 
 /** a collection of sections from web-frontend-engine */
 export type TSectionsSchema<V = undefined> = Record<string, ISectionSchema<NoInfer<V, IValidationRule>>>;

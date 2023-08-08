@@ -28,6 +28,7 @@ export const dateField: IFieldGenerator<IDateFieldSchema> = (id, { dateFormat = 
 	const notPastRule = validation?.find((rule) => "notPast" in rule);
 	const minDateRule = validation?.find((rule) => "minDate" in rule);
 	const maxDateRule = validation?.find((rule) => "maxDate" in rule);
+	const excludedDatesRule = validation?.find((rule) => "excludedDates" in rule);
 
 	let minDate: LocalDate;
 	let maxDate: LocalDate;
@@ -81,6 +82,14 @@ export const dateField: IFieldGenerator<IDateFieldSchema> = (id, { dateFormat = 
 					(value) => {
 						if (!isValidDate(value, dateFormatter) || !maxDate) return true;
 						return !LocalDate.parse(value).isAfter(maxDate);
+					}
+				)
+				.test(
+					"excluded-dates",
+					excludedDatesRule?.["errorMessage"] || ERROR_MESSAGES.DATE.DISABLED_DATES,
+					(value) => {
+						if (!isValidDate(value, dateFormatter) || !excludedDatesRule) return true;
+						return !excludedDatesRule["excludedDates"].includes(value);
 					}
 				),
 			validation,

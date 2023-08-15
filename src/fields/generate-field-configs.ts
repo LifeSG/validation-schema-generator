@@ -5,19 +5,20 @@ import { checkbox } from "./checkbox";
 import { chips } from "./chips";
 import { contactField } from "./contact-field";
 import { dateField } from "./date-field";
+import { dateRangeField } from "./date-range-field";
 import { emailField } from "./email-field";
+import { imageUpload } from "./image-upload";
 import { multiSelect } from "./multi-select";
 import { numericField } from "./numeric-field";
 import { radio } from "./radio";
+import { referenceKey } from "./reference-key";
 import { select } from "./select";
 import { switchField } from "./switch";
 import { textField } from "./text-field";
 import { textarea } from "./textarea";
 import { timeField } from "./time-field";
-import { unitNumberField } from "./unit-number-field";
 import { TFieldsConfig } from "./types";
-import { referenceKey } from "./reference-key";
-import { imageUpload } from "./image-upload";
+import { unitNumberField } from "./unit-number-field";
 
 /**
  * parse JSON schema by running each field through its respective field config generator
@@ -55,6 +56,9 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 				break;
 			case "date-field":
 				config = { ...config, ...dateField(id, componentSchema) };
+				break;
+			case "date-range-field":
+				config = { ...config, ...dateRangeField(id, componentSchema) };
 				break;
 			case "email-field":
 				config = { ...config, ...emailField(id, componentSchema) };

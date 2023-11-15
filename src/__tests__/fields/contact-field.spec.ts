@@ -22,6 +22,23 @@ describe("contact-field", () => {
 		expect(TestHelper.getError(() => schema.validateSync({})).message).toBe(ERROR_MESSAGE);
 	});
 
+	it("should not apply phone number validation if no validation rule is provided", async () => {
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "contact-field",
+						somethingUnused: "test",
+						validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+					},
+				},
+			},
+		});
+
+		expect(() => schema.validateSync({ field: "invalid" })).not.toThrowError();
+	});
+
 	describe("Singapore numbers", () => {
 		it.each`
 			scenario                                                                           | type         | valid             | invalid

@@ -33,7 +33,7 @@ export const contactField: IFieldGenerator<IContactFieldSchema> = (id, { validat
 					"internationalNumber",
 					errorMessage || ERROR_MESSAGES.CONTACT.INVALID_INTERNATIONAL_NUMBER,
 					(value) => {
-						if (!value || singaporeRule) return true;
+						if (!value || singaporeRule || !internationalNumberRule) return true;
 						return PhoneHelper.isInternationalNumber(value, fixedCountryName);
 					}
 				),

@@ -20,11 +20,24 @@ export const ERROR_MESSAGES = {
 		INVALID: "Invalid date",
 		DISABLED_DATES: "Date is not allowed",
 	},
+	DATE_RANGE: {
+		MUST_BE_FUTURE: "Dates must be in the future.",
+		MUST_BE_PAST: "Dates must be in the past.",
+		MIN_DATE: (date: string) => `Dates cannot be earlier than ${date}`,
+		MAX_DATE: (date: string) => `Dates cannot be later than ${date}`,
+		DISABLED_DATES: "Date range should not include disabled dates.",
+		INVALID: "Invalid dates",
+		REQUIRED: "Both dates are required",
+	},
 	TIME: {
 		INVALID: "Invalid time",
 	},
 	EMAIL: {
 		INVALID: "Invalid email address",
+	},
+	GENERIC: {
+		INVALID: "Invalid input",
+		UNSUPPORTED: "This component is not supported by the engine",
 	},
 	UNIT_NUMBER: {
 		INVALID: "Invalid unit number",

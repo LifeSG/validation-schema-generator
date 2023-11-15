@@ -16,6 +16,7 @@ import {
 	ITimeFieldSchema,
 	IUnitNumberFieldSchema,
 } from "../fields";
+import { IDateRangeFieldSchema } from "../fields/date-range-field";
 
 // =============================================================================
 // CONDITIONS AND RULES
@@ -165,6 +166,7 @@ export type TFieldSchema<V = undefined> =
 	| IChipsSchema<V>
 	| IContactFieldSchema<V>
 	| IDateFieldSchema<V>
+	| IDateRangeFieldSchema<V>
 	| IEmailFieldSchema<V>
 	| IImageUploadSchema<V>
 	| IMultiSelectSchema<V>

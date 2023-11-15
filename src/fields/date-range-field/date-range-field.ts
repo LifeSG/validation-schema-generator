@@ -23,24 +23,17 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 	const dateFormatter = DateTimeFormatter.ofPattern(dateFormat)
 		.withResolverStyle(ResolverStyle.STRICT)
 		.withLocale(Locale.ENGLISH);
-	const errorMessageDateFormatter = DateTimeFormatter.ofPattern("dd/MM/uuuu")
-		.withResolverStyle(ResolverStyle.STRICT)
-		.withLocale(Locale.ENGLISH);
 	const futureRule = validation?.find((rule) => "future" in rule);
 	const pastRule = validation?.find((rule) => "past" in rule);
+	const notFutureRule = validation?.find((rule) => "notFuture" in rule);
+	const notPastRule = validation?.find((rule) => "notPast" in rule);
 	const minDateRule = validation?.find((rule) => "minDate" in rule);
 	const maxDateRule = validation?.find((rule) => "maxDate" in rule);
 	const isRequiredRule = validation?.find((rule) => "required" in rule);
 	const excludedDatesRule = validation?.find((rule) => "excludedDates" in rule);
 
-	let minDate: LocalDate;
-	let maxDate: LocalDate;
-	try {
-		minDate = LocalDate.parse(minDateRule?.["minDate"], dateFormatter);
-	} catch (error) {}
-	try {
-		maxDate = LocalDate.parse(maxDateRule?.["maxDate"], dateFormatter);
-	} catch (error) {}
+	const minDate = DateTimeHelper.toLocalDateOrTime(minDateRule?.["minDate"], dateFormat, "date");
+	const maxDate = DateTimeHelper.toLocalDateOrTime(maxDateRule?.["maxDate"], dateFormat, "date");
 
 	return {
 		[id]: {
@@ -90,6 +83,38 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 					const localDateTo = DateTimeHelper.toLocalDateOrTime(value.to, dateFormat, "date");
 					return !!localDateFrom?.isBefore(LocalDate.now()) && !!localDateTo?.isBefore(LocalDate.now());
 				})
+				.test(
+					"not-future",
+					notFutureRule?.["errorMessage"] || ERROR_MESSAGES.DATE_RANGE.CANNOT_BE_FUTURE,
+					(value) => {
+						if (variant === "week") return true;
+						if (
+							!isValidDate(value.from, dateFormatter) ||
+							!isValidDate(value.to, dateFormatter) ||
+							!notFutureRule?.["notFuture"]
+						)
+							return true;
+						const localDateFrom = DateTimeHelper.toLocalDateOrTime(value.from, dateFormat, "date");
+						const localDateTo = DateTimeHelper.toLocalDateOrTime(value.to, dateFormat, "date");
+						return !localDateFrom?.isAfter(LocalDate.now()) && !localDateTo?.isAfter(LocalDate.now());
+					}
+				)
+				.test(
+					"not-past",
+					notPastRule?.["errorMessage"] || ERROR_MESSAGES.DATE_RANGE.CANNOT_BE_PAST,
+					(value) => {
+						if (variant === "week") return true;
+						if (
+							!isValidDate(value.from, dateFormatter) ||
+							!isValidDate(value.to, dateFormatter) ||
+							!notPastRule?.["notPast"]
+						)
+							return true;
+						const localDateFrom = DateTimeHelper.toLocalDateOrTime(value.from, dateFormat, "date");
+						const localDateTo = DateTimeHelper.toLocalDateOrTime(value.to, dateFormat, "date");
+						return !localDateFrom?.isBefore(LocalDate.now()) && !localDateTo?.isBefore(LocalDate.now());
+					}
+				)
 				.test(
 					"min-date",
 					minDateRule?.["errorMessage"] ||

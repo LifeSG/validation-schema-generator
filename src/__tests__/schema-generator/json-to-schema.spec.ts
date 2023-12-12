@@ -273,9 +273,14 @@ describe("json-to-schema", () => {
 								uiType: "div",
 								showIf: [{ field1: [{ equals: "show wrapper" }] }],
 								children: {
-									field2: {
-										uiType: "numeric-field",
-										validation: [{ required: true, errorMessage: ERROR_MESSAGE_2 }],
+									nested: {
+										uiType: "div",
+										children: {
+											field2: {
+												uiType: "numeric-field",
+												validation: [{ required: true, errorMessage: ERROR_MESSAGE_2 }],
+											},
+										},
 									},
 								},
 							},

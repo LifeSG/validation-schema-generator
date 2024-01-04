@@ -32,6 +32,8 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 	const maxDateRule = validation?.find((rule) => "maxDate" in rule);
 	const isRequiredRule = validation?.find((rule) => "required" in rule);
 	const excludedDatesRule = validation?.find((rule) => "excludedDates" in rule);
+	const noOfDaysRule = validation?.find((rule) => "numberOfDays" in rule);
+
 
 	let minDate: LocalDate;
 	let maxDate: LocalDate;
@@ -153,6 +155,19 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 						} catch {
 							return false;
 						}
+					}
+				)
+				.test(
+					"number-of-days",
+					noOfDaysRule?.["errorMessage"] ||
+						ERROR_MESSAGES.DATE_RANGE.MUST_HAVE_NUMBER_OF_DAYS(noOfDaysRule?.["numberOfDays"]),
+					(value) => {
+						if (variant === "week") return true;
+						if (!isValidDate(value.from,dateFormatter) || !isValidDate(value.to,dateFormatter) || !noOfDaysRule?.["numberOfDays"])
+							return true;
+						const localDateFrom = DateTimeHelper.toLocalDateOrTime(value.from, dateFormat, "date");
+						const localDateTo = DateTimeHelper.toLocalDateOrTime(value.to, dateFormat, "date");
+						return localDateTo.equals(localDateFrom.plusDays(noOfDaysRule?.["numberOfDays"] - 1));
 					}
 				),
 			validation,

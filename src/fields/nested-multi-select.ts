@@ -43,7 +43,6 @@ export const nestedMultiSelect: IFieldGenerator<INestedMultiSelectSchema> = (id,
 			yupSchema: Yup.object()
 				.test("is-required", isRequiredRule?.errorMessage || ERROR_MESSAGES.COMMON.REQUIRED_OPTION, (value) => {
 					if (!isRequiredRule?.required) return true;
-					console.log(">>> ze value", value);
 					return !!value && !!Object.keys(value).length;
 				})
 				.test("validate-options", ERROR_MESSAGES.COMMON.INVALID_OPTION, (values) => {

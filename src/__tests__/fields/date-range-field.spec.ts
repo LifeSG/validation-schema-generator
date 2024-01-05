@@ -88,6 +88,7 @@ describe("date-range-field", () => {
 		${"minDate"}       | ${"2023-01-02"}   | ${{ from: "2023-01-02", to: "2023-01-08" }} | ${{ from: "2021-01-01", to: "2023-01-01" }} | ${ERROR_MESSAGES.DATE_RANGE.MIN_DATE("02/01/2023")}
 		${"maxDate"}       | ${"2023-01-02"}   | ${{ from: "2022-01-02", to: "2023-01-02" }} | ${{ from: "2023-01-03", to: "2024-01-03" }} | ${ERROR_MESSAGES.DATE_RANGE.MAX_DATE("02/01/2023")}
 		${"excludedDates"} | ${["2023-01-02"]} | ${{ from: "2023-01-01", to: "2023-01-03" }} | ${{ from: "2023-01-01", to: "2023-01-02" }} | ${ERROR_MESSAGES.DATE_RANGE.DISABLED_DATES}
+		${"numberOfDays"}  | ${10}             | ${{ from: "2023-01-01", to: "2023-01-10" }} | ${{ from: "2023-01-01", to: "2023-01-02" }} | ${ERROR_MESSAGES.DATE_RANGE.MUST_HAVE_NUMBER_OF_DAYS(10)}
 	`("$rule rule", ({ rule, ruleValue, valid, invalid, errorMessage }) => {
 		let schema: Yup.ObjectSchema<ObjectShape>;
 

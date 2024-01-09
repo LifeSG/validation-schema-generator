@@ -1,13 +1,13 @@
+import { TL1OptionProps } from "../../fields";
 import { jsonToSchema } from "../../schema-generator";
 import { ERROR_MESSAGES } from "../../shared";
 import { TestHelper } from "../../utils";
 import { ERROR_MESSAGE } from "../common";
 
 describe("nested-multi-select", () => {
-	const options = [
+	const options: TL1OptionProps[] = [
 		{
 			label: "Fruit",
-			value: "Fruit",
 			key: "fruitKey",
 			subItems: [
 				{ label: "Apple", value: "Apple", key: "appleKey" },

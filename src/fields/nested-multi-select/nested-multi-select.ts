@@ -1,39 +1,7 @@
 import * as Yup from "yup";
-import { IFieldSchemaBase } from "../schema-generator";
-import { ERROR_MESSAGES } from "../shared";
-import { IFieldGenerator } from "./types";
-import { has } from "lodash";
-interface BaseOptionProps {
-	label: string;
-	key: string;
-}
-
-export type TNestedValues = IL1Value | IL2Value | IL3Value;
-export interface IL1Value {
-	[key: string]: IL2Value | string;
-}
-export interface IL2Value {
-	[key: string]: IL3Value | string;
-}
-export interface IL3Value {
-	[key: string]: string;
-}
-export interface TL1OptionProps extends BaseOptionProps {
-	value: string;
-	subItems?: TL2OptionProps[] | undefined;
-}
-export interface TL2OptionProps extends BaseOptionProps {
-	value: string;
-	subItems?: TL3OptionProps[] | undefined;
-}
-export interface TL3OptionProps extends BaseOptionProps {
-	value: string;
-	subItems?: undefined;
-}
-
-export interface INestedMultiSelectSchema<V = undefined> extends IFieldSchemaBase<"nested-multi-select", V> {
-	options: TL1OptionProps[];
-}
+import { ERROR_MESSAGES } from "../../shared";
+import { IFieldGenerator } from "../types";
+import { INestedMultiSelectSchema, TL1OptionProps, TNestedValues } from "./types";
 
 export const nestedMultiSelect: IFieldGenerator<INestedMultiSelectSchema> = (id, { options, validation }) => {
 	const isRequiredRule = validation?.find((rule) => "required" in rule);

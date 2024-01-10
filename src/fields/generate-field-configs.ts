@@ -9,6 +9,7 @@ import { dateRangeField } from "./date-range-field";
 import { emailField } from "./email-field";
 import { imageUpload } from "./image-upload";
 import { multiSelect } from "./multi-select";
+import { nestedMultiSelect } from "./nested-multi-select";
 import { numericField } from "./numeric-field";
 import { radio } from "./radio";
 import { referenceKey } from "./reference-key";
@@ -68,6 +69,9 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 				break;
 			case "multi-select":
 				config = { ...config, ...multiSelect(id, componentSchema) };
+				break;
+			case "nested-multi-select":
+				config = { ...config, ...nestedMultiSelect(id, componentSchema) };
 				break;
 			case "numeric-field":
 				config = { ...config, ...numericField(id, componentSchema) };

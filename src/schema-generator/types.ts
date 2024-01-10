@@ -7,6 +7,7 @@ import {
 	IEmailFieldSchema,
 	IImageUploadSchema,
 	IMultiSelectSchema,
+	INestedMultiSelectSchema,
 	INumericFieldSchema,
 	IRadioSchema,
 	ISelectSchema,
@@ -170,6 +171,7 @@ export type TFieldSchema<V = undefined> =
 	| IEmailFieldSchema<V>
 	| IImageUploadSchema<V>
 	| IMultiSelectSchema<V>
+	| INestedMultiSelectSchema<V>
 	| INumericFieldSchema<V>
 	| IRadioSchema<V>
 	| ISelectSchema<V>

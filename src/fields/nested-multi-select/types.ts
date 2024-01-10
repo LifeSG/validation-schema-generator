@@ -1,17 +1,17 @@
 import { IFieldSchemaBase } from "../../schema-generator";
 
-export interface BaseOptionProps {
+export interface IBaseOptionProps {
 	label: string;
 	key: string;
 }
-interface IBaseOptionPropsWithValues extends BaseOptionProps {
+interface IBaseOptionPropsWithValues extends IBaseOptionProps {
 	value: string;
 	subItems?: never;
 }
 
-interface IBaseOptionPropsWithSubItems<T> extends BaseOptionProps {
+interface IBaseOptionPropsWithSubItems<T> extends IBaseOptionProps {
 	value?: never;
-	subItems: T | undefined;
+	subItems: T;
 }
 
 export type TNestedValues = IL1Value | IL2Value | IL3Value;

@@ -85,6 +85,8 @@ describe("date-range-field", () => {
 		rule               | ruleValue         | valid                                       | invalid                                     | errorMessage
 		${"future"}        | ${true}           | ${{ from: "2023-01-02", to: "2023-01-03" }} | ${{ from: "2021-01-01", to: "2022-01-01" }} | ${ERROR_MESSAGES.DATE_RANGE.MUST_BE_FUTURE}
 		${"past"}          | ${true}           | ${{ from: "2022-10-31", to: "2022-12-31" }} | ${{ from: "2023-01-01", to: "2024-01-01" }} | ${ERROR_MESSAGES.DATE_RANGE.MUST_BE_PAST}
+		${"notFuture"}     | ${true}           | ${{ from: "2022-12-31", to: "2023-01-01" }} | ${{ from: "2023-01-01", to: "2023-01-02" }} | ${ERROR_MESSAGES.DATE_RANGE.CANNOT_BE_FUTURE}
+		${"notPast"}       | ${true}           | ${{ from: "2023-01-01", to: "2023-01-02" }} | ${{ from: "2022-12-31", to: "2023-01-01" }} | ${ERROR_MESSAGES.DATE_RANGE.CANNOT_BE_PAST}
 		${"minDate"}       | ${"2023-01-02"}   | ${{ from: "2023-01-02", to: "2023-01-08" }} | ${{ from: "2021-01-01", to: "2023-01-01" }} | ${ERROR_MESSAGES.DATE_RANGE.MIN_DATE("02/01/2023")}
 		${"maxDate"}       | ${"2023-01-02"}   | ${{ from: "2022-01-02", to: "2023-01-02" }} | ${{ from: "2023-01-03", to: "2024-01-03" }} | ${ERROR_MESSAGES.DATE_RANGE.MAX_DATE("02/01/2023")}
 		${"excludedDates"} | ${["2023-01-02"]} | ${{ from: "2023-01-01", to: "2023-01-03" }} | ${{ from: "2023-01-01", to: "2023-01-02" }} | ${ERROR_MESSAGES.DATE_RANGE.DISABLED_DATES}

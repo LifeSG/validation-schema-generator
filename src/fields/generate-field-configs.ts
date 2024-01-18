@@ -108,6 +108,7 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 			case "h4":
 			case "h5":
 			case "h6":
+			case "grid":
 				if (!isEmpty(children) && isObject(children)) {
 					config = { ...config, ...generateChildrenFieldConfigs(children) };
 				}

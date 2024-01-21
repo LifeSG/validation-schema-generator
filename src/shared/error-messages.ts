@@ -4,6 +4,7 @@ import { FileHelper } from "../utils";
 export const ERROR_MESSAGES = {
 	COMMON: {
 		REQUIRED_OPTION: "An option is required",
+		REQUIRED_OPTIONS: "Both options are required",
 		INVALID_OPTION: "Value does not match options",
 	},
 	CONTACT: {
@@ -41,6 +42,9 @@ export const ERROR_MESSAGES = {
 	GENERIC: {
 		INVALID: "Invalid input",
 		UNSUPPORTED: "This component is not supported by the engine",
+	},
+	SLIDER: {
+		MUST_BE_INCREMENTAL: "Input must be incremental",
 	},
 	UNIT_NUMBER: {
 		INVALID: "Invalid unit number",

@@ -5,12 +5,14 @@ import {
 	IContactFieldSchema,
 	IDateFieldSchema,
 	IEmailFieldSchema,
+	IHistogramSlider,
 	IImageUploadSchema,
 	IMultiSelectSchema,
 	INestedMultiSelectSchema,
 	INumericFieldSchema,
 	IRadioSchema,
 	ISelectSchema,
+	ISliderSchema,
 	ISwitchSchema,
 	ITextFieldSchema,
 	ITextareaSchema,
@@ -171,12 +173,14 @@ export type TFieldSchema<V = undefined> =
 	| IDateFieldSchema<V>
 	| IDateRangeFieldSchema<V>
 	| IEmailFieldSchema<V>
+	| IHistogramSlider<V>
 	| IImageUploadSchema<V>
 	| IMultiSelectSchema<V>
 	| INestedMultiSelectSchema<V>
 	| INumericFieldSchema<V>
 	| IRadioSchema<V>
 	| ISelectSchema<V>
+	| ISliderSchema<V>
 	| ISwitchSchema<V>
 	| ITextareaSchema<V>
 	| ITextFieldSchema<V>

@@ -7,6 +7,7 @@ import { contactField } from "./contact-field";
 import { dateField } from "./date-field";
 import { dateRangeField } from "./date-range-field";
 import { emailField } from "./email-field";
+import { histogramSlider } from "./histogram-slider";
 import { imageUpload } from "./image-upload";
 import { multiSelect } from "./multi-select";
 import { nestedMultiSelect } from "./nested-multi-select";
@@ -14,6 +15,7 @@ import { numericField } from "./numeric-field";
 import { radio } from "./radio";
 import { referenceKey } from "./reference-key";
 import { select } from "./select";
+import { slider } from "./slider";
 import { switchField } from "./switch";
 import { textField } from "./text-field";
 import { textarea } from "./textarea";
@@ -64,6 +66,9 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 			case "email-field":
 				config = { ...config, ...emailField(id, componentSchema) };
 				break;
+			case "histogram-slider":
+				config = { ...config, ...histogramSlider(id, componentSchema) };
+				break;
 			case "image-upload":
 				config = { ...config, ...imageUpload(id, componentSchema) };
 				break;
@@ -81,6 +86,9 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 				break;
 			case "select":
 				config = { ...config, ...select(id, componentSchema) };
+				break;
+			case "slider":
+				config = { ...config, ...slider(id, componentSchema) };
 				break;
 			case "switch":
 				config = { ...config, ...switchField(id, componentSchema) };

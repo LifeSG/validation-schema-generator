@@ -56,7 +56,7 @@ export const chips: IFieldGenerator<IChipsSchema> = (id, field) => {
 				when: {
 					...(textareaWhenRule?.when || {}),
 					[id]: {
-						is: [{ includes: [label] }],
+						is: [{ includes: [textarea?.label] }],
 						then: textareaWithoutWhenRule,
 					},
 				},

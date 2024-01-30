@@ -1,5 +1,4 @@
 import { ObjectSchema } from "yup";
-import { applyCustomRules } from "../../custom-rules";
 import { TSectionsSchema, jsonToSchema } from "../../schema-generator";
 import { ERROR_MESSAGES } from "../../shared";
 import { TestHelper } from "../../utils";
@@ -197,10 +196,6 @@ describe("json-to-schema", () => {
 	});
 
 	describe("conditionalRender", () => {
-		beforeAll(() => {
-			applyCustomRules();
-		});
-
 		describe("conditionally hidden fields", () => {
 			let schema: ObjectSchema<ObjectShape>;
 

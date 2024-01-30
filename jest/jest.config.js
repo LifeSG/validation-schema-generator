@@ -17,6 +17,7 @@ module.exports = async () => ({
 	moduleNameMapper: {
 		"src/(.*)": "<rootDir>/src/$1",
 	},
+	setupFilesAfterEnv: ["<rootDir>/src/__tests__/setup/jest.setup.ts"],
 	verbose: true,
 	bail: true,
 	reporters: ["default", ["jest-junit", { outputName: "junit.xml" }]],

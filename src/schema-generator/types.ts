@@ -82,7 +82,7 @@ export interface IValidationRule extends IRule {
 		| {
 				[id: string]: {
 					is: string | number | boolean | string[] | number[] | boolean[] | IConditionalValidationRule[];
-					then: Omit<IValidationRule, "when">[];
+					then: IValidationRule[];
 					otherwise?: Omit<IValidationRule, "when">[] | undefined;
 					yupSchema?: Yup.AnySchema | undefined;
 				};

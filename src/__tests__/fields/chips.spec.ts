@@ -125,6 +125,7 @@ describe("chips", () => {
 			schema.validateSync({ field: ["Apple", "More info"], "field-textarea": "hello" })
 		).not.toThrowError();
 	});
+
 	it("should support textarea validation config", () => {
 		const schema = jsonToSchema({
 			section: {
@@ -154,5 +155,62 @@ describe("chips", () => {
 		expect(
 			TestHelper.getError(() => schema.validateSync({ field: ["more info"], "field-textarea": "hello" })).message
 		).toBe(ERROR_MESSAGE_2);
+	});
+
+	it("should support conditional validation in textarea", () => {
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					field1: {
+						uiType: "chips",
+						options: [
+							{ label: "Apple", value: "Apple" },
+							{ label: "Berry", value: "Berry" },
+							{ label: "Cherry", value: "Cherry" },
+						],
+						textarea: {
+							label: "more info",
+							validation: [
+								{
+									when: {
+										field2: {
+											is: [{ filled: true }],
+											then: [{ min: 10, errorMessage: ERROR_MESSAGE }],
+										},
+									},
+								},
+							],
+						},
+					},
+					field2: {
+						uiType: "text-field",
+					},
+				},
+			},
+		});
+
+		expect(() =>
+			schema.validateSync(
+				{
+					field1: ["more info"],
+					"field1-textarea": "hello world",
+					field2: "lorem",
+				},
+				{ abortEarly: false }
+			)
+		).not.toThrow();
+		expect(
+			TestHelper.getError(() =>
+				schema.validateSync(
+					{
+						field1: ["more info"],
+						"field1-textarea": "hello",
+						field2: "lorem",
+					},
+					{ abortEarly: false }
+				)
+			).message
+		).toBe(ERROR_MESSAGE);
 	});
 });

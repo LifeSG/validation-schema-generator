@@ -1,5 +1,4 @@
 import { ObjectSchema } from "yup";
-import { applyCustomRules } from "../../custom-rules";
 import { TSectionsSchema, jsonToSchema } from "../../schema-generator";
 import { ERROR_MESSAGES } from "../../shared";
 import { TestHelper } from "../../utils";
@@ -105,6 +104,48 @@ describe("json-to-schema", () => {
 			expect(error.inner[0].message).toBe(ERROR_MESSAGE);
 		});
 
+		it("should be able to create a schema without cyclic dependency", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field1: {
+							uiType: "text-field",
+							validation: [
+								{
+									when: {
+										field2: {
+											is: [{ empty: true }],
+											then: [{ required: true, errorMessage: ERROR_MESSAGE }],
+										},
+									},
+								},
+							],
+						},
+						field2: {
+							uiType: "text-field",
+							validation: [
+								{
+									when: {
+										field1: {
+											is: [{ empty: true }],
+											then: [{ required: true, errorMessage: ERROR_MESSAGE_2 }],
+										},
+									},
+								},
+							],
+						},
+					},
+				},
+			});
+
+			const error = TestHelper.getError(() => schema.validateSync({}, { abortEarly: false }));
+			expect(error.inner).toHaveLength(2);
+			expect(error.inner[0].message).toBe(ERROR_MESSAGE);
+			expect(error.inner[1].message).toBe(ERROR_MESSAGE_2);
+			expect(() => schema.validateSync({ field1: "hello" })).not.toThrow();
+		});
+
 		describe("overrides", () => {
 			const SCHEMA: TSectionsSchema = {
 				section: {
@@ -197,10 +238,6 @@ describe("json-to-schema", () => {
 	});
 
 	describe("conditionalRender", () => {
-		beforeAll(() => {
-			applyCustomRules();
-		});
-
 		describe("conditionally hidden fields", () => {
 			let schema: ObjectSchema<ObjectShape>;
 

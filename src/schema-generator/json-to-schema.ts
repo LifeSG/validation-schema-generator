@@ -1,13 +1,13 @@
-import * as Yup from "yup";
 import cloneDeep from "lodash/cloneDeep";
 import isEmpty from "lodash/isEmpty";
 import merge from "lodash/merge";
+import * as Yup from "yup";
 import { ObjectShape } from "yup/lib/object";
-import { TFieldsConfig, generateFieldConfigs } from "../fields";
+import { IFieldConfig, TFieldsConfig, generateFieldConfigs } from "../fields";
+import { ObjectHelper } from "../utils";
 import { parseConditionalRenders } from "./conditional-render";
 import { ISectionSchema, RecursivePartial, TComponentSchema, TFieldSchema, TSectionsSchema } from "./types";
 import { YupHelper } from "./yup-helper";
-import { ObjectHelper } from "../utils";
 
 /**
  * Constructs the entire Yup schema from JSON
@@ -20,8 +20,7 @@ export const jsonToSchema = <V = undefined>(
 ) => {
 	const yupSchema: ObjectShape = {};
 	const overriddenSections = overrideSchema(sections, overrides);
-	let fieldConfigs = generateFieldConfigs(overriddenSections);
-	fieldConfigs = parseWhenKeys(fieldConfigs);
+	const [fieldConfigs, whenPairIds] = parseWhenKeys(generateFieldConfigs(overriddenSections));
 	Object.entries(fieldConfigs).forEach(([id, { yupSchema: yupFieldSchema, validation }]) => {
 		yupSchema[id] = YupHelper.mapRules(yupFieldSchema, validation || []);
 	});
@@ -29,7 +28,7 @@ export const jsonToSchema = <V = undefined>(
 	return Yup.object()
 		.strict()
 		.required()
-		.shape(yupSchema)
+		.shape(yupSchema, whenPairIds)
 		.noUnknown()
 		.meta({ schema: yupSchema })
 		.test("conditional-render", undefined, (values, context) => parseConditionalRenders(sections, values, context));
@@ -63,10 +62,19 @@ export const overrideSchema = (
  * Iterates through field configs to look for conditional validation rules (`when` condition)
  * For each conditional validation rule, it will refer to the source field to generate the corresponding yup schema
  * @param fieldConfigs config containing the yup schema and validation config on each field
- * @returns parsed field config
+ * @returns an aray containing the parsed field config and conditional field id pairs
  */
-const parseWhenKeys = (fieldConfigs: TFieldsConfig<TFieldSchema<undefined>>) => {
+const parseWhenKeys = (
+	fieldConfigs: TFieldsConfig<TFieldSchema<undefined>>
+): [Record<string, IFieldConfig<TFieldSchema<undefined>>>, [string, string][]] => {
 	const parsedFieldConfigs = { ...fieldConfigs };
+
+	// Yup's escape hatch for cycling dependency error
+	// this happens when 2 fields have conditional validation that rely on each other
+	// typically used to ensure user fill in one of many fields
+	// https://github.com/jquense/yup/issues/176#issuecomment-367352042
+	const whenPairIds: [string, string][] = [];
+
 	Object.entries(parsedFieldConfigs).forEach(([id, { validation }]) => {
 		const notWhenRules = validation?.filter((rule) => !("when" in rule)) || [];
 		const whenRules =
@@ -75,6 +83,7 @@ const parseWhenKeys = (fieldConfigs: TFieldsConfig<TFieldSchema<undefined>>) => 
 				.map((rule) => {
 					const parsedRule = { ...rule };
 					Object.keys(parsedRule.when).forEach((whenFieldId) => {
+						whenPairIds.push([id, whenFieldId]);
 						parsedRule.when[whenFieldId] = {
 							...parsedRule.when[whenFieldId],
 							yupSchema: parsedFieldConfigs[whenFieldId].yupSchema.clone(),
@@ -84,7 +93,7 @@ const parseWhenKeys = (fieldConfigs: TFieldsConfig<TFieldSchema<undefined>>) => 
 				}) || [];
 		parsedFieldConfigs[id].validation = [...notWhenRules, ...whenRules];
 	});
-	return parsedFieldConfigs;
+	return [parsedFieldConfigs, whenPairIds];
 };
 
 export const _testExports = {

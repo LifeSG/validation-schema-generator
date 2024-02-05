@@ -3,6 +3,7 @@ export * from "./chips";
 export * from "./contact-field";
 export * from "./date-field";
 export * from "./email-field";
+export * from "./file-upload";
 export * from "./generate-field-configs";
 export * from "./histogram-slider";
 export * from "./image-upload";

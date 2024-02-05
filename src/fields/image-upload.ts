@@ -79,7 +79,7 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 						return value.length <= maxFilesRule?.maxFiles;
 					}
 				)
-				.test("file-type", ERROR_MESSAGES.UPLOAD("photo").FILE_TYPE(outputType), async (value) => {
+				.test("file-type", ERROR_MESSAGES.UPLOAD("photo").FILE_TYPE([outputType]), async (value) => {
 					if (!value || !Array.isArray(value)) return true;
 					let isValid = true;
 					const outputMimeType = FileHelper.fileExtensionToMimeType(outputType);

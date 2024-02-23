@@ -6,6 +6,7 @@ export * from "./email-field";
 export * from "./generate-field-configs";
 export * from "./histogram-slider";
 export * from "./image-upload";
+export * from "./masked-field";
 export * from "./multi-select";
 export * from "./nested-multi-select";
 export * from "./numeric-field";

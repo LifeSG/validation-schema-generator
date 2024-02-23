@@ -46,24 +46,20 @@ export const chips: IFieldGenerator<IChipsSchema> = (id, field) => {
 		},
 	};
 
-	// formats textarea validation as conditional validation because it can't tell when to validate (i.e. doesn't know if user picked chip to show textarea)
-	let textareaValidation: IValidationRule = {};
 	if (textarea?.label) {
 		if (textarea?.validation) {
-			const textareaWithoutWhenRule = textarea?.validation?.filter((rule) => !("when" in rule));
-			const textareaWhenRule = textarea?.validation?.find((rule) => "when" in rule);
-			textareaValidation = {
+			// formats textarea validation as conditional validation because it can't tell when to validate (i.e. doesn't know if user picked chip to show textarea)
+			const textareaValidationRule: IValidationRule = {
 				when: {
-					...(textareaWhenRule?.when || {}),
 					[id]: {
 						is: [{ includes: [textarea?.label] }],
-						then: textareaWithoutWhenRule,
+						then: textarea?.validation,
 					},
 				},
 			};
 			fieldsConfig[`${id}-textarea`] = {
 				yupSchema: Yup.string(),
-				validation: [textareaValidation],
+				validation: [textareaValidationRule],
 			};
 		} else {
 			fieldsConfig[`${id}-textarea`] = {

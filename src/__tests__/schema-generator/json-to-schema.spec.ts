@@ -104,48 +104,6 @@ describe("json-to-schema", () => {
 			expect(error.inner[0].message).toBe(ERROR_MESSAGE);
 		});
 
-		it("should be able to create a schema without cyclic dependency", () => {
-			const schema = jsonToSchema({
-				section: {
-					uiType: "section",
-					children: {
-						field1: {
-							uiType: "text-field",
-							validation: [
-								{
-									when: {
-										field2: {
-											is: [{ empty: true }],
-											then: [{ required: true, errorMessage: ERROR_MESSAGE }],
-										},
-									},
-								},
-							],
-						},
-						field2: {
-							uiType: "text-field",
-							validation: [
-								{
-									when: {
-										field1: {
-											is: [{ empty: true }],
-											then: [{ required: true, errorMessage: ERROR_MESSAGE_2 }],
-										},
-									},
-								},
-							],
-						},
-					},
-				},
-			});
-
-			const error = TestHelper.getError(() => schema.validateSync({}, { abortEarly: false }));
-			expect(error.inner).toHaveLength(2);
-			expect(error.inner[0].message).toBe(ERROR_MESSAGE);
-			expect(error.inner[1].message).toBe(ERROR_MESSAGE_2);
-			expect(() => schema.validateSync({ field1: "hello" })).not.toThrow();
-		});
-
 		describe("overrides", () => {
 			const SCHEMA: TSectionsSchema = {
 				section: {
@@ -234,6 +192,91 @@ describe("json-to-schema", () => {
 				expect(error2.inner[0].message).toBe(ERROR_MESSAGE_4);
 				expect(error2.inner[1].message).toBe(ERROR_MESSAGE_2);
 			});
+		});
+	});
+
+	describe("conditional validation", () => {
+		it("should be able to create a schema without cyclic dependency", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field1: {
+							uiType: "text-field",
+							validation: [
+								{
+									when: {
+										field2: {
+											is: [{ empty: true }],
+											then: [{ required: true, errorMessage: ERROR_MESSAGE }],
+										},
+									},
+								},
+							],
+						},
+						field2: {
+							uiType: "text-field",
+							validation: [
+								{
+									when: {
+										field1: {
+											is: [{ empty: true }],
+											then: [{ required: true, errorMessage: ERROR_MESSAGE_2 }],
+										},
+									},
+								},
+							],
+						},
+					},
+				},
+			});
+
+			const error = TestHelper.getError(() => schema.validateSync({}, { abortEarly: false }));
+			expect(error.inner).toHaveLength(2);
+			expect(error.inner[0].message).toBe(ERROR_MESSAGE);
+			expect(error.inner[1].message).toBe(ERROR_MESSAGE_2);
+			expect(() => schema.validateSync({ field1: "hello" })).not.toThrow();
+		});
+
+		it("should beb able to support nested conditional validation", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field1: {
+							uiType: "text-field",
+							validation: [
+								{
+									when: {
+										field2: {
+											is: [{ filled: true }],
+											then: [
+												{
+													when: {
+														field3: {
+															is: [{ filled: true }],
+															then: [{ required: true, errorMessage: ERROR_MESSAGE }],
+														},
+													},
+												},
+											],
+										},
+									},
+								},
+							],
+						},
+						field2: { uiType: "text-field" },
+						field3: { uiType: "text-field" },
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({ field1: "a", field2: "b", field3: "c" })).not.toThrowError();
+			expect(() => schema.validateSync({ field1: undefined, field2: undefined, field3: "c" })).not.toThrowError();
+			expect(() => schema.validateSync({ field1: undefined, field2: "b", field3: undefined })).not.toThrowError();
+			expect(
+				TestHelper.getError(() => schema.validateSync({ field1: undefined, field2: "b", field3: "c" })).message
+			).toBe(ERROR_MESSAGE);
 		});
 	});
 

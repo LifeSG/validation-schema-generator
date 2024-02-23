@@ -6,7 +6,14 @@ import { ObjectShape } from "yup/lib/object";
 import { IFieldConfig, TFieldsConfig, generateFieldConfigs } from "../fields";
 import { ObjectHelper } from "../utils";
 import { parseConditionalRenders } from "./conditional-render";
-import { ISectionSchema, RecursivePartial, TComponentSchema, TFieldSchema, TSectionsSchema } from "./types";
+import {
+	ISectionSchema,
+	RecursivePartial,
+	TComponentSchema,
+	TFieldSchema,
+	TFieldValidation,
+	TSectionsSchema,
+} from "./types";
 import { YupHelper } from "./yup-helper";
 
 /**
@@ -61,14 +68,13 @@ export const overrideSchema = (
 /**
  * Iterates through field configs to look for conditional validation rules (`when` condition)
  * For each conditional validation rule, it will refer to the source field to generate the corresponding yup schema
- * @param fieldConfigs config containing the yup schema and validation config on each field
- * @returns an aray containing the parsed field config and conditional field id pairs
+ * @param fieldConfigs the entire config containing the yup schema and validation config of each field
+ * @returns an array containing the parsed field config and conditional field id pairs
  */
 const parseWhenKeys = (
 	fieldConfigs: TFieldsConfig<TFieldSchema<undefined>>
 ): [Record<string, IFieldConfig<TFieldSchema<undefined>>>, [string, string][]] => {
 	const parsedFieldConfigs = { ...fieldConfigs };
-
 	// Yup's escape hatch for cycling dependency error
 	// this happens when 2 fields have conditional validation that rely on each other
 	// typically used to ensure user fill in one of many fields
@@ -76,24 +82,52 @@ const parseWhenKeys = (
 	const whenPairIds: [string, string][] = [];
 
 	Object.entries(parsedFieldConfigs).forEach(([id, { validation }]) => {
-		const notWhenRules = validation?.filter((rule) => !("when" in rule)) || [];
-		const whenRules =
-			validation
-				?.filter((rule) => "when" in rule)
-				.map((rule) => {
-					const parsedRule = { ...rule };
-					Object.keys(parsedRule.when).forEach((whenFieldId) => {
-						whenPairIds.push([id, whenFieldId]);
-						parsedRule.when[whenFieldId] = {
-							...parsedRule.when[whenFieldId],
-							yupSchema: parsedFieldConfigs[whenFieldId].yupSchema.clone(),
-						};
-					});
-					return parsedRule;
-				}) || [];
-		parsedFieldConfigs[id].validation = [...notWhenRules, ...whenRules];
+		const [parsedFieldConfig, fieldWhenPairIds] = addSchemaToWhenRules(id, fieldConfigs, validation);
+		whenPairIds.push(...fieldWhenPairIds);
+		parsedFieldConfigs[id].validation = parsedFieldConfig;
 	});
 	return [parsedFieldConfigs, whenPairIds];
+};
+
+/**
+ * Recursively adds validation schema to each when rule, including nested ones
+ * @param id id of the field with the when rule
+ * @param fieldConfigs the entire config containing the yup schema and validation config of each field
+ * @param fieldValidationConfig validation config of a single field
+ * @returns an array containing the parsed field config and conditional field id pairs
+ */
+const addSchemaToWhenRules = (
+	id: string,
+	fieldConfigs: TFieldsConfig<TFieldSchema<undefined>>,
+	fieldValidationConfig: TFieldValidation
+): [TFieldValidation, [string, string][]] => {
+	const whenPairIds: [string, string][] = [];
+	const parsedFieldValidationConfig =
+		fieldValidationConfig?.filter((fieldValidationConfig) => !("when" in fieldValidationConfig)) || [];
+	fieldValidationConfig
+		?.filter((fieldValidationConfig) => "when" in fieldValidationConfig)
+		.forEach((fieldValidationConfig) => {
+			const parsedConfig = { ...fieldValidationConfig };
+			Object.keys(parsedConfig.when).forEach((whenFieldId) => {
+				// when
+				whenPairIds.push([id, whenFieldId]);
+				parsedConfig.when[whenFieldId] = {
+					...parsedConfig.when[whenFieldId],
+					yupSchema: fieldConfigs[whenFieldId].yupSchema.clone(),
+				};
+
+				// then
+				const [parsedThenRules, thenPairIds] = addSchemaToWhenRules(
+					id,
+					fieldConfigs,
+					parsedConfig.when[whenFieldId].then
+				);
+				parsedConfig.when[whenFieldId].then = parsedThenRules;
+				whenPairIds.push(...thenPairIds);
+			});
+			parsedFieldValidationConfig.push(parsedConfig);
+		});
+	return [parsedFieldValidationConfig, whenPairIds];
 };
 
 export const _testExports = {

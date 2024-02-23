@@ -131,6 +131,72 @@ describe("YupHelper", () => {
 				ERROR_MESSAGE_2
 			);
 		});
+
+		it("should support mutiple conditional validations", () => {
+			const schema = Yup.object().shape({
+				field1: YupHelper.mapRules(Yup.string(), [
+					{
+						when: {
+							field2: {
+								is: [{ filled: true }],
+								then: [{ required: true, errorMessage: ERROR_MESSAGE }],
+								yupSchema: Yup.string(),
+							},
+							field3: {
+								is: [{ filled: true }],
+								then: [{ required: true, errorMessage: ERROR_MESSAGE_2 }],
+								yupSchema: Yup.string(),
+							},
+						},
+					},
+				]),
+			});
+
+			expect(() => schema.validateSync({ field1: "a", field2: "b", field3: "c" })).not.toThrowError();
+			expect(() => schema.validateSync({ field1: "a", field2: "b", field3: undefined })).not.toThrowError();
+			expect(() => schema.validateSync({ field1: "a", field2: undefined, field3: "c" })).not.toThrowError();
+			expect(
+				TestHelper.getError(() => schema.validateSync({ field1: undefined, field2: "b", field3: undefined }))
+					.message
+			).toBe(ERROR_MESSAGE);
+			expect(
+				TestHelper.getError(() => schema.validateSync({ field1: undefined, field2: undefined, field3: "c" }))
+					.message
+			).toBe(ERROR_MESSAGE_2);
+		});
+
+		it("should support nested conditional validation", () => {
+			const schema = Yup.object().shape({
+				field1: YupHelper.mapRules(Yup.string(), [
+					{
+						when: {
+							field2: {
+								is: [{ filled: true }],
+								then: [
+									{
+										when: {
+											field3: {
+												is: [{ filled: true }],
+												then: [{ required: true, errorMessage: ERROR_MESSAGE }],
+												yupSchema: Yup.string(),
+											},
+										},
+									},
+								],
+								yupSchema: Yup.string(),
+							},
+						},
+					},
+				]),
+			});
+
+			expect(() => schema.validateSync({ field1: "a", field2: "b", field3: "c" })).not.toThrowError();
+			expect(() => schema.validateSync({ field1: undefined, field2: undefined, field3: "c" })).not.toThrowError();
+			expect(() => schema.validateSync({ field1: undefined, field2: "b", field3: undefined })).not.toThrowError();
+			expect(
+				TestHelper.getError(() => schema.validateSync({ field1: undefined, field2: "b", field3: "c" })).message
+			).toBe(ERROR_MESSAGE);
+		});
 	});
 
 	describe("addRule", () => {

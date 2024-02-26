@@ -38,7 +38,9 @@ export const jsonToSchema = <V = undefined>(
 		.shape(yupSchema, whenPairIds)
 		.noUnknown()
 		.meta({ schema: yupSchema })
-		.test("conditional-render", undefined, (values, context) => parseConditionalRenders(sections, values, context));
+		.test("conditional-render", undefined, (values, context) =>
+			parseConditionalRenders(overriddenSections, values, context)
+		);
 };
 
 export const overrideSchema = (

@@ -7,6 +7,7 @@ import {
 	IEmailFieldSchema,
 	IHistogramSlider,
 	IImageUploadSchema,
+	IMaskedFieldSchema,
 	IMultiSelectSchema,
 	INestedMultiSelectSchema,
 	INumericFieldSchema,
@@ -175,6 +176,7 @@ export type TFieldSchema<V = undefined> =
 	| IEmailFieldSchema<V>
 	| IHistogramSlider<V>
 	| IImageUploadSchema<V>
+	| IMaskedFieldSchema<V>
 	| IMultiSelectSchema<V>
 	| INestedMultiSelectSchema<V>
 	| INumericFieldSchema<V>

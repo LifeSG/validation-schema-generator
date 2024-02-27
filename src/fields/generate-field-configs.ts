@@ -9,6 +9,7 @@ import { dateRangeField } from "./date-range-field";
 import { emailField } from "./email-field";
 import { histogramSlider } from "./histogram-slider";
 import { imageUpload } from "./image-upload";
+import { maskedField } from "./masked-field";
 import { multiSelect } from "./multi-select";
 import { nestedMultiSelect } from "./nested-multi-select";
 import { numericField } from "./numeric-field";
@@ -71,6 +72,9 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 				break;
 			case "image-upload":
 				config = { ...config, ...imageUpload(id, componentSchema) };
+				break;
+			case "masked-field":
+				config = { ...config, ...maskedField(id, componentSchema) };
 				break;
 			case "multi-select":
 				config = { ...config, ...multiSelect(id, componentSchema) };

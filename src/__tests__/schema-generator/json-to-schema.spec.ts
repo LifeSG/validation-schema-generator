@@ -167,6 +167,26 @@ describe("json-to-schema", () => {
 				expect(error.inner[0].message).toBe(ERROR_MESSAGE_2);
 			});
 
+			it("should be able to override the schema with conditional render rules", () => {
+				const schema = jsonToSchema(SCHEMA, {
+					field: {
+						validation: [{ errorMessage: "overridden error 1" }],
+					},
+					field2: {
+						showIf: [{ field: [{ equals: "show field 2" }] }],
+						validation: [{ errorMessage: "overridden error 2" }],
+					},
+				});
+
+				expect(() => schema.validateSync({ field: "hello", field2: undefined })).not.toThrowError();
+
+				const error = TestHelper.getError(() =>
+					schema.validateSync({ field: "show field 2", field2: undefined }, { abortEarly: false })
+				);
+				expect(error.inner).toHaveLength(1);
+				expect(error.inner[0].message).toBe("overridden error 2");
+			});
+
 			it("should not change or remove entries on overriding with undefined values", () => {
 				const schema = jsonToSchema(SCHEMA, {
 					field: {

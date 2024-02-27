@@ -155,5 +155,31 @@ describe("file-upload", () => {
 				(await TestHelper.getAsyncError(() => schema.validate({ field: [{ fileName: FILENAME }] }))).message
 			).toBe(ERROR_MESSAGES.UPLOAD().INVALID);
 		});
+
+		it("should reject for multipart uploads if submitted values contains dataURL", async () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "file-upload",
+							somethingUnused: "test",
+							uploadOnAddingFile: { type: "multipart" },
+							validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+						},
+					},
+				},
+			});
+
+			expect(
+				(
+					await TestHelper.getAsyncError(() =>
+						schema.validate({
+							field: [{ fileName: FILENAME, fileUrl: "https://www.test.tld", dataURL: "mock" }],
+						})
+					)
+				).message
+			).toBe(ERROR_MESSAGES.UPLOAD().INVALID);
+		});
 	});
 });

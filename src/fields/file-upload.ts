@@ -105,7 +105,7 @@ export const fileUpload: IFieldGenerator<IFileUploadSchema> = (id, { uploadOnAdd
 						}
 					} else if (uploadOnAddingFile.type === "multipart") {
 						for (const file of value) {
-							if (!file.fileUrl) {
+							if (!file.fileUrl || file.dataURL) {
 								isValid = false;
 								break;
 							}

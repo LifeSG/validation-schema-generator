@@ -51,6 +51,11 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 		switch (uiType) {
 			case "checkbox":
 				config = { ...config, ...checkbox(id, componentSchema) };
+				componentSchema.options.forEach((option) => {
+					if (!isEmpty(option.children) && isObject(option.children)) {
+						config = { ...config, ...generateChildrenFieldConfigs(option.children) };
+					}
+				});
 				break;
 			case "chips":
 				config = { ...config, ...chips(id, componentSchema) };
@@ -87,6 +92,11 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 				break;
 			case "radio":
 				config = { ...config, ...radio(id, componentSchema) };
+				componentSchema.options.forEach((option) => {
+					if (!isEmpty(option.children) && isObject(option.children)) {
+						config = { ...config, ...generateChildrenFieldConfigs(option.children) };
+					}
+				});
 				break;
 			case "select":
 				config = { ...config, ...select(id, componentSchema) };

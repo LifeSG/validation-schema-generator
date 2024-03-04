@@ -75,7 +75,14 @@ export const fileUpload: IFieldGenerator<IFileUploadSchema> = (id, { uploadOnAdd
 					"file-type",
 					fileTypeRule?.errorMessage || ERROR_MESSAGES.UPLOAD().FILE_TYPE(fileTypeRule?.fileType || [""]),
 					async (value) => {
-						if (!value || !Array.isArray(value) || !fileTypeRule?.fileType) return true;
+						// NOTE: not validating file type for multipart upload because only the image url is passed and backend is expected to perform the necessary validation
+						if (
+							!value ||
+							!Array.isArray(value) ||
+							!fileTypeRule?.fileType ||
+							uploadOnAddingFile.type !== "base64"
+						)
+							return true;
 						let isValid = true;
 						const fileMimeTypes = fileTypeRule.fileType.map((fileType) =>
 							FileHelper.fileExtensionToMimeType(fileType)

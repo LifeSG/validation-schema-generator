@@ -51,6 +51,10 @@ export namespace FileHelper {
 	 */
 	export const getMimeType = async (buffer: Buffer) => {
 		const result = await fromBuffer(buffer);
+		// default to plain-text as it is not possible to determine file type for text-based file formats
+		if (!result) {
+			return "text/plain";
+		}
 		return result.mime;
 	};
 }

@@ -124,8 +124,8 @@ describe("image-upload", () => {
 	describe.each`
 		scenario            | prop                                                         | valid         | invalid           | errorMessage
 		${"dimensions"}     | ${{ compress: true, dimensions: { width: 10, height: 10 } }} | ${JPG_BASE64} | ${JPG_1KB_BASE64} | ${ERROR_MESSAGES.UPLOAD("photo").DIMENSIONS(10, 10)}
-		${"outputType=jpg"} | ${{ outputType: "jpg" }}                                     | ${JPG_BASE64} | ${PNG_BASE64}     | ${ERROR_MESSAGES.UPLOAD("photo").FILE_TYPE("jpg")}
-		${"outputType=png"} | ${{ outputType: "png" }}                                     | ${PNG_BASE64} | ${JPG_BASE64}     | ${ERROR_MESSAGES.UPLOAD("photo").FILE_TYPE("png")}
+		${"outputType=jpg"} | ${{ outputType: "jpg" }}                                     | ${JPG_BASE64} | ${PNG_BASE64}     | ${ERROR_MESSAGES.UPLOAD("photo").FILE_TYPE(["jpg"])}
+		${"outputType=png"} | ${{ outputType: "png" }}                                     | ${PNG_BASE64} | ${JPG_BASE64}     | ${ERROR_MESSAGES.UPLOAD("photo").FILE_TYPE(["png"])}
 	`("$scenario", ({ prop, valid, invalid, errorMessage }) => {
 		let schema: Yup.ObjectSchema<ObjectShape>;
 

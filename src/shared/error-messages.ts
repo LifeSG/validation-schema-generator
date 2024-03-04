@@ -52,13 +52,16 @@ export const ERROR_MESSAGES = {
 	UNSPECIFIED_FIELD: (id: string) => `this field has unspecified keys: ${id}`, // match Yup.noUnknown() error
 	UPLOAD: (unit = "file", unitPlural = `${unit}s`) => ({
 		DIMENSIONS: (width: number, height: number) => `Upload failed. ${unit} needs to be within ${width}x${height}.`,
-		FILE_TYPE: (fileType: string) =>
-			`Upload failed. Only ${FileHelper.extensionsToSentence([fileType])} file is accepted.`,
+		FILE_TYPE: (fileTypes: string[]) =>
+			`Upload failed. Only ${FileHelper.extensionsToSentence(fileTypes)} ${
+				fileTypes.length !== 1 ? "files are" : "file is"
+			} accepted.`,
 		MAX_FILES: (max: number) =>
 			`Upload failed. You can only upload maximum of ${max} ${max !== 1 ? unitPlural : unit}.`,
 		MAX_FILE_SIZE: (maxSize: number) =>
 			`Upload failed. ${capitalize(unit)} exceeds the maximum size of ${maxSize} KB.`,
 		// GENERIC: "Upload failed. Please try again.",
 		REQUIRED: `Upload at least 1 ${unit}`,
+		INVALID: "Invalid submission",
 	}),
 };

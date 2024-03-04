@@ -3,9 +3,10 @@ import isObject from "lodash/isObject";
 import * as Yup from "yup";
 import { Assign, ObjectShape, TypeOfShape } from "yup/lib/object";
 import { AnyObject } from "yup/lib/types";
-import { YupHelper } from "./yup-helper";
-import { TComponentSchema, TRenderRules, TSectionsSchema, TYupSchemaType } from "./types";
+import { ICheckboxSchema } from "../fields";
 import { ERROR_MESSAGES } from "../shared";
+import { TComponentSchema, TRenderRules, TSectionsSchema, TYupSchemaType } from "./types";
+import { YupHelper } from "./yup-helper";
 
 /**
  * Remove conditionally rendered fields from yup schema if the conditions are not fulfilled
@@ -45,16 +46,31 @@ const parseChildrenConditionalRenders = (
 	formValues: TypeOfShape<Assign<ObjectShape, ObjectShape>>
 ) => {
 	let parsedYupSchema: ObjectShape = { ...yupSchema };
+
+	const parseIfValidChildren = (children: Record<string, TComponentSchema>) => {
+		if (!isEmpty(children) && isObject(children)) {
+			parsedYupSchema = {
+				...parseChildrenConditionalRenders(
+					children as Record<string, TComponentSchema>,
+					parsedYupSchema,
+					formValues
+				),
+			};
+		}
+	};
+
 	Object.entries(childrenSchema).forEach(([id, componentSchema]) => {
 		if (canRender(componentSchema.showIf as TRenderRules[], yupSchema, formValues)) {
-			if (!isEmpty(componentSchema.children) && isObject(componentSchema.children)) {
-				parsedYupSchema = {
-					...parseChildrenConditionalRenders(
-						componentSchema.children as Record<string, TComponentSchema>,
-						parsedYupSchema,
-						formValues
-					),
-				};
+			switch (componentSchema.uiType) {
+				case "checkbox":
+				case "radio":
+					(componentSchema as ICheckboxSchema).options.forEach((option) => {
+						parseIfValidChildren(option.children);
+					});
+					break;
+				default:
+					parseIfValidChildren(componentSchema.children as Record<string, TComponentSchema>);
+					break;
 			}
 		} else {
 			const hiddenFieldIdList = [id, ...listAllChildIds(componentSchema.children)];

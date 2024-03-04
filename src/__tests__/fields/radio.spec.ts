@@ -52,4 +52,64 @@ describe("radio", () => {
 			ERROR_MESSAGES.COMMON.INVALID_OPTION
 		);
 	});
+
+	it("should support nested config in option", () => {
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "radio",
+						options: [
+							{
+								label: "Other",
+								value: "Other",
+								children: {
+									other: {
+										uiType: "text-field",
+										validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+									},
+								},
+							},
+						],
+					},
+				},
+			},
+		});
+
+		expect(() => schema.validateSync({ field: "Other", other: "extra" })).not.toThrowError();
+		expect(TestHelper.getError(() => schema.validateSync({ field: "Other" })).message).toBe(ERROR_MESSAGE);
+	});
+
+	it("should support conditional validation for nested config in option", () => {
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "radio",
+						options: [
+							{
+								label: "Other",
+								value: "Other",
+								children: {
+									other: {
+										uiType: "text-field",
+										validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+										showIf: [{ field: [{ equals: "Other" }] }],
+									},
+								},
+							},
+						],
+					},
+				},
+			},
+		});
+
+		expect(() => schema.validateSync({ field: undefined })).not.toThrowError();
+		expect(TestHelper.getError(() => schema.validateSync({ field: undefined, other: "extra" })).message).toBe(
+			ERROR_MESSAGES.UNSPECIFIED_FIELD("other")
+		);
+		expect(TestHelper.getError(() => schema.validateSync({ field: "Other" })).message).toBe(ERROR_MESSAGE);
+	});
 });

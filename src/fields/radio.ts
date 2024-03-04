@@ -1,11 +1,12 @@
 import * as Yup from "yup";
-import { IFieldSchemaBase } from "../schema-generator";
+import { IFieldSchemaBase, TComponentSchema } from "../schema-generator";
 import { ERROR_MESSAGES } from "../shared";
 import { IFieldGenerator } from "./types";
 
 interface IOption {
 	label: string;
 	value: string;
+	children?: Record<string, TComponentSchema>;
 }
 export interface IRadioSchema<V = undefined> extends IFieldSchemaBase<"radio", V> {
 	options: IOption[];

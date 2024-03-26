@@ -133,8 +133,12 @@ describe("checkbox", () => {
 			section: {
 				uiType: "section",
 				children: {
-					field: {
+					field1: {
+						uiType: "text-field",
+					},
+					field2: {
 						uiType: "checkbox",
+						showIf: [{ field1: [{ filled: true }] }],
 						options: [
 							{
 								label: "Other",
@@ -143,7 +147,11 @@ describe("checkbox", () => {
 									other: {
 										uiType: "text-field",
 										validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
-										showIf: [{ field: [{ filled: true }, { includes: ["Other"] }] }],
+										showIf: [
+											{
+												field2: [{ filled: true }, { includes: ["Other"] }],
+											},
+										],
 									},
 								},
 							},
@@ -153,10 +161,13 @@ describe("checkbox", () => {
 			},
 		});
 
-		expect(() => schema.validateSync({ field: undefined })).not.toThrowError();
-		expect(TestHelper.getError(() => schema.validateSync({ field: undefined, other: "extra" })).message).toBe(
-			ERROR_MESSAGES.UNSPECIFIED_FIELD("other")
+		expect(() => schema.validateSync({ field1: undefined, field2: undefined })).not.toThrowError();
+		expect(
+			TestHelper.getError(() => schema.validateSync({ field1: "show", field2: undefined, other: "extra" }))
+				.message
+		).toBe(ERROR_MESSAGES.UNSPECIFIED_FIELD("other"));
+		expect(TestHelper.getError(() => schema.validateSync({ field1: "show", field2: ["Other"] })).message).toBe(
+			ERROR_MESSAGE
 		);
-		expect(TestHelper.getError(() => schema.validateSync({ field: ["Other"] })).message).toBe(ERROR_MESSAGE);
 	});
 });

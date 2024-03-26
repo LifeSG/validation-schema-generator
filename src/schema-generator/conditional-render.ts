@@ -3,7 +3,7 @@ import isObject from "lodash/isObject";
 import * as Yup from "yup";
 import { Assign, ObjectShape, TypeOfShape } from "yup/lib/object";
 import { AnyObject } from "yup/lib/types";
-import { ICheckboxSchema } from "../fields";
+import { ICheckboxSchema, IRadioSchema } from "../fields";
 import { ERROR_MESSAGES } from "../shared";
 import { TComponentSchema, TRenderRules, TSectionsSchema, TYupSchemaType } from "./types";
 import { YupHelper } from "./yup-helper";
@@ -64,7 +64,7 @@ const parseChildrenConditionalRenders = (
 			switch (componentSchema.uiType) {
 				case "checkbox":
 				case "radio":
-					(componentSchema as ICheckboxSchema).options.forEach((option) => {
+					(componentSchema as ICheckboxSchema | IRadioSchema).options.forEach((option) => {
 						parseIfValidChildren(option.children);
 					});
 					break;
@@ -73,7 +73,7 @@ const parseChildrenConditionalRenders = (
 					break;
 			}
 		} else {
-			const hiddenFieldIdList = [id, ...listAllChildIds(componentSchema.children)];
+			const hiddenFieldIdList = [id, ...listAllChildIds(componentSchema)];
 			hiddenFieldIdList.forEach((hiddenFieldId) => {
 				parsedYupSchema[hiddenFieldId] = Yup.mixed().test(
 					"empty",
@@ -136,17 +136,39 @@ const canRender = (
  * @param children Object to check against
  * @returns List of keys
  */
-const listAllChildIds = (children: unknown) => {
-	const childIdList: string[] = [];
-	if (isEmpty(children) || !isObject(children)) {
-		return childIdList;
+const listAllChildIds = (schema: TComponentSchema) => {
+	if (!isNonEmptyObject(schema)) {
+		return [];
 	}
-	Object.entries(children).forEach(([id, child]) => {
-		childIdList.push(id);
-		if (child["children"]) {
-			childIdList.push(...listAllChildIds(child["children"]));
-		}
-	});
+
+	const childIdList: string[] = [];
+
+	// Handle special fields that render additional fields
+	switch (schema.uiType) {
+		case "checkbox":
+		case "radio":
+			(schema as ICheckboxSchema | IRadioSchema).options.forEach((option) => {
+				const optionChildren = option["children"];
+				if (isNonEmptyObject(optionChildren)) {
+					Object.entries(optionChildren).forEach(([id, child]) => {
+						childIdList.push(id);
+						childIdList.push(...listAllChildIds(child));
+					});
+				}
+			});
+			break;
+	}
+
+	// Handle nested fields
+	const children = schema["children"] as Record<string, TComponentSchema>;
+	if (isNonEmptyObject(children)) {
+		Object.entries(children).forEach(([id, child]) => {
+			childIdList.push(id);
+			childIdList.push(...listAllChildIds(child));
+		});
+	}
 
 	return childIdList;
 };
+
+const isNonEmptyObject = (val: unknown) => !isEmpty(val) && isObject(val);

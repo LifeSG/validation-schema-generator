@@ -5,20 +5,24 @@ const ERROR_MESSAGE = "test error message";
 
 describe("custom-rules", () => {
 	it.each`
-		type        | condition                 | uiType             | config                       | valid          | invalid
-		${"string"} | ${"uinfin"}               | ${"text-field"}    | ${{ uinfin: true }}          | ${"S1234567D"} | ${"S1234567A"}
-		${"string"} | ${"filled"}               | ${"text-field"}    | ${{ filled: true }}          | ${"hello"}     | ${undefined}
-		${"string"} | ${"empty"}                | ${"text-field"}    | ${{ empty: true }}           | ${undefined}   | ${"hello"}
-		${"string"} | ${"empty (empty string)"} | ${"text-field"}    | ${{ empty: true }}           | ${""}          | ${"hello"}
-		${"string"} | ${"equals"}               | ${"text-field"}    | ${{ equals: "hello" }}       | ${"hello"}     | ${"hi"}
-		${"string"} | ${"notEquals"}            | ${"text-field"}    | ${{ notEquals: "hello" }}    | ${"hi"}        | ${"hello"}
-		${"string"} | ${"equalsField"}          | ${"text-field"}    | ${{ equalsField: "field1" }} | ${"hello"}     | ${"help"}
-		${"string"} | ${"equalsField (empty)"}  | ${"text-field"}    | ${{ equalsField: "field1" }} | ${undefined}   | ${"help"}
-		${"number"} | ${"filled"}               | ${"numeric-field"} | ${{ filled: true }}          | ${1}           | ${undefined}
-		${"number"} | ${"empty"}                | ${"numeric-field"} | ${{ empty: true }}           | ${undefined}   | ${1}
-		${"number"} | ${"equals"}               | ${"numeric-field"} | ${{ equals: 1 }}             | ${1}           | ${2}
-		${"number"} | ${"notEquals"}            | ${"numeric-field"} | ${{ notEquals: 1 }}          | ${2}           | ${1}
-		${"number"} | ${"equalsField"}          | ${"numeric-field"} | ${{ equalsField: "field1" }} | ${10}          | ${11}
+		type         | condition                 | uiType             | config                       | valid          | invalid
+		${"string"}  | ${"uinfin"}               | ${"text-field"}    | ${{ uinfin: true }}          | ${"S1234567D"} | ${"S1234567A"}
+		${"string"}  | ${"filled"}               | ${"text-field"}    | ${{ filled: true }}          | ${"hello"}     | ${undefined}
+		${"string"}  | ${"empty"}                | ${"text-field"}    | ${{ empty: true }}           | ${undefined}   | ${"hello"}
+		${"string"}  | ${"empty (empty string)"} | ${"text-field"}    | ${{ empty: true }}           | ${""}          | ${"hello"}
+		${"string"}  | ${"equals"}               | ${"text-field"}    | ${{ equals: "hello" }}       | ${"hello"}     | ${"hi"}
+		${"string"}  | ${"notEquals"}            | ${"text-field"}    | ${{ notEquals: "hello" }}    | ${"hi"}        | ${"hello"}
+		${"string"}  | ${"equalsField"}          | ${"text-field"}    | ${{ equalsField: "field1" }} | ${"hello"}     | ${"help"}
+		${"string"}  | ${"equalsField (empty)"}  | ${"text-field"}    | ${{ equalsField: "field1" }} | ${undefined}   | ${"help"}
+		${"number"}  | ${"filled"}               | ${"numeric-field"} | ${{ filled: true }}          | ${1}           | ${undefined}
+		${"number"}  | ${"empty"}                | ${"numeric-field"} | ${{ empty: true }}           | ${undefined}   | ${1}
+		${"number"}  | ${"equals"}               | ${"numeric-field"} | ${{ equals: 1 }}             | ${1}           | ${2}
+		${"number"}  | ${"notEquals"}            | ${"numeric-field"} | ${{ notEquals: 1 }}          | ${2}           | ${1}
+		${"number"}  | ${"equalsField"}          | ${"numeric-field"} | ${{ equalsField: "field1" }} | ${10}          | ${11}
+		${"boolean"} | ${"filled"}               | ${"switch"}        | ${{ filled: true }}          | ${false}       | ${undefined}
+		${"boolean"} | ${"empty"}                | ${"switch"}        | ${{ empty: true }}           | ${undefined}   | ${false}
+		${"boolean"} | ${"equals"}               | ${"switch"}        | ${{ equals: true }}          | ${true}        | ${false}
+		${"boolean"} | ${"notEquals"}            | ${"switch"}        | ${{ notEquals: true }}       | ${false}       | ${true}
 	`("should support $condition condition for Yup $type type", ({ uiType, config, valid, invalid }) => {
 		const schema = jsonToSchema({
 			section: {

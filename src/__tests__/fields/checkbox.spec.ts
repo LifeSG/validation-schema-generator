@@ -170,4 +170,42 @@ describe("checkbox", () => {
 			ERROR_MESSAGE
 		);
 	});
+
+	it("should support conditional validation for nested checkbox in option", () => {
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					field1: {
+						uiType: "checkbox",
+						options: [
+							{
+								label: "Apple",
+								value: "Apple",
+								children: {
+									field2: {
+										uiType: "checkbox",
+										showIf: [{ field1: [{ filled: true }, { includes: "Apple" }] }],
+										validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+										options: [
+											{
+												label: "Zucchini",
+												value: "Zucchini",
+											},
+										],
+									},
+								},
+							},
+						],
+					},
+				},
+			},
+		});
+
+		expect(() => schema.validateSync({ field1: undefined, field2: undefined })).not.toThrowError();
+		expect(() => schema.validateSync({ field1: ["Apple"], field2: ["Zucchini"] })).not.toThrowError();
+		expect(TestHelper.getError(() => schema.validateSync({ field1: ["Apple"], field2: undefined })).message).toBe(
+			ERROR_MESSAGE
+		);
+	});
 });

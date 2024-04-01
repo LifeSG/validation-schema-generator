@@ -86,8 +86,12 @@ describe("radio", () => {
 			section: {
 				uiType: "section",
 				children: {
-					field: {
+					field1: {
+						uiType: "text-field",
+					},
+					field2: {
 						uiType: "radio",
+						showIf: [{ field1: [{ filled: true }] }],
 						options: [
 							{
 								label: "Other",
@@ -96,7 +100,7 @@ describe("radio", () => {
 									other: {
 										uiType: "text-field",
 										validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
-										showIf: [{ field: [{ equals: "Other" }] }],
+										showIf: [{ field2: [{ equals: "Other" }] }],
 									},
 								},
 							},
@@ -106,10 +110,51 @@ describe("radio", () => {
 			},
 		});
 
-		expect(() => schema.validateSync({ field: undefined })).not.toThrowError();
-		expect(TestHelper.getError(() => schema.validateSync({ field: undefined, other: "extra" })).message).toBe(
-			ERROR_MESSAGES.UNSPECIFIED_FIELD("other")
+		expect(() => schema.validateSync({ field1: undefined, field2: undefined })).not.toThrowError();
+		expect(
+			TestHelper.getError(() => schema.validateSync({ field1: "show", field2: undefined, other: "extra" }))
+				.message
+		).toBe(ERROR_MESSAGES.UNSPECIFIED_FIELD("other"));
+		expect(TestHelper.getError(() => schema.validateSync({ field1: "show", field2: "Other" })).message).toBe(
+			ERROR_MESSAGE
 		);
-		expect(TestHelper.getError(() => schema.validateSync({ field: "Other" })).message).toBe(ERROR_MESSAGE);
+	});
+
+	it("should support conditional validation for nested radio in option", () => {
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					field1: {
+						uiType: "radio",
+						options: [
+							{
+								label: "Apple",
+								value: "Apple",
+								children: {
+									field2: {
+										uiType: "radio",
+										showIf: [{ field1: [{ equals: "Apple" }] }],
+										validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+										options: [
+											{
+												label: "Zucchini",
+												value: "Zucchini",
+											},
+										],
+									},
+								},
+							},
+						],
+					},
+				},
+			},
+		});
+
+		expect(() => schema.validateSync({ field1: undefined, field2: undefined })).not.toThrowError();
+		expect(() => schema.validateSync({ field1: "Apple", field2: "Zucchini" })).not.toThrowError();
+		expect(TestHelper.getError(() => schema.validateSync({ field1: "Apple", field2: undefined })).message).toBe(
+			ERROR_MESSAGE
+		);
 	});
 });

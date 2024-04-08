@@ -99,6 +99,7 @@ export interface IConditionalValidationRule extends IRule {
 
 export interface IRenderRule extends IRule {
 	filled?: boolean | undefined;
+	shown?: boolean | undefined;
 }
 export type TRenderRules = Record<string, IRenderRule[]>;
 

@@ -56,7 +56,7 @@ const parseShownRule = (
 		.forEach(([fieldId, ruleGroups]) => {
 			const notShown = ruleGroups.every((rules) => {
 				if (rules.length) {
-					return rules.some((id) => parsedYupSchema[id].describe().meta?.hidden);
+					return rules.some((id) => !parsedYupSchema[id] || parsedYupSchema[id].describe().meta?.hidden);
 				}
 				return false;
 			});

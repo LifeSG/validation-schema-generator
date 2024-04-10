@@ -509,7 +509,25 @@ describe("json-to-schema", () => {
 			expect(TestHelper.getError(() => schema.validateSync({ field3: "val" })).message).toBe(ERROR_MESSAGE);
 		});
 
-		it("should support shown conditions out of order", () => {
+		it("should still evaluate shown condition if source field is not defined", () => {
+			const uiType = "text-field";
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType,
+							showIf: [{ missing: [{ shown: true }] }],
+							validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({})).not.toThrowError();
+		});
+
+		it("should support shown conditions declared out of order", () => {
 			const uiType = "text-field";
 			const schema = jsonToSchema({
 				section: {

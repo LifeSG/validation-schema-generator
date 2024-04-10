@@ -59,14 +59,19 @@ const topologicalSort = (dependencies: Record<string, string[]>) => {
 
 	// initialise graph representation
 	const edges: Record<string, string[]> = Object.fromEntries(fieldIds.map((id) => [id, []]));
-	const indegrees: Record<string, number> = Object.fromEntries(fieldIds.map((id) => [id, 0]));
-
 	Object.entries(dependencies).forEach(([childId, parentIds]) => {
 		parentIds.forEach((parentId) => {
+			if (!edges[parentId]) {
+				edges[parentId] = [];
+			}
 			edges[parentId].push(childId);
 		});
 	});
-	Object.entries(dependencies).forEach(([nodeId, parentIds]) => (indegrees[nodeId] = parentIds.length));
+
+	const indegrees: Record<string, number> = Object.fromEntries(Object.keys(edges).map((id) => [id, 0]));
+	Object.entries(dependencies).forEach(([nodeId, parentIds]) => {
+		indegrees[nodeId] = parentIds.length;
+	});
 
 	// begin graph traversal
 	const queue = [];
@@ -90,7 +95,7 @@ const topologicalSort = (dependencies: Record<string, string[]>) => {
 		}
 	}
 
-	if (order.length !== fieldIds.length) {
+	if (order.length !== Object.keys(edges).length) {
 		console.warn("cycle detected");
 	}
 

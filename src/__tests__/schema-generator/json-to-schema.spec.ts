@@ -571,5 +571,35 @@ describe("json-to-schema", () => {
 				ERROR_MESSAGE_2
 			);
 		});
+
+		it("should not apply validation schema of hidden child field", () => {
+			const uiType = "text-field";
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field1: {
+							uiType,
+						},
+						field2: {
+							uiType,
+							showIf: [{ field1: [{ equals: "show" }] }],
+						},
+						wrapper: {
+							uiType: "div",
+							showIf: [{ field2: [{ shown: true }] }],
+							children: {
+								field3: {
+									uiType,
+									validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+								},
+							},
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({})).not.toThrowError();
+		});
 	});
 });

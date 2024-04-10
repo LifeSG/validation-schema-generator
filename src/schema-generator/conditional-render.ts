@@ -9,6 +9,8 @@ import { getFieldSortOrder } from "./field-sort";
 import { TComponentSchema, TRenderRules, TSectionsSchema, TYupSchemaType } from "./types";
 import { YupHelper } from "./yup-helper";
 
+type TFieldsWithShownRule = Record<string, { childIds: string[]; sourceIds: string[][] }>;
+
 /**
  * Remove conditionally rendered fields from yup schema if the conditions are not fulfilled
  * This works by mutating the schema fields passed via the Yup context
@@ -23,7 +25,7 @@ export const parseConditionalRenders = (
 	formValues: TypeOfShape<Assign<ObjectShape, ObjectShape>>,
 	yupContext: Yup.TestContext<AnyObject>
 ) => {
-	const fieldsWithShownRule: Record<string, string[][]> = {};
+	const fieldsWithShownRule: TFieldsWithShownRule = {};
 	yupContext.schema.withMutation((schema: Yup.ObjectSchema<Assign<ObjectShape, ObjectShape>>) => {
 		let yupSchema: ObjectShape = yupContext.schema.clone().describe().meta.schema;
 		Object.values(sections).forEach((section) => {
@@ -45,7 +47,7 @@ export const parseConditionalRenders = (
 const parseShownRule = (
 	sections: TSectionsSchema,
 	yupSchema: ObjectShape,
-	fieldsWithShownRule: Record<string, string[][]>
+	fieldsWithShownRule: TFieldsWithShownRule
 ) => {
 	const parsedYupSchema = { ...yupSchema };
 
@@ -53,17 +55,20 @@ const parseShownRule = (
 
 	Object.entries(fieldsWithShownRule)
 		.sort(([fieldIdA], [fieldIdB]) => order[fieldIdA] - order[fieldIdB])
-		.forEach(([fieldId, ruleGroups]) => {
-			const notShown = ruleGroups.every((rules) => {
+		.forEach(([fieldId, meta]) => {
+			const notShown = meta.sourceIds.every((rules) => {
 				if (rules.length) {
 					return rules.some((id) => !parsedYupSchema[id] || parsedYupSchema[id].describe().meta?.hidden);
 				}
 				return false;
 			});
 			if (notShown) {
-				parsedYupSchema[fieldId] = Yup.mixed()
-					.meta({ hidden: true })
-					.test("empty", ERROR_MESSAGES.UNSPECIFIED_FIELD(fieldId), (value) => value === undefined);
+				const hiddenFieldIdList = [fieldId, ...meta.childIds];
+				hiddenFieldIdList.forEach((hiddenFieldId) => {
+					parsedYupSchema[hiddenFieldId] = Yup.mixed()
+						.meta({ hidden: true })
+						.test("empty", ERROR_MESSAGES.UNSPECIFIED_FIELD(hiddenFieldId), (value) => value === undefined);
+				});
 			}
 		});
 
@@ -82,7 +87,7 @@ const parseChildrenConditionalRenders = (
 	childrenSchema: Record<string, TComponentSchema>,
 	yupSchema: ObjectShape,
 	formValues: TypeOfShape<Assign<ObjectShape, ObjectShape>>,
-	fieldsWithShownRule: Record<string, string[][]>
+	fieldsWithShownRule: TFieldsWithShownRule
 ) => {
 	let parsedYupSchema: ObjectShape = { ...yupSchema };
 
@@ -107,7 +112,7 @@ const parseChildrenConditionalRenders = (
 		);
 
 		if (!isValidWithoutShownRule && isValidWithShownRule) {
-			fieldsWithShownRule[id] = sourceIds;
+			fieldsWithShownRule[id] = { childIds: listAllChildIds(componentSchema), sourceIds: sourceIds };
 		}
 
 		if (isValidWithoutShownRule || isValidWithShownRule) {

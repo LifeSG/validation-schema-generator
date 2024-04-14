@@ -105,17 +105,16 @@ const parseChildrenConditionalRenders = (
 	};
 
 	Object.entries(childrenSchema).forEach(([id, componentSchema]) => {
-		const { isValidWithoutShownRule, isValidWithShownRule, sourceIds } = canRender(
+		const { isValid, requiresShownRule, sourceIds } = canRender(
 			componentSchema.showIf as TRenderRules[],
 			parsedYupSchema,
 			formValues
 		);
 
-		if (!isValidWithoutShownRule && isValidWithShownRule) {
-			fieldsWithShownRule[id] = { childIds: listAllChildIds(componentSchema), sourceIds: sourceIds };
-		}
-
-		if (isValidWithoutShownRule || isValidWithShownRule) {
+		if (isValid) {
+			if (requiresShownRule) {
+				fieldsWithShownRule[id] = { childIds: listAllChildIds(componentSchema), sourceIds: sourceIds };
+			}
 			switch (componentSchema.uiType) {
 				case "checkbox":
 				case "radio":
@@ -151,13 +150,14 @@ const canRender = (
 	yupSchema: ObjectShape,
 	formValues: TypeOfShape<Assign<ObjectShape, ObjectShape>>
 ) => {
-	if (isEmpty(renderRules)) return { isValidWithoutShownRule: true, isValidWithShownRule: false, sourceIds: [] };
+	if (isEmpty(renderRules)) return { isValid: true, requiresShownRule: false, sourceIds: [] };
 
 	const sourceIds = [];
-	let isValidWithoutShownRule = false;
-	let isValidWithShownRule = false;
+	let isValid = false;
+	let hasShownRule = false;
+	let hasNonShownRule = false;
 	renderRules.forEach((ruleGroup) => {
-		if (isValidWithoutShownRule) {
+		if (hasNonShownRule) {
 			return;
 		}
 		const shownRuleSourceFieldIds = [];
@@ -184,16 +184,17 @@ const canRender = (
 		const renderSchema = Yup.object().shape(combinedSchema);
 		try {
 			renderSchema.validateSync(formValues);
+			isValid = true;
 			if (shownRuleSourceFieldIds.length) {
 				sourceIds.push(shownRuleSourceFieldIds);
-				isValidWithShownRule = true;
+				hasShownRule = true;
 			} else {
-				isValidWithoutShownRule = true;
+				hasNonShownRule = true;
 			}
 		} catch (error) {}
 	});
 
-	return { isValidWithoutShownRule, isValidWithShownRule, sourceIds };
+	return { isValid, requiresShownRule: hasShownRule && !hasNonShownRule, sourceIds };
 };
 
 /**

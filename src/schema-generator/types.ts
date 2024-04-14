@@ -26,7 +26,7 @@ import { IDateRangeFieldSchema } from "../fields/date-range-field";
 // =============================================================================
 // CONDITIONS AND RULES
 // =============================================================================
-export const SCHEMA_TYPES = ["string", "number", "boolean", "array", "object"] as const;
+export const SCHEMA_TYPES = ["string", "number", "boolean", "array", "object", "mixed"] as const;
 export const CONDITIONS = [
 	"required",
 	"length",

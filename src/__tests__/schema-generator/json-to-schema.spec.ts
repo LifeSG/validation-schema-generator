@@ -465,7 +465,10 @@ describe("json-to-schema", () => {
 						},
 						field3: {
 							uiType,
-							showIf: [{ field2: [{ shown: true }, { filled: true }] }],
+						},
+						field4: {
+							uiType,
+							showIf: [{ field2: [{ shown: true }, { filled: true }] }, { field3: [{ filled: true }] }],
 							validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
 						},
 					},
@@ -473,39 +476,10 @@ describe("json-to-schema", () => {
 			});
 
 			expect(() => schema.validateSync({ field1: "show", field2: "" })).not.toThrowError();
+			expect(() => schema.validateSync({ field3: "" })).not.toThrowError();
 			expect(TestHelper.getError(() => schema.validateSync({ field1: "show", field2: "val" })).message).toBe(
 				ERROR_MESSAGE
 			);
-		});
-
-		it("should support shown condition as one of the conditional rendering rules", () => {
-			const uiType = "text-field";
-			const schema = jsonToSchema({
-				section: {
-					uiType: "section",
-					children: {
-						field1: {
-							uiType,
-						},
-						field2: {
-							uiType,
-							showIf: [{ field1: [{ equals: "show" }] }],
-						},
-						field3: {
-							uiType,
-						},
-						field4: {
-							uiType,
-							showIf: [{ field2: [{ shown: true }] }, { field3: [{ filled: true }] }],
-							validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
-						},
-					},
-				},
-			});
-
-			expect(() => schema.validateSync({ field1: "show", field4: "val" })).not.toThrowError();
-			expect(() => schema.validateSync({ field3: "val", field4: "val" })).not.toThrowError();
-			expect(TestHelper.getError(() => schema.validateSync({ field1: "show" })).message).toBe(ERROR_MESSAGE);
 			expect(TestHelper.getError(() => schema.validateSync({ field3: "val" })).message).toBe(ERROR_MESSAGE);
 		});
 

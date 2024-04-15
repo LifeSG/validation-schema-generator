@@ -25,6 +25,8 @@ export namespace YupHelper {
 				return Yup.array().typeError("Only array values are allowed");
 			case "object":
 				return Yup.object().typeError("Only object values are allowed");
+			case "mixed":
+				return Yup.mixed();
 			default:
 				console.warn(`unhandled schema type for ${type}`);
 				return Yup.mixed();

@@ -26,7 +26,7 @@ import { IDateRangeFieldSchema } from "../fields/date-range-field";
 // =============================================================================
 // CONDITIONS AND RULES
 // =============================================================================
-export const SCHEMA_TYPES = ["string", "number", "boolean", "array", "object"] as const;
+export const SCHEMA_TYPES = ["string", "number", "boolean", "array", "object", "mixed"] as const;
 export const CONDITIONS = [
 	"required",
 	"length",
@@ -99,6 +99,7 @@ export interface IConditionalValidationRule extends IRule {
 
 export interface IRenderRule extends IRule {
 	filled?: boolean | undefined;
+	shown?: boolean | undefined;
 }
 export type TRenderRules = Record<string, IRenderRule[]>;
 

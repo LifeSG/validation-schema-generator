@@ -418,4 +418,162 @@ describe("json-to-schema", () => {
 			});
 		});
 	});
+
+	describe("shown condition", () => {
+		it("should support shown condition for conditionally rendered fields", () => {
+			const uiType = "text-field";
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field1: {
+							uiType,
+						},
+						field2: {
+							uiType,
+							showIf: [{ field1: [{ equals: "show" }] }],
+						},
+						field3: {
+							uiType,
+							showIf: [{ field2: [{ shown: true }] }],
+							validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({})).not.toThrowError();
+			expect(() => schema.validateSync({ field1: "show", field2: "show", field3: "val" })).not.toThrowError();
+			expect(TestHelper.getError(() => schema.validateSync({ field1: "show" })).message).toBe(ERROR_MESSAGE);
+			expect(TestHelper.getError(() => schema.validateSync({ field3: "val" })).message).toBe(
+				ERROR_MESSAGES.UNSPECIFIED_FIELD("field3")
+			);
+		});
+
+		it("should support shown condition as one of the conditional rendering rules", () => {
+			const uiType = "text-field";
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field1: {
+							uiType,
+						},
+						field2: {
+							uiType,
+							showIf: [{ field1: [{ equals: "show" }] }],
+						},
+						field3: {
+							uiType,
+						},
+						field4: {
+							uiType,
+							showIf: [{ field2: [{ shown: true }, { filled: true }] }, { field3: [{ filled: true }] }],
+							validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({ field1: "show", field2: "" })).not.toThrowError();
+			expect(() => schema.validateSync({ field3: "" })).not.toThrowError();
+			expect(TestHelper.getError(() => schema.validateSync({ field1: "show", field2: "val" })).message).toBe(
+				ERROR_MESSAGE
+			);
+			expect(TestHelper.getError(() => schema.validateSync({ field3: "val" })).message).toBe(ERROR_MESSAGE);
+		});
+
+		it("should still evaluate shown condition if source field is not defined", () => {
+			const uiType = "text-field";
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType,
+							showIf: [{ missing: [{ shown: true }] }],
+							validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({})).not.toThrowError();
+		});
+
+		it("should support shown conditions declared out of order", () => {
+			const uiType = "text-field";
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field4: {
+							uiType,
+							showIf: [{ field3: [{ shown: true }] }],
+							validation: [{ required: true, errorMessage: ERROR_MESSAGE_2 }],
+						},
+						field3: {
+							uiType,
+							showIf: [{ field2: [{ shown: true }] }],
+							validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+						},
+					},
+				},
+				section2: {
+					uiType: "section",
+					children: {
+						field2: {
+							uiType,
+							showIf: [{ field1: [{ equals: "show" }] }],
+						},
+						field1: {
+							uiType,
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({ field1: "show", field3: "val", field4: "val" })).not.toThrowError();
+			expect(TestHelper.getError(() => schema.validateSync({ field3: "val" })).message).toBe(
+				ERROR_MESSAGES.UNSPECIFIED_FIELD("field3")
+			);
+			expect(TestHelper.getError(() => schema.validateSync({ field4: "val" })).message).toBe(
+				ERROR_MESSAGES.UNSPECIFIED_FIELD("field4")
+			);
+			expect(TestHelper.getError(() => schema.validateSync({ field1: "show" })).message).toBe(ERROR_MESSAGE);
+			expect(TestHelper.getError(() => schema.validateSync({ field1: "show", field3: "val" })).message).toBe(
+				ERROR_MESSAGE_2
+			);
+		});
+
+		it("should not apply validation schema of hidden child field", () => {
+			const uiType = "text-field";
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field1: {
+							uiType,
+						},
+						field2: {
+							uiType,
+							showIf: [{ field1: [{ equals: "show" }] }],
+						},
+						wrapper: {
+							uiType: "div",
+							showIf: [{ field2: [{ shown: true }] }],
+							children: {
+								field3: {
+									uiType,
+									validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+								},
+							},
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({})).not.toThrowError();
+		});
+	});
 });

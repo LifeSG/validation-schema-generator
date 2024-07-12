@@ -149,7 +149,21 @@ interface IElementSchema extends IBaseElementSchema {
 
 /** covers various elements that can render nested fields within them */
 export interface IWrapperSchema<V = undefined> extends IBaseElementSchema {
-	uiType: "div" | "span" | "header" | "footer" | "p" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "grid";
+	uiType:
+		| "div"
+		| "span"
+		| "header"
+		| "footer"
+		| "p"
+		| "h1"
+		| "h2"
+		| "h3"
+		| "h4"
+		| "h5"
+		| "h6"
+		| "p"
+		| "accordion"
+		| "grid";
 	children: Record<string, TComponentSchema<V>>;
 }
 

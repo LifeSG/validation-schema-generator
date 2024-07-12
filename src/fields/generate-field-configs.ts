@@ -16,6 +16,7 @@ import { multiSelect } from "./multi-select";
 import { nestedMultiSelect } from "./nested-multi-select";
 import { numericField } from "./numeric-field";
 import { radio } from "./radio";
+import { rangeSelect } from "./range-select";
 import { referenceKey } from "./reference-key";
 import { select } from "./select";
 import { slider } from "./slider";
@@ -105,6 +106,9 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 						config = { ...config, ...generateChildrenFieldConfigs(option.children) };
 					}
 				});
+				break;
+			case "range-select":
+				config = { ...config, ...rangeSelect(id, componentSchema) };
 				break;
 			case "select":
 				config = { ...config, ...select(id, componentSchema) };

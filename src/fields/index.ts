@@ -12,6 +12,7 @@ export * from "./masked-field";
 export * from "./multi-select";
 export * from "./nested-multi-select";
 export * from "./numeric-field";
+export * from "./range-select";
 export * from "./select";
 export * from "./slider";
 export * from "./switch";

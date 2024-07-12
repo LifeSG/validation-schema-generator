@@ -14,6 +14,7 @@ import {
 	INestedMultiSelectSchema,
 	INumericFieldSchema,
 	IRadioSchema,
+	IRangeSelectSchema,
 	ISelectSchema,
 	ISliderSchema,
 	ISwitchSchema,
@@ -186,6 +187,7 @@ export type TFieldSchema<V = undefined> =
 	| INestedMultiSelectSchema<V>
 	| INumericFieldSchema<V>
 	| IRadioSchema<V>
+	| IRangeSelectSchema<V>
 	| ISelectSchema<V>
 	| ISliderSchema<V>
 	| ISwitchSchema<V>

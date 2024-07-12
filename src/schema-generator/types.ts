@@ -4,6 +4,7 @@ import {
 	IChipsSchema,
 	IContactFieldSchema,
 	IDateFieldSchema,
+	IESignatureFieldSchema,
 	IEmailFieldSchema,
 	IFileUploadSchema,
 	IHistogramSlider,
@@ -176,6 +177,7 @@ export type TFieldSchema<V = undefined> =
 	| IDateFieldSchema<V>
 	| IDateRangeFieldSchema<V>
 	| IEmailFieldSchema<V>
+	| IESignatureFieldSchema<V>
 	| IFileUploadSchema<V>
 	| IHistogramSlider<V>
 	| IImageUploadSchema<V>

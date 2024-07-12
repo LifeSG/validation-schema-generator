@@ -4,6 +4,7 @@ import {
 	IChipsSchema,
 	IContactFieldSchema,
 	IDateFieldSchema,
+	IDateRangeFieldSchema,
 	IESignatureFieldSchema,
 	IEmailFieldSchema,
 	IFileUploadSchema,
@@ -23,7 +24,6 @@ import {
 	ITimeFieldSchema,
 	IUnitNumberFieldSchema,
 } from "../fields";
-import { IDateRangeFieldSchema } from "../fields/date-range-field";
 
 // =============================================================================
 // CONDITIONS AND RULES

@@ -2,6 +2,7 @@ export * from "./checkbox";
 export * from "./chips";
 export * from "./contact-field";
 export * from "./date-field";
+export * from "./date-range-field";
 export * from "./e-signature-field";
 export * from "./email-field";
 export * from "./file-upload";

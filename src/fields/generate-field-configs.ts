@@ -6,6 +6,7 @@ import { chips } from "./chips";
 import { contactField } from "./contact-field";
 import { dateField } from "./date-field";
 import { dateRangeField } from "./date-range-field";
+import { eSignatureField } from "./e-signature-field";
 import { emailField } from "./email-field";
 import { fileUpload } from "./file-upload";
 import { histogramSlider } from "./histogram-slider";
@@ -15,6 +16,7 @@ import { multiSelect } from "./multi-select";
 import { nestedMultiSelect } from "./nested-multi-select";
 import { numericField } from "./numeric-field";
 import { radio } from "./radio";
+import { rangeSelect } from "./range-select";
 import { referenceKey } from "./reference-key";
 import { select } from "./select";
 import { slider } from "./slider";
@@ -73,6 +75,9 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 			case "email-field":
 				config = { ...config, ...emailField(id, componentSchema) };
 				break;
+			case "e-signature-field":
+				config = { ...config, ...eSignatureField(id, componentSchema) };
+				break;
 			case "file-upload":
 				config = { ...config, ...fileUpload(id, componentSchema) };
 				break;
@@ -101,6 +106,9 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 						config = { ...config, ...generateChildrenFieldConfigs(option.children) };
 					}
 				});
+				break;
+			case "range-select":
+				config = { ...config, ...rangeSelect(id, componentSchema) };
 				break;
 			case "select":
 				config = { ...config, ...select(id, componentSchema) };
@@ -134,6 +142,7 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 			case "h4":
 			case "h5":
 			case "h6":
+			case "accordion":
 			case "grid":
 				if (!isEmpty(children) && isObject(children)) {
 					config = { ...config, ...generateChildrenFieldConfigs(children) };

@@ -24,6 +24,7 @@ import {
 	ITimeFieldSchema,
 	IUnitNumberFieldSchema,
 } from "../fields";
+import { IHiddenFieldSchema } from "../fields/hidden-field";
 
 // =============================================================================
 // CONDITIONS AND RULES
@@ -194,6 +195,7 @@ export type TFieldSchema<V = undefined> =
 	| IEmailFieldSchema<V>
 	| IESignatureFieldSchema<V>
 	| IFileUploadSchema<V>
+	| IHiddenFieldSchema<V>
 	| IHistogramSlider<V>
 	| IImageUploadSchema<V>
 	| IMaskedFieldSchema<V>

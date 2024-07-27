@@ -7,6 +7,7 @@ export * from "./e-signature-field";
 export * from "./email-field";
 export * from "./file-upload";
 export * from "./generate-field-configs";
+export * from "./hidden-field";
 export * from "./histogram-slider";
 export * from "./image-upload";
 export * from "./masked-field";

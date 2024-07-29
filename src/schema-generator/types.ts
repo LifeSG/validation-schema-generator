@@ -8,6 +8,7 @@ import {
 	IESignatureFieldSchema,
 	IEmailFieldSchema,
 	IFileUploadSchema,
+	IHiddenFieldSchema,
 	IHistogramSlider,
 	IImageUploadSchema,
 	IMaskedFieldSchema,
@@ -24,7 +25,6 @@ import {
 	ITimeFieldSchema,
 	IUnitNumberFieldSchema,
 } from "../fields";
-import { IHiddenFieldSchema } from "../fields/hidden-field";
 
 // =============================================================================
 // CONDITIONS AND RULES

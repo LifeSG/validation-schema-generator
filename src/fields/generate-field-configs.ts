@@ -26,6 +26,7 @@ import { textarea } from "./textarea";
 import { timeField } from "./time-field";
 import { TFieldsConfig } from "./types";
 import { unitNumberField } from "./unit-number-field";
+import { hiddenField } from "./hidden-field";
 
 /**
  * parse JSON schema by running each field through its respective field config generator
@@ -80,6 +81,9 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 				break;
 			case "file-upload":
 				config = { ...config, ...fileUpload(id, componentSchema) };
+				break;
+			case "hidden-field":
+				config = { ...config, ...hiddenField(id, componentSchema) };
 				break;
 			case "histogram-slider":
 				config = { ...config, ...histogramSlider(id, componentSchema) };

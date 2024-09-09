@@ -64,4 +64,8 @@ export const ERROR_MESSAGES = {
 		REQUIRED: `Upload at least 1 ${unit}`,
 		INVALID: "Invalid submission",
 	}),
+	ARRAY_FIELD: {
+		INVALID: "One or more of the sections is incomplete",
+		REQUIRED: "At least one section must be filled in",
+	},
 };

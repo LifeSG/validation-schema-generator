@@ -8,6 +8,7 @@ import {
 	IDateRangeFieldSchema,
 	IESignatureFieldSchema,
 	IEmailFieldSchema,
+	IErrorFieldSchema,
 	IFileUploadSchema,
 	IHiddenFieldSchema,
 	IHistogramSlider,
@@ -195,6 +196,7 @@ export type TFieldSchema<V = undefined> =
 	| IDateFieldSchema<V>
 	| IDateRangeFieldSchema<V>
 	| IEmailFieldSchema<V>
+	| IErrorFieldSchema
 	| IESignatureFieldSchema<V>
 	| IFileUploadSchema<V>
 	| IHiddenFieldSchema<V>

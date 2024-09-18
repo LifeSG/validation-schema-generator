@@ -1,6 +1,7 @@
 import isEmpty from "lodash/isEmpty";
 import isObject from "lodash/isObject";
 import { TComponentSchema, TFieldSchema, TSectionsSchema } from "../schema-generator";
+import { arrayField } from "./array-field";
 import { checkbox } from "./checkbox";
 import { chips } from "./chips";
 import { contactField } from "./contact-field";
@@ -9,6 +10,7 @@ import { dateRangeField } from "./date-range-field";
 import { eSignatureField } from "./e-signature-field";
 import { emailField } from "./email-field";
 import { fileUpload } from "./file-upload";
+import { hiddenField } from "./hidden-field";
 import { histogramSlider } from "./histogram-slider";
 import { imageUpload } from "./image-upload";
 import { maskedField } from "./masked-field";
@@ -26,7 +28,6 @@ import { textarea } from "./textarea";
 import { timeField } from "./time-field";
 import { TFieldsConfig } from "./types";
 import { unitNumberField } from "./unit-number-field";
-import { hiddenField } from "./hidden-field";
 
 /**
  * parse JSON schema by running each field through its respective field config generator
@@ -53,6 +54,9 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 		const { uiType, children } = componentSchema;
 
 		switch (uiType) {
+			case "array-field":
+				config = { ...config, ...arrayField(id, componentSchema) };
+				break;
 			case "checkbox":
 				config = { ...config, ...checkbox(id, componentSchema) };
 				componentSchema.options.forEach((option) => {

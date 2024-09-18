@@ -1,5 +1,6 @@
 import * as Yup from "yup";
 import {
+	IArrayFieldSchema,
 	ICheckboxSchema,
 	IChipsSchema,
 	IContactFieldSchema,
@@ -187,6 +188,7 @@ interface ICustomComponentSchema {
 
 /** field schemas only */
 export type TFieldSchema<V = undefined> =
+	| IArrayFieldSchema<V>
 	| ICheckboxSchema<V>
 	| IChipsSchema<V>
 	| IContactFieldSchema<V>

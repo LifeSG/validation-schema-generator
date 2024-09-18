@@ -1,3 +1,4 @@
+export * from "./array-field";
 export * from "./checkbox";
 export * from "./chips";
 export * from "./contact-field";

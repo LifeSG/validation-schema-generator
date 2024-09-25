@@ -1,13 +1,18 @@
 import * as Yup from "yup";
-import { IFieldSchemaBase, IValidationRule } from "../schema-generator";
-import { IFieldGenerator } from "./types";
+import { IFieldSchemaBase } from "../schema-generator";
 import { ERROR_MESSAGES } from "../shared";
+import { IFieldGenerator } from "./types";
 
-export interface IErrorFieldValidationRule extends IValidationRule {
+export interface IErrorFieldValidationRule {
 	error?: boolean | undefined;
+	errorMessage?: string | undefined;
+	when?: never;
 }
 
-export interface IErrorFieldSchema extends IFieldSchemaBase<"error-field", undefined, IErrorFieldValidationRule> {}
+export interface IErrorFieldSchema extends Pick<IFieldSchemaBase<"error-field">, "showIf" | "uiType"> {
+	validation?: IErrorFieldValidationRule[] | undefined;
+	[otherOptions: string]: unknown;
+}
 
 export const errorField: IFieldGenerator<IErrorFieldSchema> = (id, field) => {
 	const { validation } = field;

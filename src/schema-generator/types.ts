@@ -222,7 +222,7 @@ export type TComponentSchema<V = undefined> =
 	| IWrapperSchema
 	| IElementSchema
 	| ICustomComponentSchema;
-export type TFieldValidation = TFieldSchema["validation"];
+export type TFieldValidation = Exclude<TFieldSchema, IErrorFieldSchema>["validation"];
 
 /**
  * prevents inferrence

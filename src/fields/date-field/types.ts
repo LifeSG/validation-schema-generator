@@ -1,6 +1,6 @@
-import { IFieldSchemaBase } from "../../schema-generator";
+import { IFieldSchemaBase, IValidationRule } from "../../schema-generator";
 
-export interface IDateInputValidationRule {
+export interface IDateInputValidationRule extends IValidationRule {
 	future?: boolean | undefined;
 	past?: boolean | undefined;
 	notFuture?: boolean | undefined;

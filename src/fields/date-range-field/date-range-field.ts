@@ -33,7 +33,6 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 	const excludedDatesRule = validation?.find((rule) => "excludedDates" in rule);
 	const noOfDaysRule = validation?.find((rule) => "numberOfDays" in rule);
 
-
 	const minDate = DateTimeHelper.toLocalDateOrTime(minDateRule?.["minDate"], dateFormat, "date");
 	const maxDate = DateTimeHelper.toLocalDateOrTime(maxDateRule?.["maxDate"], dateFormat, "date");
 
@@ -46,7 +45,7 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 				})
 				.test(
 					"is-empty-string",
-					isRequiredRule?.["errorMessage"] || ERROR_MESSAGES.DATE_RANGE.REQUIRED,
+					isRequiredRule?.errorMessage || ERROR_MESSAGES.DATE_RANGE.REQUIRED,
 					(value) => {
 						if (!value || !isRequiredRule) return true;
 						return value.from?.length > 0 && value.to?.length > 0;
@@ -61,7 +60,7 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 						!!DateTimeHelper.toLocalDateOrTime(value.to, dateFormat, "date")
 					);
 				})
-				.test("future", futureRule?.["errorMessage"] || ERROR_MESSAGES.DATE_RANGE.MUST_BE_FUTURE, (value) => {
+				.test("future", futureRule?.errorMessage || ERROR_MESSAGES.DATE_RANGE.MUST_BE_FUTURE, (value) => {
 					if (
 						!isValidDate(value.from, dateFormatter) ||
 						!isValidDate(value.to, dateFormatter) ||
@@ -73,7 +72,7 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 					const localDateTo = DateTimeHelper.toLocalDateOrTime(value.to, dateFormat, "date");
 					return !!localDateFrom?.isAfter(LocalDate.now()) && !!localDateTo?.isAfter(LocalDate.now());
 				})
-				.test("past", pastRule?.["errorMessage"] || ERROR_MESSAGES.DATE_RANGE.MUST_BE_PAST, (value) => {
+				.test("past", pastRule?.errorMessage || ERROR_MESSAGES.DATE_RANGE.MUST_BE_PAST, (value) => {
 					if (
 						!isValidDate(value.from, dateFormatter) ||
 						!isValidDate(value.to, dateFormatter) ||
@@ -87,7 +86,7 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 				})
 				.test(
 					"not-future",
-					notFutureRule?.["errorMessage"] || ERROR_MESSAGES.DATE_RANGE.CANNOT_BE_FUTURE,
+					notFutureRule?.errorMessage || ERROR_MESSAGES.DATE_RANGE.CANNOT_BE_FUTURE,
 					(value) => {
 						if (variant === "week") return true;
 						if (
@@ -101,25 +100,21 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 						return !localDateFrom?.isAfter(LocalDate.now()) && !localDateTo?.isAfter(LocalDate.now());
 					}
 				)
-				.test(
-					"not-past",
-					notPastRule?.["errorMessage"] || ERROR_MESSAGES.DATE_RANGE.CANNOT_BE_PAST,
-					(value) => {
-						if (variant === "week") return true;
-						if (
-							!isValidDate(value.from, dateFormatter) ||
-							!isValidDate(value.to, dateFormatter) ||
-							!notPastRule?.["notPast"]
-						)
-							return true;
-						const localDateFrom = DateTimeHelper.toLocalDateOrTime(value.from, dateFormat, "date");
-						const localDateTo = DateTimeHelper.toLocalDateOrTime(value.to, dateFormat, "date");
-						return !localDateFrom?.isBefore(LocalDate.now()) && !localDateTo?.isBefore(LocalDate.now());
-					}
-				)
+				.test("not-past", notPastRule?.errorMessage || ERROR_MESSAGES.DATE_RANGE.CANNOT_BE_PAST, (value) => {
+					if (variant === "week") return true;
+					if (
+						!isValidDate(value.from, dateFormatter) ||
+						!isValidDate(value.to, dateFormatter) ||
+						!notPastRule?.["notPast"]
+					)
+						return true;
+					const localDateFrom = DateTimeHelper.toLocalDateOrTime(value.from, dateFormat, "date");
+					const localDateTo = DateTimeHelper.toLocalDateOrTime(value.to, dateFormat, "date");
+					return !localDateFrom?.isBefore(LocalDate.now()) && !localDateTo?.isBefore(LocalDate.now());
+				})
 				.test(
 					"min-date",
-					minDateRule?.["errorMessage"] ||
+					minDateRule?.errorMessage ||
 						ERROR_MESSAGES.DATE_RANGE.MIN_DATE(
 							DateTimeHelper.formatDateTime(minDateRule?.["minDate"], "dd/MM/uuuu", "date")
 						),
@@ -138,7 +133,7 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 				)
 				.test(
 					"max-date",
-					maxDateRule?.["errorMessage"] ||
+					maxDateRule?.errorMessage ||
 						ERROR_MESSAGES.DATE_RANGE.MAX_DATE(
 							DateTimeHelper.formatDateTime(maxDateRule?.["maxDate"], "dd/MM/uuuu", "date")
 						),
@@ -157,7 +152,7 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 				)
 				.test(
 					"excluded-dates",
-					excludedDatesRule?.["errorMessage"] || ERROR_MESSAGES.DATE_RANGE.DISABLED_DATES,
+					excludedDatesRule?.errorMessage || ERROR_MESSAGES.DATE_RANGE.DISABLED_DATES,
 					(value) => {
 						if (variant === "week") return true;
 						if (
@@ -184,11 +179,15 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 				)
 				.test(
 					"number-of-days",
-					noOfDaysRule?.["errorMessage"] ||
+					noOfDaysRule?.errorMessage ||
 						ERROR_MESSAGES.DATE_RANGE.MUST_HAVE_NUMBER_OF_DAYS(noOfDaysRule?.["numberOfDays"]),
 					(value) => {
 						if (variant === "week") return true;
-						if (!isValidDate(value.from,dateFormatter) || !isValidDate(value.to,dateFormatter) || !noOfDaysRule?.["numberOfDays"])
+						if (
+							!isValidDate(value.from, dateFormatter) ||
+							!isValidDate(value.to, dateFormatter) ||
+							!noOfDaysRule?.["numberOfDays"]
+						)
 							return true;
 						const localDateFrom = DateTimeHelper.toLocalDateOrTime(value.from, dateFormat, "date");
 						const localDateTo = DateTimeHelper.toLocalDateOrTime(value.to, dateFormat, "date");

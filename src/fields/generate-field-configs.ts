@@ -9,6 +9,7 @@ import { dateField } from "./date-field";
 import { dateRangeField } from "./date-range-field";
 import { eSignatureField } from "./e-signature-field";
 import { emailField } from "./email-field";
+import { errorField } from "./error-field";
 import { fileUpload } from "./file-upload";
 import { hiddenField } from "./hidden-field";
 import { histogramSlider } from "./histogram-slider";
@@ -79,6 +80,9 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 				break;
 			case "email-field":
 				config = { ...config, ...emailField(id, componentSchema) };
+				break;
+			case "error-field":
+				config = { ...config, ...errorField(id, componentSchema) };
 				break;
 			case "e-signature-field":
 				config = { ...config, ...eSignatureField(id, componentSchema) };

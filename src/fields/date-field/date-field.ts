@@ -46,29 +46,25 @@ export const dateField: IFieldGenerator<IDateFieldSchema> = (id, { dateFormat = 
 					if (!value) return true;
 					return isValidDate(value, dateFormatter);
 				})
-				.test("future", futureRule?.["errorMessage"] || ERROR_MESSAGES.DATE.MUST_BE_FUTURE, (value) => {
+				.test("future", futureRule?.errorMessage || ERROR_MESSAGES.DATE.MUST_BE_FUTURE, (value) => {
 					if (!isValidDate(value, dateFormatter) || !futureRule?.["future"]) return true;
 					return LocalDate.parse(value, dateFormatter).isAfter(LocalDate.now());
 				})
-				.test("past", pastRule?.["errorMessage"] || ERROR_MESSAGES.DATE.MUST_BE_PAST, (value) => {
+				.test("past", pastRule?.errorMessage || ERROR_MESSAGES.DATE.MUST_BE_PAST, (value) => {
 					if (!isValidDate(value, dateFormatter) || !pastRule?.["past"]) return true;
 					return LocalDate.parse(value, dateFormatter).isBefore(LocalDate.now());
 				})
-				.test(
-					"not-future",
-					notFutureRule?.["errorMessage"] || ERROR_MESSAGES.DATE.CANNOT_BE_FUTURE,
-					(value) => {
-						if (!isValidDate(value, dateFormatter) || !notFutureRule?.["notFuture"]) return true;
-						return !LocalDate.parse(value, dateFormatter).isAfter(LocalDate.now());
-					}
-				)
-				.test("not-past", notPastRule?.["errorMessage"] || ERROR_MESSAGES.DATE.CANNOT_BE_PAST, (value) => {
+				.test("not-future", notFutureRule?.errorMessage || ERROR_MESSAGES.DATE.CANNOT_BE_FUTURE, (value) => {
+					if (!isValidDate(value, dateFormatter) || !notFutureRule?.["notFuture"]) return true;
+					return !LocalDate.parse(value, dateFormatter).isAfter(LocalDate.now());
+				})
+				.test("not-past", notPastRule?.errorMessage || ERROR_MESSAGES.DATE.CANNOT_BE_PAST, (value) => {
 					if (!isValidDate(value, dateFormatter) || !notPastRule?.["notPast"]) return true;
 					return !LocalDate.parse(value, dateFormatter).isBefore(LocalDate.now());
 				})
 				.test(
 					"min-date",
-					minDateRule?.["errorMessage"] ||
+					minDateRule?.errorMessage ||
 						ERROR_MESSAGES.DATE.MIN_DATE(minDate?.format(errorMessageDateFormatter)),
 					(value) => {
 						if (!isValidDate(value, dateFormatter) || !minDate) return true;
@@ -77,7 +73,7 @@ export const dateField: IFieldGenerator<IDateFieldSchema> = (id, { dateFormat = 
 				)
 				.test(
 					"max-date",
-					maxDateRule?.["errorMessage"] ||
+					maxDateRule?.errorMessage ||
 						ERROR_MESSAGES.DATE.MAX_DATE(maxDate?.format(errorMessageDateFormatter)),
 					(value) => {
 						if (!isValidDate(value, dateFormatter) || !maxDate) return true;
@@ -86,7 +82,7 @@ export const dateField: IFieldGenerator<IDateFieldSchema> = (id, { dateFormat = 
 				)
 				.test(
 					"excluded-dates",
-					excludedDatesRule?.["errorMessage"] || ERROR_MESSAGES.DATE.DISABLED_DATES,
+					excludedDatesRule?.errorMessage || ERROR_MESSAGES.DATE.DISABLED_DATES,
 					(value) => {
 						if (!isValidDate(value, dateFormatter) || !excludedDatesRule) return true;
 						return !excludedDatesRule["excludedDates"].includes(value);

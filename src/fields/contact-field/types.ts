@@ -1,7 +1,7 @@
-import { IFieldSchemaBase } from "../../schema-generator";
+import { IFieldSchemaBase, IValidationRule } from "../../schema-generator";
 import { CountryData } from "./data";
 
-export interface IContactNumberValidationRule {
+export interface IContactNumberValidationRule extends IValidationRule {
 	contactNumber?:
 		| {
 				internationalNumber: boolean | Omit<TCountry, "Singapore">;

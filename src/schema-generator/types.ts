@@ -8,6 +8,7 @@ import {
 	IDateRangeFieldSchema,
 	IESignatureFieldSchema,
 	IEmailFieldSchema,
+	IErrorFieldSchema,
 	IFileUploadSchema,
 	IHiddenFieldSchema,
 	IHistogramSlider,
@@ -195,6 +196,7 @@ export type TFieldSchema<V = undefined> =
 	| IDateFieldSchema<V>
 	| IDateRangeFieldSchema<V>
 	| IEmailFieldSchema<V>
+	| IErrorFieldSchema
 	| IESignatureFieldSchema<V>
 	| IFileUploadSchema<V>
 	| IHiddenFieldSchema<V>
@@ -220,7 +222,9 @@ export type TComponentSchema<V = undefined> =
 	| IWrapperSchema
 	| IElementSchema
 	| ICustomComponentSchema;
-export type TFieldValidation = TFieldSchema["validation"];
+
+// force (A[] | B[]) to (A|B)[] to fix this type error in Typescript 4: https://github.com/microsoft/TypeScript/issues/44373
+export type TFieldValidation = TFieldSchema["validation"][number][];
 
 /**
  * prevents inferrence

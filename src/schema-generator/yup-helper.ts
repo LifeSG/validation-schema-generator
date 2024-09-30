@@ -1,6 +1,6 @@
 import * as Yup from "yup";
 import { ERROR_MESSAGES } from "../shared";
-import { CONDITIONS, IConditionalValidationRule, TCondition, TFieldValidation, TYupSchemaType } from "./types";
+import { CONDITIONS, IConditionalValidationRule, IValidationRule, TCondition, TYupSchemaType } from "./types";
 
 /**
  * Helper functions to parse JSON schema to Yup schema
@@ -39,7 +39,7 @@ export namespace YupHelper {
 	 * @param rules An array of validation rules to be mapped against validation type (e.g. a string schema might contain { maxLength: 255 })
 	 * @returns yupSchema with added constraints and validations
 	 */
-	export const mapRules = (yupSchema: Yup.AnySchema, rules: TFieldValidation): Yup.AnySchema => {
+	export const mapRules = (yupSchema: Yup.AnySchema, rules: IValidationRule[]): Yup.AnySchema => {
 		rules.forEach((rule) => {
 			const condition = Object.keys(rule).filter((k) => CONDITIONS.includes(k as TCondition))?.[0] as TCondition;
 

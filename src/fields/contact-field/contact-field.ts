@@ -8,7 +8,7 @@ export const contactField: IFieldGenerator<IContactFieldSchema> = (id, { validat
 	const contactNumberRule = validation?.find((rule) => "contactNumber" in rule);
 	const singaporeRule = contactNumberRule?.["contactNumber"]?.["singaporeNumber"];
 	const internationalNumberRule = contactNumberRule?.["contactNumber"]?.["internationalNumber"];
-	const errorMessage = contactNumberRule?.["errorMessage"];
+	const errorMessage = contactNumberRule?.errorMessage;
 
 	const fixedCountryName = typeof internationalNumberRule === "boolean" ? undefined : internationalNumberRule;
 

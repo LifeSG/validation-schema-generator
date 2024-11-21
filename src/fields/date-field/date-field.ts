@@ -4,6 +4,7 @@ import * as Yup from "yup";
 import { ERROR_MESSAGES } from "../../shared";
 import { IFieldGenerator } from "../types";
 import { IDateFieldSchema } from "./types";
+import { DateTimeHelper } from "../../utils/date-time-helper";
 
 const isValidDate = (value: string, formatter: DateTimeFormatter): boolean => {
 	if (!value || value === ERROR_MESSAGES.DATE.INVALID) return false;
@@ -29,6 +30,7 @@ export const dateField: IFieldGenerator<IDateFieldSchema> = (id, { dateFormat = 
 	const minDateRule = validation?.find((rule) => "minDate" in rule);
 	const maxDateRule = validation?.find((rule) => "maxDate" in rule);
 	const excludedDatesRule = validation?.find((rule) => "excludedDates" in rule);
+	const withinDaysRule = validation?.find((rule) => "withinDays" in rule);
 
 	let minDate: LocalDate;
 	let maxDate: LocalDate;
@@ -86,6 +88,16 @@ export const dateField: IFieldGenerator<IDateFieldSchema> = (id, { dateFormat = 
 					(value) => {
 						if (!isValidDate(value, dateFormatter) || !excludedDatesRule) return true;
 						return !excludedDatesRule["excludedDates"].includes(value);
+					}
+				)
+				.test(
+					"within-days",
+					withinDaysRule?.errorMessage ||
+						(withinDaysRule?.["withinDays"] &&
+							ERROR_MESSAGES.DATE.WITHIN_DAYS(withinDaysRule?.["withinDays"])),
+					(value) => {
+						if (!isValidDate(value, dateFormatter) || !withinDaysRule) return true;
+						return DateTimeHelper.checkWithinDays(value, { ...withinDaysRule["withinDays"], dateFormat });
 					}
 				),
 			validation,

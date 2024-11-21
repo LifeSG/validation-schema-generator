@@ -27,6 +27,7 @@ import {
 	ITimeFieldSchema,
 	IUnitNumberFieldSchema,
 } from "../fields";
+import { withinDays } from "../custom-rules/values";
 
 // =============================================================================
 // CONDITIONS AND RULES
@@ -81,6 +82,7 @@ interface IRule {
 	excludes?: unknown | undefined;
 	uinfin?: boolean | undefined;
 	equalsField?: unknown | undefined;
+	withinDays?: IWithinDaysRule | undefined;
 }
 
 export interface IValidationRule extends IRule {
@@ -238,3 +240,9 @@ export type RecursivePartial<T> = {
 
 /** a collection of sections from web-frontend-engine */
 export type TSectionsSchema<V = undefined> = Record<string, ISectionSchema<NoInfer<V, IValidationRule>>>;
+
+export interface IWithinDaysRule {
+	numberOfDays: number;
+	fromDate?: string | undefined;
+	dateFormat?: string | undefined;
+}

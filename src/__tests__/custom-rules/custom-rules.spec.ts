@@ -1,9 +1,17 @@
+import { LocalDate } from "@js-joda/core";
 import { jsonToSchema } from "../../schema-generator";
 import { TestHelper } from "../../utils";
 
 const ERROR_MESSAGE = "test error message";
 
 describe("custom-rules", () => {
+	beforeEach(() => {
+		jest.spyOn(LocalDate, "now").mockReturnValue(LocalDate.parse("2023-01-01"));
+	});
+
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
 	it.each`
 		type         | condition                 | uiType             | config                       | valid          | invalid
 		${"string"}  | ${"uinfin"}               | ${"text-field"}    | ${{ uinfin: true }}          | ${"S1234567D"} | ${"S1234567A"}
@@ -43,6 +51,26 @@ describe("custom-rules", () => {
 			TestHelper.getError(() => schema.validateSync({ field: invalid, field1: valid }, { abortEarly: false }))
 				.message
 		).toBe(ERROR_MESSAGE);
+	});
+
+	it("should support withinDays condition for Yup date type", () => {
+		const withinDaysErrorMessage = "Date must be within 7 days from today";
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "date-field",
+						validation: [{ withinDays: { numberOfDays: 7 }, errorMessage: withinDaysErrorMessage }],
+					},
+				},
+			},
+		});
+
+		expect(() => schema.validateSync({ field: "2023-01-07" })).not.toThrowError();
+
+		const error = TestHelper.getError(() => schema.validateSync({ field: "2023-01-09" }));
+		expect(error.message).toContain(withinDaysErrorMessage);
 	});
 
 	it.each`
@@ -142,6 +170,107 @@ describe("custom-rules", () => {
 				},
 			});
 			expect(TestHelper.getError(() => schema.validateSync({ field: "S1234567A" })).message).toBe(ERROR_MESSAGE);
+		});
+	});
+	describe("withinDays", () => {
+		beforeEach(() => {
+			jest.spyOn(LocalDate, "now").mockReturnValue(LocalDate.parse("2023-01-01"));
+		});
+
+		afterEach(() => {
+			jest.restoreAllMocks();
+		});
+
+		it("should pass when date is within the specified number of days", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						dateField: {
+							uiType: "date-field",
+							validation: [
+								{
+									withinDays: { numberOfDays: 7 },
+									errorMessage: "Date must be within 7 days from today",
+								},
+							],
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({ dateField: "2023-01-07" })).not.toThrowError();
+		});
+
+		it("should fail when date is outside the specified number of days", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						dateField: {
+							uiType: "date-field",
+							validation: [
+								{
+									withinDays: { numberOfDays: 7 },
+									errorMessage: "Date must be within 7 days from today",
+								},
+							],
+						},
+					},
+				},
+			});
+
+			expect(TestHelper.getError(() => schema.validateSync({ dateField: "2023-01-09" })).message).toBe(
+				"Date must be within 7 days from today"
+			);
+		});
+
+		it("should handle negative numberOfDays for past dates", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						dateField: {
+							uiType: "date-field",
+							validation: [
+								{
+									withinDays: { numberOfDays: -7 },
+									errorMessage: "Date must be within 7 days prior to today",
+								},
+							],
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({ dateField: "2022-12-26" })).not.toThrowError();
+			expect(TestHelper.getError(() => schema.validateSync({ dateField: "2022-12-24" })).message).toBe(
+				"Date must be within 7 days prior to today"
+			);
+		});
+
+		it("should handle custom fromDate", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						dateField: {
+							uiType: "date-field",
+							validation: [
+								{
+									withinDays: { numberOfDays: 5, fromDate: "2023-01-10" },
+									errorMessage: "Date must be within 5 days from 2023-01-10",
+								},
+							],
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({ dateField: "2023-01-14" })).not.toThrowError();
+			expect(TestHelper.getError(() => schema.validateSync({ dateField: "2023-01-16" })).message).toBe(
+				"Date must be within 5 days from 2023-01-10"
+			);
 		});
 	});
 });

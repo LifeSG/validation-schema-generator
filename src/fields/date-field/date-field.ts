@@ -97,7 +97,10 @@ export const dateField: IFieldGenerator<IDateFieldSchema> = (id, { dateFormat = 
 							ERROR_MESSAGES.DATE.WITHIN_DAYS(withinDaysRule?.["withinDays"])),
 					(value) => {
 						if (!isValidDate(value, dateFormatter) || !withinDaysRule) return true;
-						return DateTimeHelper.checkWithinDays(value, { ...withinDaysRule["withinDays"], dateFormat });
+						return DateTimeHelper.checkWithinDays(value, {
+							...withinDaysRule["withinDays"],
+							dateFormat,
+						});
 					}
 				),
 			validation,

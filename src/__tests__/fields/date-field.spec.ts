@@ -81,17 +81,17 @@ describe("date-field", () => {
 	});
 
 	describe.each`
-		rule               | ruleValue                                                      | valid                   | invalid                 | errorMessage
-		${"future"}        | ${true}                                                        | ${"2023-01-02"}         | ${"2022-01-01"}         | ${ERROR_MESSAGES.DATE.MUST_BE_FUTURE}
-		${"past"}          | ${true}                                                        | ${"2022-12-31"}         | ${"2023-01-01"}         | ${ERROR_MESSAGES.DATE.MUST_BE_PAST}
-		${"notFuture"}     | ${true}                                                        | ${"2023-01-01"}         | ${"2023-01-02"}         | ${ERROR_MESSAGES.DATE.CANNOT_BE_FUTURE}
-		${"notPast"}       | ${true}                                                        | ${"2023-01-01"}         | ${"2022-12-31"}         | ${ERROR_MESSAGES.DATE.CANNOT_BE_PAST}
-		${"minDate"}       | ${"2023-01-02"}                                                | ${"2023-01-02"}         | ${"2023-01-01"}         | ${ERROR_MESSAGES.DATE.MIN_DATE("02/01/2023")}
-		${"maxDate"}       | ${"2023-01-02"}                                                | ${"2023-01-02"}         | ${"2023-01-03"}         | ${ERROR_MESSAGES.DATE.MAX_DATE("02/01/2023")}
-		${"excludedDates"} | ${["2023-01-02"]}                                              | ${"2023-01-03"}         | ${"2023-01-02"}         | ${ERROR_MESSAGES.DATE.DISABLED_DATES}
-		${"within-days"}   | ${{ withinDays: { numberOfDays: 7 } }}                         | ${["02", "01", "2022"]} | ${["09", "01", "2022"]} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: 7 })}
-		${"within-days"}   | ${{ withinDays: { numberOfDays: -7 } }}                        | ${["24", "12", "2021"]} | ${["02", "01", "2022"]} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: -7 })}
-		${"within-days"}   | ${{ withinDays: { numberOfDays: 5, fromDate: "2022-01-05" } }} | ${["06", "01", "2022"]} | ${["01", "01", "2022"]} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: 5, fromDate: "05/01/2022" })}
+		rule               | ruleValue                                      | valid           | invalid         | errorMessage
+		${"future"}        | ${true}                                        | ${"2023-01-02"} | ${"2022-01-01"} | ${ERROR_MESSAGES.DATE.MUST_BE_FUTURE}
+		${"past"}          | ${true}                                        | ${"2022-12-31"} | ${"2023-01-01"} | ${ERROR_MESSAGES.DATE.MUST_BE_PAST}
+		${"notFuture"}     | ${true}                                        | ${"2023-01-01"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.CANNOT_BE_FUTURE}
+		${"notPast"}       | ${true}                                        | ${"2023-01-01"} | ${"2022-12-31"} | ${ERROR_MESSAGES.DATE.CANNOT_BE_PAST}
+		${"minDate"}       | ${"2023-01-02"}                                | ${"2023-01-02"} | ${"2023-01-01"} | ${ERROR_MESSAGES.DATE.MIN_DATE("02/01/2023")}
+		${"maxDate"}       | ${"2023-01-02"}                                | ${"2023-01-02"} | ${"2023-01-03"} | ${ERROR_MESSAGES.DATE.MAX_DATE("02/01/2023")}
+		${"excludedDates"} | ${["2023-01-02"]}                              | ${"2023-01-03"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.DISABLED_DATES}
+		${"withinDays"}    | ${{ numberOfDays: 7 }}                         | ${"2023-01-02"} | ${"2023-01-09"} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: 7 })}
+		${"withinDays"}    | ${{ numberOfDays: -7 }}                        | ${"2022-12-31"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: -7 })}
+		${"withinDays"}    | ${{ numberOfDays: 5, fromDate: "2022-01-05" }} | ${"2022-01-06"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: 5, fromDate: "2022-01-05" })}
 	`("$rule rule", ({ rule, ruleValue, valid, invalid, errorMessage }) => {
 		let schema: Yup.ObjectSchema<ObjectShape>;
 

@@ -84,14 +84,13 @@ export const fileUpload: IFieldGenerator<IFileUploadSchema> = (id, { uploadOnAdd
 						)
 							return true;
 						let isValid = true;
-						const fileMimeTypes = fileTypeRule.fileType.map((fileType) =>
-							FileHelper.fileExtensionToMimeType(fileType)
-						);
 						for (const file of value) {
 							const base64 = file.dataURL.split(";base64,").pop();
-							const buffer = Buffer.from(base64, "base64");
-							const mimeType = await FileHelper.getMimeType(buffer);
-							if (!fileMimeTypes?.includes(mimeType)) {
+							const fileType = await FileHelper.getTypeFromBase64(base64);
+							const validFileType = fileTypeRule.fileType?.length
+								? fileTypeRule.fileType?.includes(fileType.ext)
+								: true;
+							if (!validFileType) {
 								isValid = false;
 								break;
 							}

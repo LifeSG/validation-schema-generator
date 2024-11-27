@@ -1,4 +1,4 @@
-import { fromBuffer } from "file-type";
+import getFileInfo from "magic-bytes.js";
 
 export namespace FileHelper {
 	/**
@@ -26,35 +26,19 @@ export namespace FileHelper {
 	};
 
 	/**
-	 * converts file extension to mime type
+	 * reliably derive file type by checking magic number of the buffer
 	 */
-	export const fileExtensionToMimeType = (ext: string): string | undefined => {
-		switch (ext.toLowerCase()) {
-			case "jpg":
-			case "jpeg":
-				return "image/jpeg";
-			case "png":
-				return "image/png";
-			case "gif":
-				return "image/gif";
-			case "heic":
-				return "image/heic";
-			case "heif":
-				return "image/heif";
-			case "webp":
-				return "image/webp";
+	export const getTypeFromBase64 = async (base64: string) => {
+		const binaryString = atob(base64);
+		const len = binaryString.length;
+		const bytes = new Uint8Array(len);
+		for (let i = 0; i < len; i++) {
+			bytes[i] = binaryString.charCodeAt(i);
 		}
-	};
-
-	/**
-	 * reliably derive mime type by checking magic number of the buffer
-	 */
-	export const getMimeType = async (buffer: Buffer) => {
-		const result = await fromBuffer(buffer);
-		// default to plain-text as it is not possible to determine file type for text-based file formats
-		if (!result) {
-			return "text/plain";
-		}
-		return result.mime;
+		const [fileInfo] = getFileInfo(bytes);
+		return {
+			mime: fileInfo?.mime,
+			ext: fileInfo?.extension === "jpeg" ? "jpg" : fileInfo?.extension,
+		};
 	};
 }

@@ -82,12 +82,11 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 				.test("file-type", ERROR_MESSAGES.UPLOAD("photo").FILE_TYPE([outputType]), async (value) => {
 					if (!value || !Array.isArray(value)) return true;
 					let isValid = true;
-					const outputMimeType = FileHelper.fileExtensionToMimeType(outputType);
 					for (const file of value) {
 						const base64 = file.dataURL.split(";base64,").pop();
-						const buffer = Buffer.from(base64, "base64");
-						const mimeType = await FileHelper.getMimeType(buffer);
-						if (outputMimeType !== mimeType) {
+						const fileType = await FileHelper.getTypeFromBase64(base64);
+						const validFileType = fileType.ext === outputType;
+						if (!validFileType) {
 							isValid = false;
 							break;
 						}

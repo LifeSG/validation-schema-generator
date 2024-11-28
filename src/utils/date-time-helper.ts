@@ -61,12 +61,12 @@ export namespace DateTimeHelper {
 	export function checkWithinDays(value: string, withinDays: IWithinDaysRule) {
 		if (!value) return true;
 		const { numberOfDays, fromDate, dateFormat = "uuuu-MM-dd" } = withinDays;
-		const selectedDate = DateTimeHelper.toLocalDateOrTime(value, dateFormat, "date");
+		const selectedDate = toLocalDateOrTime(value, dateFormat, "date");
 		if (!selectedDate) return false;
 		let startDate: LocalDate;
 		let endDate: LocalDate;
 		const baseDate = fromDate
-			? DateTimeHelper.toLocalDateOrTime(fromDate, dateFormat, "date") || LocalDate.now()
+			? toLocalDateOrTime(fromDate, dateFormat, "date") || LocalDate.now()
 			: LocalDate.now();
 		if (numberOfDays >= 0) {
 			startDate = baseDate;
@@ -75,6 +75,6 @@ export namespace DateTimeHelper {
 			startDate = baseDate.plusDays(numberOfDays);
 			endDate = baseDate;
 		}
-		return !selectedDate.isBefore(startDate) && !selectedDate.isAfter(endDate);
+		return selectedDate.isAfter(startDate) && selectedDate.isBefore(endDate);
 	}
 }

@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import { ERROR_MESSAGES } from "../../shared";
 import { IFieldGenerator } from "../types";
 import { IDateFieldSchema } from "./types";
-import { DateTimeHelper } from "../../utils/date-time-helper";
+import { DateTimeHelper } from "../../utils";
 
 const isValidDate = (value: string, formatter: DateTimeFormatter): boolean => {
 	if (!value || value === ERROR_MESSAGES.DATE.INVALID) return false;

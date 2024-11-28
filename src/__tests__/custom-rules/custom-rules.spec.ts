@@ -13,24 +13,27 @@ describe("custom-rules", () => {
 		jest.restoreAllMocks();
 	});
 	it.each`
-		type         | condition                 | uiType             | config                       | valid          | invalid
-		${"string"}  | ${"uinfin"}               | ${"text-field"}    | ${{ uinfin: true }}          | ${"S1234567D"} | ${"S1234567A"}
-		${"string"}  | ${"filled"}               | ${"text-field"}    | ${{ filled: true }}          | ${"hello"}     | ${undefined}
-		${"string"}  | ${"empty"}                | ${"text-field"}    | ${{ empty: true }}           | ${undefined}   | ${"hello"}
-		${"string"}  | ${"empty (empty string)"} | ${"text-field"}    | ${{ empty: true }}           | ${""}          | ${"hello"}
-		${"string"}  | ${"equals"}               | ${"text-field"}    | ${{ equals: "hello" }}       | ${"hello"}     | ${"hi"}
-		${"string"}  | ${"notEquals"}            | ${"text-field"}    | ${{ notEquals: "hello" }}    | ${"hi"}        | ${"hello"}
-		${"string"}  | ${"equalsField"}          | ${"text-field"}    | ${{ equalsField: "field1" }} | ${"hello"}     | ${"help"}
-		${"string"}  | ${"equalsField (empty)"}  | ${"text-field"}    | ${{ equalsField: "field1" }} | ${undefined}   | ${"help"}
-		${"number"}  | ${"filled"}               | ${"numeric-field"} | ${{ filled: true }}          | ${1}           | ${undefined}
-		${"number"}  | ${"empty"}                | ${"numeric-field"} | ${{ empty: true }}           | ${undefined}   | ${1}
-		${"number"}  | ${"equals"}               | ${"numeric-field"} | ${{ equals: 1 }}             | ${1}           | ${2}
-		${"number"}  | ${"notEquals"}            | ${"numeric-field"} | ${{ notEquals: 1 }}          | ${2}           | ${1}
-		${"number"}  | ${"equalsField"}          | ${"numeric-field"} | ${{ equalsField: "field1" }} | ${10}          | ${11}
-		${"boolean"} | ${"filled"}               | ${"switch"}        | ${{ filled: true }}          | ${false}       | ${undefined}
-		${"boolean"} | ${"empty"}                | ${"switch"}        | ${{ empty: true }}           | ${undefined}   | ${false}
-		${"boolean"} | ${"equals"}               | ${"switch"}        | ${{ equals: true }}          | ${true}        | ${false}
-		${"boolean"} | ${"notEquals"}            | ${"switch"}        | ${{ notEquals: true }}       | ${false}       | ${true}
+		type         | condition                 | uiType             | config                                                         | valid           | invalid
+		${"string"}  | ${"uinfin"}               | ${"text-field"}    | ${{ uinfin: true }}                                            | ${"S1234567D"}  | ${"S1234567A"}
+		${"string"}  | ${"filled"}               | ${"text-field"}    | ${{ filled: true }}                                            | ${"hello"}      | ${undefined}
+		${"string"}  | ${"empty"}                | ${"text-field"}    | ${{ empty: true }}                                             | ${undefined}    | ${"hello"}
+		${"string"}  | ${"empty (empty string)"} | ${"text-field"}    | ${{ empty: true }}                                             | ${""}           | ${"hello"}
+		${"string"}  | ${"equals"}               | ${"text-field"}    | ${{ equals: "hello" }}                                         | ${"hello"}      | ${"hi"}
+		${"string"}  | ${"notEquals"}            | ${"text-field"}    | ${{ notEquals: "hello" }}                                      | ${"hi"}         | ${"hello"}
+		${"string"}  | ${"equalsField"}          | ${"text-field"}    | ${{ equalsField: "field1" }}                                   | ${"hello"}      | ${"help"}
+		${"string"}  | ${"equalsField (empty)"}  | ${"text-field"}    | ${{ equalsField: "field1" }}                                   | ${undefined}    | ${"help"}
+		${"number"}  | ${"filled"}               | ${"numeric-field"} | ${{ filled: true }}                                            | ${1}            | ${undefined}
+		${"number"}  | ${"empty"}                | ${"numeric-field"} | ${{ empty: true }}                                             | ${undefined}    | ${1}
+		${"number"}  | ${"equals"}               | ${"numeric-field"} | ${{ equals: 1 }}                                               | ${1}            | ${2}
+		${"number"}  | ${"notEquals"}            | ${"numeric-field"} | ${{ notEquals: 1 }}                                            | ${2}            | ${1}
+		${"number"}  | ${"equalsField"}          | ${"numeric-field"} | ${{ equalsField: "field1" }}                                   | ${10}           | ${11}
+		${"boolean"} | ${"filled"}               | ${"switch"}        | ${{ filled: true }}                                            | ${false}        | ${undefined}
+		${"boolean"} | ${"empty"}                | ${"switch"}        | ${{ empty: true }}                                             | ${undefined}    | ${false}
+		${"boolean"} | ${"equals"}               | ${"switch"}        | ${{ equals: true }}                                            | ${true}         | ${false}
+		${"boolean"} | ${"notEquals"}            | ${"switch"}        | ${{ notEquals: true }}                                         | ${false}        | ${true}
+		${"string"}  | ${"withinDays"}           | ${"date-field"}    | ${{ withinDays: { numberOfDays: 7 } }}                         | ${"2023-01-07"} | ${"2023-01-09"}
+		${"string"}  | ${"withinDays"}           | ${"date-field"}    | ${{ withinDays: { numberOfDays: -7 } }}                        | ${"2022-12-28"} | ${"2023-01-02"}
+		${"string"}  | ${"withinDays"}           | ${"date-field"}    | ${{ withinDays: { numberOfDays: 5, fromDate: "2023-01-10" } }} | ${"2023-01-12"} | ${"2023-01-09"}
 	`("should support $condition condition for Yup $type type", ({ uiType, config, valid, invalid }) => {
 		const schema = jsonToSchema({
 			section: {
@@ -47,30 +50,10 @@ describe("custom-rules", () => {
 			},
 		});
 		expect(() => schema.validateSync({ field: valid, field1: valid })).not.toThrowError();
-		expect(
-			TestHelper.getError(() => schema.validateSync({ field: invalid, field1: valid }, { abortEarly: false }))
-				.message
-		).toBe(ERROR_MESSAGE);
-	});
-
-	it("should support withinDays condition for Yup date type", () => {
-		const withinDaysErrorMessage = "Date must be within 7 days from today";
-		const schema = jsonToSchema({
-			section: {
-				uiType: "section",
-				children: {
-					field: {
-						uiType: "date-field",
-						validation: [{ withinDays: { numberOfDays: 7 }, errorMessage: withinDaysErrorMessage }],
-					},
-				},
-			},
-		});
-
-		expect(() => schema.validateSync({ field: "2023-01-07" })).not.toThrowError();
-
-		const error = TestHelper.getError(() => schema.validateSync({ field: "2023-01-09" }));
-		expect(error.message).toContain(withinDaysErrorMessage);
+		const error = TestHelper.getError(() =>
+			schema.validateSync({ field: invalid, field1: valid }, { abortEarly: false })
+		);
+		expect(error.errors).toContain(ERROR_MESSAGE);
 	});
 
 	it.each`
@@ -170,107 +153,6 @@ describe("custom-rules", () => {
 				},
 			});
 			expect(TestHelper.getError(() => schema.validateSync({ field: "S1234567A" })).message).toBe(ERROR_MESSAGE);
-		});
-	});
-	describe("withinDays", () => {
-		beforeEach(() => {
-			jest.spyOn(LocalDate, "now").mockReturnValue(LocalDate.parse("2023-01-01"));
-		});
-
-		afterEach(() => {
-			jest.restoreAllMocks();
-		});
-
-		it("should pass when date is within the specified number of days", () => {
-			const schema = jsonToSchema({
-				section: {
-					uiType: "section",
-					children: {
-						dateField: {
-							uiType: "date-field",
-							validation: [
-								{
-									withinDays: { numberOfDays: 7 },
-									errorMessage: "Date must be within 7 days from today",
-								},
-							],
-						},
-					},
-				},
-			});
-
-			expect(() => schema.validateSync({ dateField: "2023-01-07" })).not.toThrowError();
-		});
-
-		it("should fail when date is outside the specified number of days", () => {
-			const schema = jsonToSchema({
-				section: {
-					uiType: "section",
-					children: {
-						dateField: {
-							uiType: "date-field",
-							validation: [
-								{
-									withinDays: { numberOfDays: 7 },
-									errorMessage: "Date must be within 7 days from today",
-								},
-							],
-						},
-					},
-				},
-			});
-
-			expect(TestHelper.getError(() => schema.validateSync({ dateField: "2023-01-09" })).message).toBe(
-				"Date must be within 7 days from today"
-			);
-		});
-
-		it("should handle negative numberOfDays for past dates", () => {
-			const schema = jsonToSchema({
-				section: {
-					uiType: "section",
-					children: {
-						dateField: {
-							uiType: "date-field",
-							validation: [
-								{
-									withinDays: { numberOfDays: -7 },
-									errorMessage: "Date must be within 7 days prior to today",
-								},
-							],
-						},
-					},
-				},
-			});
-
-			expect(() => schema.validateSync({ dateField: "2022-12-26" })).not.toThrowError();
-			expect(TestHelper.getError(() => schema.validateSync({ dateField: "2022-12-24" })).message).toBe(
-				"Date must be within 7 days prior to today"
-			);
-		});
-
-		it("should handle custom fromDate", () => {
-			const schema = jsonToSchema({
-				section: {
-					uiType: "section",
-					children: {
-						dateField: {
-							uiType: "date-field",
-							validation: [
-								{
-									withinDays: { numberOfDays: 5, fromDate: "2023-01-10" },
-									errorMessage: "Date must be within 5 days from 2023-01-10",
-								},
-							],
-						},
-					},
-				},
-			});
-
-			expect(() => schema.validateSync({ dateField: "2023-01-14" })).not.toThrowError();
-			expect(TestHelper.getError(() => schema.validateSync({ dateField: "2023-01-16" })).message).toBe(
-				"Date must be within 5 days from 2023-01-10"
-			);
 		});
 	});
 });

@@ -27,7 +27,6 @@ import {
 	ITimeFieldSchema,
 	IUnitNumberFieldSchema,
 } from "../fields";
-import { withinDays } from "../custom-rules/values";
 
 // =============================================================================
 // CONDITIONS AND RULES
@@ -82,7 +81,6 @@ interface IRule {
 	excludes?: unknown | undefined;
 	uinfin?: boolean | undefined;
 	equalsField?: unknown | undefined;
-	withinDays?: IWithinDaysRule | undefined;
 }
 
 export interface IValidationRule extends IRule {
@@ -107,6 +105,7 @@ export interface IConditionalValidationRule extends IRule {
 export interface IRenderRule extends IRule {
 	filled?: boolean | undefined;
 	shown?: boolean | undefined;
+	withinDays?: IWithinDaysRule | undefined;
 }
 export type TRenderRules = Record<string, IRenderRule[]>;
 

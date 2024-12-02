@@ -36,9 +36,9 @@
 	"dependencies": {
 		"@js-joda/core": "^5.5.2",
 		"@js-joda/locale_en-us": "^4.8.6",
-		"file-type": "^16.5.4",
 		"image-size": "^1.0.2",
-		"libphonenumber-js": "^1.10.18"
+		"libphonenumber-js": "^1.10.18",
+		"magic-bytes.js": "^1.10.0"
 	},
 	"peerDependencies": {
 		"yup": "^0.32.11"

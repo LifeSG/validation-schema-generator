@@ -1,6 +1,6 @@
 import capitalize from "lodash/capitalize";
 import { FileHelper } from "../utils";
-import { IWithinDaysRule } from "../schema-generator";
+import { IDaysRangeRule } from "../schema-generator";
 
 export const ERROR_MESSAGES = {
 	COMMON: {
@@ -21,7 +21,7 @@ export const ERROR_MESSAGES = {
 		MAX_DATE: (date: string) => `Date cannot be later than ${date}`,
 		INVALID: "Invalid date",
 		DISABLED_DATES: "Date is not allowed",
-		WITHIN_DAYS: (withinDays: IWithinDaysRule) => {
+		WITHIN_DAYS: (withinDays: IDaysRangeRule) => {
 			const { numberOfDays, fromDate } = withinDays;
 			const unsignedDays = Math.abs(numberOfDays);
 			return `Date must be within ${unsignedDays} ${unsignedDays !== 1 ? "days" : "day"} ${

@@ -1,9 +1,17 @@
+import { LocalDate } from "@js-joda/core";
 import { jsonToSchema } from "../../schema-generator";
 import { TestHelper } from "../../utils";
 
 const ERROR_MESSAGE = "test error message";
 
 describe("custom-rules", () => {
+	beforeEach(() => {
+		jest.spyOn(LocalDate, "now").mockReturnValue(LocalDate.parse("2023-01-01"));
+	});
+
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
 	it.each`
 		type         | condition                 | uiType             | config                       | valid          | invalid
 		${"string"}  | ${"uinfin"}               | ${"text-field"}    | ${{ uinfin: true }}          | ${"S1234567D"} | ${"S1234567A"}
@@ -39,10 +47,10 @@ describe("custom-rules", () => {
 			},
 		});
 		expect(() => schema.validateSync({ field: valid, field1: valid })).not.toThrowError();
-		expect(
-			TestHelper.getError(() => schema.validateSync({ field: invalid, field1: valid }, { abortEarly: false }))
-				.message
-		).toBe(ERROR_MESSAGE);
+		const error = TestHelper.getError(() =>
+			schema.validateSync({ field: invalid, field1: valid }, { abortEarly: false })
+		);
+		expect(error.errors).toContain(ERROR_MESSAGE);
 	});
 
 	it.each`

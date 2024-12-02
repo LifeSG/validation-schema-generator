@@ -2,7 +2,7 @@ import { DateTimeFormatter, LocalDate, ResolverStyle } from "@js-joda/core";
 import { Locale } from "@js-joda/locale_en-us";
 import * as Yup from "yup";
 import { ERROR_MESSAGES } from "../../shared";
-import { DateTimeHelper } from "../../utils/date-time-helper";
+import { DateTimeHelper } from "../../utils";
 import { IFieldGenerator } from "../types";
 import { IDateRangeFieldSchema } from "./types";
 

@@ -105,6 +105,7 @@ export interface IConditionalValidationRule extends IRule {
 export interface IRenderRule extends IRule {
 	filled?: boolean | undefined;
 	shown?: boolean | undefined;
+	withinDays?: IWithinDaysRule | undefined;
 }
 export type TRenderRules = Record<string, IRenderRule[]>;
 
@@ -238,3 +239,9 @@ export type RecursivePartial<T> = {
 
 /** a collection of sections from web-frontend-engine */
 export type TSectionsSchema<V = undefined> = Record<string, ISectionSchema<NoInfer<V, IValidationRule>>>;
+
+export interface IWithinDaysRule {
+	numberOfDays: number;
+	fromDate?: string | undefined;
+	dateFormat?: string | undefined;
+}

@@ -1,6 +1,7 @@
 import { DateTimeFormatter, LocalDate, LocalDateTime, LocalTime, ResolverStyle } from "@js-joda/core";
 import { Locale } from "@js-joda/locale_en-us";
 import { ERROR_MESSAGES } from "../shared/error-messages";
+import { IWithinDaysRule } from "../schema-generator";
 
 export namespace DateTimeHelper {
 	// TODO: split into individual functions by type when parsing/formatting gets more complicated
@@ -56,5 +57,24 @@ export namespace DateTimeHelper {
 		} catch (error) {
 			return undefined;
 		}
+	}
+	export function checkWithinDays(value: string, withinDays: IWithinDaysRule) {
+		if (!value) return true;
+		const { numberOfDays, fromDate, dateFormat = "uuuu-MM-dd" } = withinDays;
+		const selectedDate = toLocalDateOrTime(value, dateFormat, "date");
+		if (!selectedDate) return false;
+		let startDate: LocalDate;
+		let endDate: LocalDate;
+		const baseDate = fromDate
+			? toLocalDateOrTime(fromDate, dateFormat, "date") || LocalDate.now()
+			: LocalDate.now();
+		if (numberOfDays >= 0) {
+			startDate = baseDate;
+			endDate = baseDate.plusDays(numberOfDays);
+		} else {
+			startDate = baseDate.plusDays(numberOfDays);
+			endDate = baseDate;
+		}
+		return selectedDate.isAfter(startDate) && selectedDate.isBefore(endDate);
 	}
 }

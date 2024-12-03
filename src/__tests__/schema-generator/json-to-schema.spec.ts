@@ -578,7 +578,7 @@ describe("json-to-schema", () => {
 		});
 	});
 
-	describe("withinDays", () => {
+	describe("withinDays / beyondDays conditional rendering", () => {
 		beforeEach(() => {
 			jest.spyOn(LocalDate, "now").mockReturnValue(LocalDate.parse("2023-01-01"));
 		});
@@ -586,36 +586,34 @@ describe("json-to-schema", () => {
 		afterEach(() => {
 			jest.restoreAllMocks();
 		});
+
 		it.each`
-			condition                            | config                                                         | valid           | invalid
-			${"withinDays (future)"}             | ${{ withinDays: { numberOfDays: 7 } }}                         | ${"2023-01-07"} | ${"2023-01-09"}
-			${"withinDays (past)"}               | ${{ withinDays: { numberOfDays: -7 } }}                        | ${"2022-12-28"} | ${"2023-01-02"}
-			${"withinDays (from specific date)"} | ${{ withinDays: { numberOfDays: 5, fromDate: "2023-01-10" } }} | ${"2023-01-12"} | ${"2023-01-09"}
-		`(
-			"should support $condition condition for conditionally rendered date fields",
-			({ config, valid, invalid }) => {
-				console.log("config.withinDays.dateFormat", config.withinDays.dateFormat);
-				const schema = jsonToSchema({
-					section: {
-						uiType: "section",
-						children: {
-							field: {
-								uiType: "date-field",
-								validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
-							},
-							field1: {
-								uiType: "date-field",
-								showIf: [{ field: [config, { filled: true }] }],
-							},
+			condition                            | config                                                         | valid
+			${"withinDays (future)"}             | ${{ withinDays: { numberOfDays: 7 } }}                         | ${"2023-01-07"}
+			${"withinDays (past)"}               | ${{ withinDays: { numberOfDays: -7 } }}                        | ${"2022-12-28"}
+			${"withinDays (from specific date)"} | ${{ withinDays: { numberOfDays: 5, fromDate: "2023-01-10" } }} | ${"2023-01-12"}
+			${"beyondDays (future)"}             | ${{ beyondDays: { numberOfDays: 7 } }}                         | ${"2023-01-09"}
+			${"beyondDays (past)"}               | ${{ beyondDays: { numberOfDays: -7 } }}                        | ${"2022-12-28"}
+			${"beyondDays (from specific date)"} | ${{ beyondDays: { numberOfDays: 5, fromDate: "2023-01-10" } }} | ${"2023-01-12"}
+		`("should support $condition condition for conditionally rendered date fields", ({ config, valid }) => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "date-field",
+							validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+						},
+						field1: {
+							uiType: "date-field",
+							showIf: [{ field: [config, { filled: true }] }],
 						},
 					},
-				});
-				expect(() => schema.validateSync({ field: valid, field1: valid })).not.toThrowError();
-				const error = TestHelper.getError(() =>
-					schema.validateSync({ field: invalid, field1: valid }, { abortEarly: false })
-				);
-				expect(error.errors).toContain(ERROR_MESSAGES.UNSPECIFIED_FIELD("field1"));
-			}
-		);
+				},
+			});
+			expect(() => schema.validateSync({ field: valid, field1: valid })).not.toThrowError();
+			const error = TestHelper.getError(() => schema.validateSync({ field1: valid }, { abortEarly: false }));
+			expect(error.errors).toContain(ERROR_MESSAGES.UNSPECIFIED_FIELD("field1"));
+		});
 	});
 });

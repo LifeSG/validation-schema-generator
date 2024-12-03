@@ -1,7 +1,7 @@
 import { DateTimeFormatter, LocalDate, LocalDateTime, LocalTime, ResolverStyle } from "@js-joda/core";
 import { Locale } from "@js-joda/locale_en-us";
 import { ERROR_MESSAGES } from "../shared/error-messages";
-import { IWithinDaysRule } from "../schema-generator";
+import { IDaysRangeRule } from "../schema-generator";
 
 export namespace DateTimeHelper {
 	// TODO: split into individual functions by type when parsing/formatting gets more complicated
@@ -58,7 +58,7 @@ export namespace DateTimeHelper {
 			return undefined;
 		}
 	}
-	export function checkWithinDays(value: string, withinDays: IWithinDaysRule) {
+	export function checkWithinDays(value: string, withinDays: IDaysRangeRule) {
 		if (!value) return true;
 		const { numberOfDays, fromDate, dateFormat = "uuuu-MM-dd" } = withinDays;
 		const selectedDate = toLocalDateOrTime(value, dateFormat, "date");
@@ -76,5 +76,42 @@ export namespace DateTimeHelper {
 			endDate = baseDate;
 		}
 		return selectedDate.isAfter(startDate) && selectedDate.isBefore(endDate);
+	}
+
+	export function calculateWithinDaysRange(withinDays: IDaysRangeRule): {
+		startDate: LocalDate;
+		endDate: LocalDate;
+	} {
+		const { numberOfDays, fromDate, dateFormat = "uuuu-MM-dd" } = withinDays;
+		const baseDate = fromDate
+			? toLocalDateOrTime(fromDate, dateFormat, "date") || LocalDate.now()
+			: LocalDate.now();
+		if (numberOfDays >= 0) {
+			return {
+				startDate: baseDate,
+				endDate: baseDate.plusDays(numberOfDays),
+			};
+		} else {
+			return {
+				startDate: baseDate.plusDays(numberOfDays),
+				endDate: baseDate,
+			};
+		}
+	}
+
+	export function checkBeyondDays(value: string, beyondDays: IDaysRangeRule) {
+		if (!value) return true;
+		const { numberOfDays, fromDate, dateFormat = "uuuu-MM-dd" } = beyondDays;
+		const localDate = toLocalDateOrTime(value, dateFormat, "date");
+		if (!localDate) return false;
+
+		const baseDate = fromDate
+			? toLocalDateOrTime(fromDate, dateFormat, "date") || LocalDate.now()
+			: LocalDate.now();
+		if (numberOfDays >= 0) {
+			return localDate.isBefore(baseDate) || localDate.isAfter(baseDate.plusDays(numberOfDays));
+		} else {
+			return localDate.isBefore(baseDate.plusDays(numberOfDays)) || localDate.isAfter(baseDate);
+		}
 	}
 }

@@ -31,6 +31,7 @@ export const dateField: IFieldGenerator<IDateFieldSchema> = (id, { dateFormat = 
 	const maxDateRule = validation?.find((rule) => "maxDate" in rule);
 	const excludedDatesRule = validation?.find((rule) => "excludedDates" in rule);
 	const withinDaysRule = validation?.find((rule) => "withinDays" in rule);
+	const beyondDaysRule = validation?.find((rule) => "beyondDays" in rule);
 
 	let minDate: LocalDate;
 	let maxDate: LocalDate;
@@ -101,6 +102,16 @@ export const dateField: IFieldGenerator<IDateFieldSchema> = (id, { dateFormat = 
 							...withinDaysRule["withinDays"],
 							dateFormat,
 						});
+					}
+				)
+				.test(
+					"beyond-days",
+					beyondDaysRule?.errorMessage ||
+						(beyondDaysRule?.["beyondDays"] &&
+							ERROR_MESSAGES.DATE.BEYOND_DAYS(beyondDaysRule?.["beyondDays"])),
+					(value) => {
+						if (!isValidDate(value, dateFormatter) || !beyondDaysRule) return true;
+						return DateTimeHelper.checkBeyondDays(value, { ...beyondDaysRule["beyondDays"], dateFormat });
 					}
 				),
 			validation,

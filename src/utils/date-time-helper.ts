@@ -77,4 +77,20 @@ export namespace DateTimeHelper {
 		}
 		return selectedDate.isAfter(startDate) && selectedDate.isBefore(endDate);
 	}
+
+	export function checkBeyondDays(value: string, beyondDays: IDaysRangeRule) {
+		if (!value) return true;
+		const { numberOfDays, fromDate, dateFormat = "uuuu-MM-dd" } = beyondDays;
+		const localDate = toLocalDateOrTime(value, dateFormat, "date");
+		if (!localDate) return false;
+
+		const baseDate = fromDate
+			? toLocalDateOrTime(fromDate, dateFormat, "date") || LocalDate.now()
+			: LocalDate.now();
+		if (numberOfDays >= 0) {
+			return localDate.isBefore(baseDate) || localDate.isAfter(baseDate.plusDays(numberOfDays));
+		} else {
+			return localDate.isBefore(baseDate.plusDays(numberOfDays)) || localDate.isAfter(baseDate);
+		}
+	}
 }

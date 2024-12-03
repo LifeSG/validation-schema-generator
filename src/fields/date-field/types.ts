@@ -9,6 +9,7 @@ export interface IDateInputValidationRule extends IValidationRule {
 	maxDate?: string | undefined;
 	excludedDates?: string[] | undefined;
 	withinDays?: Omit<IDaysRangeRule, "dateFormat"> | undefined;
+	beyondDays?: Omit<IDaysRangeRule, "dateFormat"> | undefined;
 }
 
 export interface IDateFieldSchema<V = undefined> extends IFieldSchemaBase<"date-field", V, IDateInputValidationRule> {

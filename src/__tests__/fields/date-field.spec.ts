@@ -81,18 +81,21 @@ describe("date-field", () => {
 	});
 
 	describe.each`
-		rule               | ruleValue                                      | valid           | invalid         | errorMessage
-		${"future"}        | ${true}                                        | ${"2023-01-02"} | ${"2022-01-01"} | ${ERROR_MESSAGES.DATE.MUST_BE_FUTURE}
-		${"past"}          | ${true}                                        | ${"2022-12-31"} | ${"2023-01-01"} | ${ERROR_MESSAGES.DATE.MUST_BE_PAST}
-		${"notFuture"}     | ${true}                                        | ${"2023-01-01"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.CANNOT_BE_FUTURE}
-		${"notPast"}       | ${true}                                        | ${"2023-01-01"} | ${"2022-12-31"} | ${ERROR_MESSAGES.DATE.CANNOT_BE_PAST}
-		${"minDate"}       | ${"2023-01-02"}                                | ${"2023-01-02"} | ${"2023-01-01"} | ${ERROR_MESSAGES.DATE.MIN_DATE("02/01/2023")}
-		${"maxDate"}       | ${"2023-01-02"}                                | ${"2023-01-02"} | ${"2023-01-03"} | ${ERROR_MESSAGES.DATE.MAX_DATE("02/01/2023")}
-		${"excludedDates"} | ${["2023-01-02"]}                              | ${"2023-01-03"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.DISABLED_DATES}
-		${"withinDays"}    | ${{ numberOfDays: 7 }}                         | ${"2023-01-02"} | ${"2023-01-09"} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: 7 })}
-		${"withinDays"}    | ${{ numberOfDays: -7 }}                        | ${"2022-12-31"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: -7 })}
-		${"withinDays"}    | ${{ numberOfDays: 5, fromDate: "2022-01-05" }} | ${"2022-01-06"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: 5, fromDate: "2022-01-05" })}
-	`("$rule rule", ({ rule, ruleValue, valid, invalid, errorMessage }) => {
+		scenario                             | rule               | ruleValue                                      | valid           | invalid         | errorMessage
+		${"future"}                          | ${"future"}        | ${true}                                        | ${"2023-01-02"} | ${"2022-01-01"} | ${ERROR_MESSAGES.DATE.MUST_BE_FUTURE}
+		${"past"}                            | ${"past"}          | ${true}                                        | ${"2022-12-31"} | ${"2023-01-01"} | ${ERROR_MESSAGES.DATE.MUST_BE_PAST}
+		${"notFuture"}                       | ${"notFuture"}     | ${true}                                        | ${"2023-01-01"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.CANNOT_BE_FUTURE}
+		${"notPast"}                         | ${"notPast"}       | ${true}                                        | ${"2023-01-01"} | ${"2022-12-31"} | ${ERROR_MESSAGES.DATE.CANNOT_BE_PAST}
+		${"minDate"}                         | ${"minDate"}       | ${"2023-01-02"}                                | ${"2023-01-02"} | ${"2023-01-01"} | ${ERROR_MESSAGES.DATE.MIN_DATE("02/01/2023")}
+		${"maxDate"}                         | ${"maxDate"}       | ${"2023-01-02"}                                | ${"2023-01-02"} | ${"2023-01-03"} | ${ERROR_MESSAGES.DATE.MAX_DATE("02/01/2023")}
+		${"excludedDates"}                   | ${"excludedDates"} | ${["2023-01-02"]}                              | ${"2023-01-03"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.DISABLED_DATES}
+		${"withinDays (future)"}             | ${"withinDays"}    | ${{ numberOfDays: 7 }}                         | ${"2023-01-02"} | ${"2023-01-09"} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: 7 })}
+		${"withinDays (past)"}               | ${"withinDays"}    | ${{ numberOfDays: -7 }}                        | ${"2022-12-31"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: -7 })}
+		${"withinDays (from specific date)"} | ${"withinDays"}    | ${{ numberOfDays: 5, fromDate: "2022-01-05" }} | ${"2022-01-06"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: 5, fromDate: "2022-01-05" })}
+		${"beyondDays (future)"}             | ${"beyondDays"}    | ${{ numberOfDays: 7 }}                         | ${"2023-01-09"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.BEYOND_DAYS({ numberOfDays: 7 })}
+		${"beyondDays (past)"}               | ${"beyondDays"}    | ${{ numberOfDays: -7 }}                        | ${"2023-12-24"} | ${"2022-12-31"} | ${ERROR_MESSAGES.DATE.BEYOND_DAYS({ numberOfDays: -7 })}
+		${"beyondDays (from specific date)"} | ${"beyondDays"}    | ${{ numberOfDays: 5, fromDate: "2022-01-05" }} | ${"2023-01-02"} | ${"2022-01-06"} | ${ERROR_MESSAGES.DATE.BEYOND_DAYS({ numberOfDays: 5, fromDate: "2022-01-05" })}
+	`("$scenario", ({ rule, ruleValue, valid, invalid, errorMessage }) => {
 		let schema: Yup.ObjectSchema<ObjectShape>;
 
 		beforeEach(() => {

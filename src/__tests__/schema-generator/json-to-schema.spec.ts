@@ -607,13 +607,14 @@ describe("json-to-schema", () => {
 						field1: {
 							uiType: "date-field",
 							showIf: [{ field: [config, { filled: true }] }],
+							validation: [{ required: true, errorMessage: ERROR_MESSAGE_2 }],
 						},
 					},
 				},
 			});
 			expect(() => schema.validateSync({ field: valid, field1: valid })).not.toThrowError();
-			const error = TestHelper.getError(() => schema.validateSync({ field1: valid }, { abortEarly: false }));
-			expect(error.errors).toContain(ERROR_MESSAGES.UNSPECIFIED_FIELD("field1"));
+			const error = TestHelper.getError(() => schema.validateSync({ field: valid }, { abortEarly: false }));
+			expect(error.errors).toContain(ERROR_MESSAGE_2);
 		});
 	});
 });

@@ -245,3 +245,7 @@ export interface IDaysRangeRule {
 	fromDate?: string | undefined;
 	dateFormat?: string | undefined;
 }
+
+export interface IWithinDaysRangeRule extends IDaysRangeRule {
+	inclusive?: boolean | undefined;
+}

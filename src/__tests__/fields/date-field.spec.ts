@@ -89,11 +89,11 @@ describe("date-field", () => {
 		${"minDate"}                         | ${"minDate"}       | ${"2023-01-02"}                                | ${"2023-01-02"} | ${"2023-01-01"} | ${ERROR_MESSAGES.DATE.MIN_DATE("02/01/2023")}
 		${"maxDate"}                         | ${"maxDate"}       | ${"2023-01-02"}                                | ${"2023-01-02"} | ${"2023-01-03"} | ${ERROR_MESSAGES.DATE.MAX_DATE("02/01/2023")}
 		${"excludedDates"}                   | ${"excludedDates"} | ${["2023-01-02"]}                              | ${"2023-01-03"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.DISABLED_DATES}
-		${"withinDays (future)"}             | ${"withinDays"}    | ${{ numberOfDays: 7 }}                         | ${"2023-01-02"} | ${"2023-01-09"} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: 7 })}
-		${"withinDays (past)"}               | ${"withinDays"}    | ${{ numberOfDays: -7 }}                        | ${"2022-12-31"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: -7 })}
+		${"withinDays (future)"}             | ${"withinDays"}    | ${{ numberOfDays: 7 }}                         | ${"2023-01-08"} | ${"2023-01-09"} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: 7 })}
+		${"withinDays (past)"}               | ${"withinDays"}    | ${{ numberOfDays: -7 }}                        | ${"2022-12-25"} | ${"2022-12-24"} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: -7 })}
 		${"withinDays (from specific date)"} | ${"withinDays"}    | ${{ numberOfDays: 5, fromDate: "2022-01-05" }} | ${"2022-01-06"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.WITHIN_DAYS({ numberOfDays: 5, fromDate: "2022-01-05" })}
 		${"beyondDays (future)"}             | ${"beyondDays"}    | ${{ numberOfDays: 7 }}                         | ${"2023-01-09"} | ${"2023-01-02"} | ${ERROR_MESSAGES.DATE.BEYOND_DAYS({ numberOfDays: 7 })}
-		${"beyondDays (past)"}               | ${"beyondDays"}    | ${{ numberOfDays: -7 }}                        | ${"2023-12-24"} | ${"2022-12-31"} | ${ERROR_MESSAGES.DATE.BEYOND_DAYS({ numberOfDays: -7 })}
+		${"beyondDays (past)"}               | ${"beyondDays"}    | ${{ numberOfDays: -7 }}                        | ${"2022-12-24"} | ${"2022-12-25"} | ${ERROR_MESSAGES.DATE.BEYOND_DAYS({ numberOfDays: -7 })}
 		${"beyondDays (from specific date)"} | ${"beyondDays"}    | ${{ numberOfDays: 5, fromDate: "2022-01-05" }} | ${"2023-01-02"} | ${"2022-01-06"} | ${ERROR_MESSAGES.DATE.BEYOND_DAYS({ numberOfDays: 5, fromDate: "2022-01-05" })}
 	`("$scenario", ({ rule, ruleValue, valid, invalid, errorMessage }) => {
 		let schema: Yup.ObjectSchema<ObjectShape>;

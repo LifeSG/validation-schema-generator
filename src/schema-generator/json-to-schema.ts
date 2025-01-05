@@ -10,6 +10,7 @@ import {
 	ISectionSchema,
 	RecursivePartial,
 	TComponentSchema,
+	TCustomFieldSchema,
 	TFieldSchema,
 	TFieldValidation,
 	TSectionsSchema,
@@ -74,8 +75,8 @@ export const overrideSchema = (
  * @returns an array containing the parsed field config and conditional field id pairs
  */
 const parseWhenKeys = (
-	fieldConfigs: TFieldsConfig<TFieldSchema<undefined>>
-): [Record<string, IFieldConfig<TFieldSchema<undefined>>>, [string, string][]] => {
+	fieldConfigs: TFieldsConfig<TFieldSchema | TCustomFieldSchema>
+): [Record<string, IFieldConfig<TFieldSchema | TCustomFieldSchema>>, [string, string][]] => {
 	const parsedFieldConfigs = { ...fieldConfigs };
 	// Yup's escape hatch for cycling dependency error
 	// this happens when 2 fields have conditional validation that rely on each other
@@ -100,7 +101,7 @@ const parseWhenKeys = (
  */
 const addSchemaToWhenRules = (
 	id: string,
-	fieldConfigs: TFieldsConfig<TFieldSchema<undefined>>,
+	fieldConfigs: TFieldsConfig<TFieldSchema | TCustomFieldSchema>,
 	fieldValidationConfig: TFieldValidation
 ): [TFieldValidation, [string, string][]] => {
 	const whenPairIds: [string, string][] = [];

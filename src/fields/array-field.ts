@@ -1,6 +1,6 @@
 import isEmpty from "lodash/isEmpty";
 import * as Yup from "yup";
-import { IFieldSchemaBase, IValidationRule, TFieldSchema, jsonToSchema } from "../schema-generator";
+import { ICustomFieldSchemaBase, IValidationRule, TFieldSchema, jsonToSchema } from "../schema-generator";
 import { ERROR_MESSAGES } from "../shared";
 import { IFieldGenerator } from "./types";
 
@@ -10,7 +10,7 @@ interface IArrayFieldValidationRule extends IValidationRule {
 }
 
 export interface IArrayFieldSchema<V = undefined>
-	extends IFieldSchemaBase<"array-field", V, IArrayFieldValidationRule> {
+	extends ICustomFieldSchemaBase<"array-field", V, IArrayFieldValidationRule> {
 	fieldSchema: Record<string, TFieldSchema>;
 }
 

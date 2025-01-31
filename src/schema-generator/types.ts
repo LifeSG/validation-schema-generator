@@ -10,7 +10,6 @@ import {
 	IEmailFieldSchema,
 	IErrorFieldSchema,
 	IFileUploadSchema,
-	IHiddenFieldSchema,
 	IHistogramSlider,
 	IImageUploadSchema,
 	IMaskedFieldSchema,
@@ -26,6 +25,7 @@ import {
 	ITextareaSchema,
 	ITimeFieldSchema,
 	IUnitNumberFieldSchema,
+	THiddenFieldSchema,
 } from "../fields";
 
 // =============================================================================
@@ -200,7 +200,7 @@ export type TFieldSchema<V = undefined> =
 	| IErrorFieldSchema
 	| IESignatureFieldSchema<V>
 	| IFileUploadSchema<V>
-	| IHiddenFieldSchema<V>
+	| THiddenFieldSchema<V>
 	| IHistogramSlider<V>
 	| IImageUploadSchema<V>
 	| IMaskedFieldSchema<V>

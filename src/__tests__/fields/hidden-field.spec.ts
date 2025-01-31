@@ -63,4 +63,43 @@ describe("hidden-field", () => {
 		expect(() => schema.validateSync({ field: true })).not.toThrow();
 		expect(() => schema.validateSync({ field: "hello" })).toThrow();
 	});
+
+	it("should throw an error if submitted value does not match schema value", () => {
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "hidden-field",
+						somethingUnused: "test",
+						valueType: "boolean",
+						value: true,
+						validation: [{ equalsSchemaValue: true, errorMessage: ERROR_MESSAGE }],
+					},
+				},
+			},
+		});
+		expect(() => schema.validateSync({ field: true })).not.toThrow();
+		expect(TestHelper.getError(() => schema.validateSync({})).message).toBe(ERROR_MESSAGE);
+		expect(TestHelper.getError(() => schema.validateSync({ field: false })).message).toBe(ERROR_MESSAGE);
+	});
+
+	it("should throw an error if submitted value is not null when valueType=null", () => {
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "hidden-field",
+						somethingUnused: "test",
+						valueType: "null",
+						validation: [{ equalsSchemaValue: true, errorMessage: ERROR_MESSAGE }],
+					},
+				},
+			},
+		});
+		expect(() => schema.validateSync({ field: null })).not.toThrow();
+		expect(TestHelper.getError(() => schema.validateSync({})).message).toBe(ERROR_MESSAGE);
+		expect(TestHelper.getError(() => schema.validateSync({ field: false })).message).toBe(ERROR_MESSAGE);
+	});
 });

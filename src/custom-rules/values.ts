@@ -9,6 +9,15 @@ export const equals = () =>
 	addRule("mixed", "equals", (value, match) => !ValueHelper.isEmpty(value) && isEqual(value, match));
 export const notEquals = () =>
 	addRule("mixed", "notEquals", (value, match) => !ValueHelper.isEmpty(value) && !isEqual(value, match));
+export const notMatches = () =>
+	addRule("string", "notMatches", (value: string, regex: string) => {
+		if (ValueHelper.isEmpty(value)) {
+			return true;
+		}
+		const matches = regex.match(/\/(.*)\/([a-z]+)?/);
+		const parsedRegex = new RegExp(matches[1], matches[2]);
+		return !parsedRegex.test(value);
+	});
 export const withinDays = () =>
 	addRule("string", "withinDays", (value: string, withinDays: IDaysRangeRule) => {
 		if (isEmpty(value)) return true;

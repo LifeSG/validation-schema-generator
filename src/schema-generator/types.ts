@@ -81,7 +81,8 @@ interface IRule {
 	includes?: unknown | undefined;
 	excludes?: unknown | undefined;
 	uinfin?: boolean | undefined;
-	equalsField?: unknown | undefined;
+	equalsField?: string | undefined;
+	notEqualsField?: string | undefined;
 }
 
 export interface IValidationRule extends IRule {

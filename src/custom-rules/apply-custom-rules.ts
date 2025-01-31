@@ -1,4 +1,4 @@
-import { equalsField } from "./equals-field";
+import { equalsField, notEqualsField } from "./equals-field";
 import { excludes } from "./excludes";
 import { includes } from "./includes";
 import { uinfin } from "./uinfin";
@@ -17,5 +17,6 @@ export const applyCustomRules = () => {
 	notEquals();
 	notMatches();
 	equalsField();
+	notEqualsField();
 	withinDays();
 };

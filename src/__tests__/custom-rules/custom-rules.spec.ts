@@ -120,6 +120,72 @@ describe("custom-rules", () => {
 		);
 	});
 
+	it.each`
+		type        | condition                   | uiType             | value        | valid      | invalid
+		${"string"} | ${"notEqualsField"}         | ${"text-field"}    | ${"hello"}   | ${"bye"}   | ${"hello"}
+		${"string"} | ${"notEqualsField (empty)"} | ${"text-field"}    | ${undefined} | ${"hello"} | ${undefined}
+		${"number"} | ${"notEqualsField"}         | ${"numeric-field"} | ${0}         | ${1}       | ${0}
+	`("should support $condition condition for Yup $type type", ({ uiType, value, valid, invalid }) => {
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType,
+						validation: [{ notEqualsField: "field1", errorMessage: ERROR_MESSAGE }],
+					},
+					field1: {
+						uiType,
+					},
+				},
+			},
+		});
+		expect(() => schema.validateSync({ field: valid, field1: value })).not.toThrowError();
+		const error = TestHelper.getError(() =>
+			schema.validateSync({ field: invalid, field1: value }, { abortEarly: false })
+		);
+		expect(error.errors).toContain(ERROR_MESSAGE);
+	});
+
+	it.each`
+		type       | condition                         | value                 | valid        | invalid
+		${"array"} | ${"notEqualsField"}               | ${["Apple", "Berry"]} | ${["Berry"]} | ${["Berry", "Apple"]}
+		${"array"} | ${"notEqualsField (empty array)"} | ${[]}                 | ${["Apple"]} | ${[]}
+		${"array"} | ${"notEqualsField (undefined)"}   | ${undefined}          | ${[]}        | ${undefined}
+	`("should support $condition condition for Yup $type type", ({ value, valid, invalid }) => {
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "checkbox",
+						options: [
+							{ label: "Apple", value: "Apple" },
+							{ label: "Berry", value: "Berry" },
+							{ label: "Cherry", value: "Cherry" },
+							{ label: "Durian", value: "Durian" },
+						],
+						validation: [{ notEqualsField: "field1", errorMessage: ERROR_MESSAGE }],
+					},
+					field1: {
+						uiType: "checkbox",
+						options: [
+							{ label: "Apple", value: "Apple" },
+							{ label: "Berry", value: "Berry" },
+							{ label: "Cherry", value: "Cherry" },
+							{ label: "Durian", value: "Durian" },
+						],
+					},
+				},
+			},
+		});
+		expect(() => schema.validateSync({ field: valid, field1: value })).not.toThrowError();
+		const error = TestHelper.getError(() =>
+			schema.validateSync({ field: invalid, field1: value }, { abortEarly: false })
+		);
+		expect(error.errors).toContain(ERROR_MESSAGE);
+	});
+
 	describe("uinfin", () => {
 		it("should pass when given a valid uinfin", async () => {
 			const schema = jsonToSchema({

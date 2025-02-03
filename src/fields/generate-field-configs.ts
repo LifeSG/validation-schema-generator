@@ -1,6 +1,6 @@
 import isEmpty from "lodash/isEmpty";
 import isObject from "lodash/isObject";
-import { TComponentSchema, TFieldSchema, TSectionsSchema } from "../schema-generator";
+import { TComponentSchema, TCustomFieldSchema, TFieldSchema, TSectionsSchema } from "../schema-generator";
 import { arrayField } from "./array-field";
 import { checkbox } from "./checkbox";
 import { chips } from "./chips";
@@ -38,7 +38,7 @@ import { unitNumberField } from "./unit-number-field";
  * a field config generator may come up with multiple fields and change the validation config (e.g. chips with textarea)
  */
 export const generateFieldConfigs = (sections: TSectionsSchema) => {
-	let config: TFieldsConfig<TFieldSchema> = {};
+	let config: TFieldsConfig<TFieldSchema | TCustomFieldSchema> = {};
 	Object.values(sections).forEach(({ children }) => {
 		config = { ...config, ...generateChildrenFieldConfigs(children) };
 	});
@@ -46,18 +46,23 @@ export const generateFieldConfigs = (sections: TSectionsSchema) => {
 };
 
 const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentSchema>) => {
-	let config: TFieldsConfig<TFieldSchema> = {};
+	let config: TFieldsConfig<TFieldSchema | TCustomFieldSchema> = {};
 	Object.entries(childrenSchema).forEach(([id, componentSchema]) => {
 		if ("referenceKey" in componentSchema) {
-			config = { ...config, ...referenceKey(id) };
+			const customComponentSchema = componentSchema as TCustomFieldSchema;
+			switch (customComponentSchema.referenceKey) {
+				case "array-field":
+					config = { ...config, ...arrayField(id, customComponentSchema) };
+					break;
+				default:
+					config = { ...config, ...referenceKey(id) };
+			}
 			return;
 		}
+
 		const { uiType, children } = componentSchema;
 
 		switch (uiType) {
-			case "array-field":
-				config = { ...config, ...arrayField(id, componentSchema) };
-				break;
 			case "checkbox":
 				config = { ...config, ...checkbox(id, componentSchema) };
 				componentSchema.options.forEach((option) => {

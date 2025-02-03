@@ -593,8 +593,8 @@ describe("json-to-schema", () => {
 			${"withinDays (past)"}               | ${{ withinDays: { numberOfDays: -7 } }}                        | ${"2022-12-28"}
 			${"withinDays (from specific date)"} | ${{ withinDays: { numberOfDays: 5, fromDate: "2023-01-10" } }} | ${"2023-01-12"}
 			${"beyondDays (future)"}             | ${{ beyondDays: { numberOfDays: 7 } }}                         | ${"2023-01-09"}
-			${"beyondDays (past)"}               | ${{ beyondDays: { numberOfDays: -7 } }}                        | ${"2022-12-28"}
-			${"beyondDays (from specific date)"} | ${{ beyondDays: { numberOfDays: 5, fromDate: "2023-01-10" } }} | ${"2023-01-12"}
+			${"beyondDays (past)"}               | ${{ beyondDays: { numberOfDays: -7 } }}                        | ${"2022-12-24"}
+			${"beyondDays (from specific date)"} | ${{ beyondDays: { numberOfDays: 5, fromDate: "2023-01-10" } }} | ${"2023-01-16"}
 		`("should support $condition condition for conditionally rendered date fields", ({ config, valid }) => {
 			const schema = jsonToSchema({
 				section: {

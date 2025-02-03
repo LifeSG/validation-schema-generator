@@ -1,13 +1,13 @@
 import * as Yup from "yup";
-import { TFieldSchema } from "../schema-generator";
+import { TCustomFieldSchema, TFieldSchema } from "../schema-generator";
 
-export interface IFieldConfig<V extends TFieldSchema> {
+export interface IFieldConfig<V extends TFieldSchema | TCustomFieldSchema> {
 	yupSchema: Yup.AnySchema;
 	validation: V["validation"];
 }
 
-export type TFieldsConfig<T extends TFieldSchema> = Record<string, IFieldConfig<T>>;
+export type TFieldsConfig<T extends TFieldSchema | TCustomFieldSchema> = Record<string, IFieldConfig<T>>;
 
-export interface IFieldGenerator<T extends TFieldSchema> {
+export interface IFieldGenerator<T extends TFieldSchema | TCustomFieldSchema> {
 	(id: string, field: T): TFieldsConfig<T>;
 }

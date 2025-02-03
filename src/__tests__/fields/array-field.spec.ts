@@ -9,7 +9,7 @@ describe("array-field", () => {
 				uiType: "section",
 				children: {
 					field: {
-						uiType: "array-field",
+						referenceKey: "array-field",
 						somethingUnused: "test",
 						fieldSchema: {
 							text: {
@@ -38,7 +38,7 @@ describe("array-field", () => {
 				uiType: "section",
 				children: {
 					field: {
-						uiType: "array-field",
+						referenceKey: "array-field",
 						somethingUnused: "test",
 						fieldSchema: {
 							required: {
@@ -68,11 +68,11 @@ describe("array-field", () => {
 				uiType: "section",
 				children: {
 					field: {
-						uiType: "array-field",
+						referenceKey: "array-field",
 						somethingUnused: "test",
 						fieldSchema: {
 							nested: {
-								uiType: "array-field",
+								referenceKey: "array-field",
 								fieldSchema: {
 									input: {
 										uiType: "text-field",

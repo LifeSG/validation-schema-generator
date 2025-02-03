@@ -190,9 +190,17 @@ interface ICustomComponentSchema {
 	[otherOptions: string]: unknown;
 }
 
+/** to support custom fields */
+export interface ICustomFieldSchemaBase<T, V = undefined, U = undefined> {
+	referenceKey: T;
+	uiType?: never | undefined;
+	validation?: (IValidationRule | V | U)[] | undefined;
+	showIf?: TRenderRules[] | undefined;
+	[otherOptions: string]: unknown;
+}
+
 /** field schemas only */
 export type TFieldSchema<V = undefined> =
-	| IArrayFieldSchema<V>
 	| ICheckboxSchema<V>
 	| IChipsSchema<V>
 	| IContactFieldSchema<V>
@@ -219,9 +227,15 @@ export type TFieldSchema<V = undefined> =
 	| ITimeFieldSchema<V>
 	| IUnitNumberFieldSchema<V>;
 
+/**
+ * custom fields schema only
+ */
+export type TCustomFieldSchema<V = undefined> = IArrayFieldSchema<V>;
+
 /** fields, elements, custom component schemas */
 export type TComponentSchema<V = undefined> =
 	| TFieldSchema<V>
+	| TCustomFieldSchema<V>
 	| IWrapperSchema
 	| IElementSchema
 	| ICustomComponentSchema;

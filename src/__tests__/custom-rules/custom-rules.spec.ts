@@ -203,7 +203,11 @@ describe("custom-rules", () => {
 				},
 			},
 		});
-		valid.forEach((validValues) => expect(() => schema.validateSync({ field: validValues })).not.toThrowError());
-		invalid.forEach((invalidValues) => expect(() => schema.validateSync({ field: invalidValues })).toThrowError());
+		valid.forEach((validValues: string) =>
+			expect(() => schema.validateSync({ field: validValues })).not.toThrowError()
+		);
+		invalid.forEach((invalidValues: string) =>
+			expect(() => schema.validateSync({ field: invalidValues })).toThrowError()
+		);
 	});
 });

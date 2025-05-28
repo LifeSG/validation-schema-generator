@@ -197,6 +197,15 @@ describe("YupHelper", () => {
 				TestHelper.getError(() => schema.validateSync({ field1: undefined, field2: "b", field3: "c" })).message
 			).toBe(ERROR_MESSAGE);
 		});
+
+		it("should only apply rules if available on the schema", () => {
+			const schema = YupHelper.mapRules(Yup.mixed(), [
+				{ filled: true, errorMessage: ERROR_MESSAGE },
+				{ matches: "/hello/", errorMessage: ERROR_MESSAGE_2 },
+				{ notMatches: "/hello/", errorMessage: ERROR_MESSAGE_2 },
+			]);
+			expect(TestHelper.getError(() => schema.validateSync(null))?.message).toBe(ERROR_MESSAGE);
+		});
 	});
 
 	describe("addRule", () => {

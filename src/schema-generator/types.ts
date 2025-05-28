@@ -81,6 +81,7 @@ interface IRule {
 	includes?: unknown | undefined;
 	excludes?: unknown | undefined;
 	uinfin?: boolean | undefined;
+	uen?: boolean | undefined;
 	equalsField?: string | undefined;
 	notEqualsField?: string | undefined;
 }

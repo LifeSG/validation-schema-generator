@@ -13,25 +13,26 @@ describe("custom-rules", () => {
 		jest.restoreAllMocks();
 	});
 	it.each`
-		type         | condition                 | uiType             | config                          | valid          | invalid
-		${"string"}  | ${"uinfin"}               | ${"text-field"}    | ${{ uinfin: true }}             | ${"S1234567D"} | ${"S1234567A"}
-		${"string"}  | ${"filled"}               | ${"text-field"}    | ${{ filled: true }}             | ${"hello"}     | ${undefined}
-		${"string"}  | ${"empty"}                | ${"text-field"}    | ${{ empty: true }}              | ${undefined}   | ${"hello"}
-		${"string"}  | ${"empty (empty string)"} | ${"text-field"}    | ${{ empty: true }}              | ${""}          | ${"hello"}
-		${"string"}  | ${"equals"}               | ${"text-field"}    | ${{ equals: "hello" }}          | ${"hello"}     | ${"hi"}
-		${"string"}  | ${"notEquals"}            | ${"text-field"}    | ${{ notEquals: "hello" }}       | ${"hi"}        | ${"hello"}
-		${"string"}  | ${"equalsField"}          | ${"text-field"}    | ${{ equalsField: "field1" }}    | ${"hello"}     | ${"help"}
-		${"string"}  | ${"equalsField (empty)"}  | ${"text-field"}    | ${{ equalsField: "field1" }}    | ${undefined}   | ${"help"}
-		${"string"}  | ${"notMatches"}           | ${"text-field"}    | ${{ notMatches: "/^(hello)/" }} | ${"hi"}        | ${"hello"}
-		${"number"}  | ${"filled"}               | ${"numeric-field"} | ${{ filled: true }}             | ${1}           | ${undefined}
-		${"number"}  | ${"empty"}                | ${"numeric-field"} | ${{ empty: true }}              | ${undefined}   | ${1}
-		${"number"}  | ${"equals"}               | ${"numeric-field"} | ${{ equals: 1 }}                | ${1}           | ${2}
-		${"number"}  | ${"notEquals"}            | ${"numeric-field"} | ${{ notEquals: 1 }}             | ${2}           | ${1}
-		${"number"}  | ${"equalsField"}          | ${"numeric-field"} | ${{ equalsField: "field1" }}    | ${10}          | ${11}
-		${"boolean"} | ${"filled"}               | ${"switch"}        | ${{ filled: true }}             | ${false}       | ${undefined}
-		${"boolean"} | ${"empty"}                | ${"switch"}        | ${{ empty: true }}              | ${undefined}   | ${false}
-		${"boolean"} | ${"equals"}               | ${"switch"}        | ${{ equals: true }}             | ${true}        | ${false}
-		${"boolean"} | ${"notEquals"}            | ${"switch"}        | ${{ notEquals: true }}          | ${false}       | ${true}
+		type         | condition                 | uiType             | config                          | valid           | invalid
+		${"string"}  | ${"uinfin"}               | ${"text-field"}    | ${{ uinfin: true }}             | ${"S1234567D"}  | ${"S1234567A"}
+		${"string"}  | ${"uen"}                  | ${"text-field"}    | ${{ uen: true }}                | ${"T09LL0001B"} | ${"T09LA0001B"}
+		${"string"}  | ${"filled"}               | ${"text-field"}    | ${{ filled: true }}             | ${"hello"}      | ${undefined}
+		${"string"}  | ${"empty"}                | ${"text-field"}    | ${{ empty: true }}              | ${undefined}    | ${"hello"}
+		${"string"}  | ${"empty (empty string)"} | ${"text-field"}    | ${{ empty: true }}              | ${""}           | ${"hello"}
+		${"string"}  | ${"equals"}               | ${"text-field"}    | ${{ equals: "hello" }}          | ${"hello"}      | ${"hi"}
+		${"string"}  | ${"notEquals"}            | ${"text-field"}    | ${{ notEquals: "hello" }}       | ${"hi"}         | ${"hello"}
+		${"string"}  | ${"equalsField"}          | ${"text-field"}    | ${{ equalsField: "field1" }}    | ${"hello"}      | ${"help"}
+		${"string"}  | ${"equalsField (empty)"}  | ${"text-field"}    | ${{ equalsField: "field1" }}    | ${undefined}    | ${"help"}
+		${"string"}  | ${"notMatches"}           | ${"text-field"}    | ${{ notMatches: "/^(hello)/" }} | ${"hi"}         | ${"hello"}
+		${"number"}  | ${"filled"}               | ${"numeric-field"} | ${{ filled: true }}             | ${1}            | ${undefined}
+		${"number"}  | ${"empty"}                | ${"numeric-field"} | ${{ empty: true }}              | ${undefined}    | ${1}
+		${"number"}  | ${"equals"}               | ${"numeric-field"} | ${{ equals: 1 }}                | ${1}            | ${2}
+		${"number"}  | ${"notEquals"}            | ${"numeric-field"} | ${{ notEquals: 1 }}             | ${2}            | ${1}
+		${"number"}  | ${"equalsField"}          | ${"numeric-field"} | ${{ equalsField: "field1" }}    | ${10}           | ${11}
+		${"boolean"} | ${"filled"}               | ${"switch"}        | ${{ filled: true }}             | ${false}        | ${undefined}
+		${"boolean"} | ${"empty"}                | ${"switch"}        | ${{ empty: true }}              | ${undefined}    | ${false}
+		${"boolean"} | ${"equals"}               | ${"switch"}        | ${{ equals: true }}             | ${true}         | ${false}
+		${"boolean"} | ${"notEquals"}            | ${"switch"}        | ${{ notEquals: true }}          | ${false}        | ${true}
 	`("should support $condition condition for Yup $type type", ({ uiType, config, valid, invalid }) => {
 		const schema = jsonToSchema({
 			section: {
@@ -186,37 +187,27 @@ describe("custom-rules", () => {
 		expect(error.errors).toContain(ERROR_MESSAGE);
 	});
 
-	describe("uinfin", () => {
-		it("should pass when given a valid uinfin", async () => {
-			const schema = jsonToSchema({
-				section: {
-					uiType: "section",
-					children: {
-						field: {
-							uiType: "text-field",
-							validation: [{ uinfin: true }],
-						},
+	it.each`
+		type        | config              | valid                                                                | invalid
+		${"uinfin"} | ${{ uinfin: true }} | ${["S1111111D", "T8017681Z", "F4769209K", "G5825195Q", "M1234567K"]} | ${["S1234567A"]}
+		${"uen"}    | ${{ uen: true }}    | ${["200012345A", "12345678A", "T09LL0001B"]}                         | ${["1234A567A", "T09L10001B"]}
+	`("should validate $type value", ({ config, valid, invalid }) => {
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "text-field",
+						validation: [{ ...config, errorMessage: ERROR_MESSAGE }],
 					},
 				},
-			});
-			["S1111111D", "T8017681Z", "F4769209K", "G5825195Q", "M1234567K"].forEach((uinfin) =>
-				expect(() => schema.validateSync({ field: uinfin })).not.toThrowError()
-			);
+			},
 		});
-
-		it("should fail when given an invalid uinfin", () => {
-			const schema = jsonToSchema({
-				section: {
-					uiType: "section",
-					children: {
-						field: {
-							uiType: "text-field",
-							validation: [{ uinfin: true, errorMessage: ERROR_MESSAGE }],
-						},
-					},
-				},
-			});
-			expect(TestHelper.getError(() => schema.validateSync({ field: "S1234567A" })).message).toBe(ERROR_MESSAGE);
-		});
+		valid.forEach((validValues: string) =>
+			expect(() => schema.validateSync({ field: validValues })).not.toThrowError()
+		);
+		invalid.forEach((invalidValues: string) =>
+			expect(() => schema.validateSync({ field: invalidValues })).toThrowError()
+		);
 	});
 });

@@ -145,7 +145,7 @@ export namespace YupHelper {
 				if ((yupSchema as unknown)[customRuleKey]) {
 					yupSchema = (yupSchema as unknown)[customRuleKey](rule[customRuleKey], rule.errorMessage);
 				} else {
-					console.warn(`error applying "${customRuleKey}" condition to ${yupSchema.type} schema`);
+					console.error(`error applying "${customRuleKey}" condition to ${yupSchema.type} schema`);
 				}
 			}
 		});

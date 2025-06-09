@@ -1,5 +1,6 @@
 // mostly copied from mol-lib-api-contract
 import { addRule } from "../schema-generator";
+import isEmpty from "lodash/isEmpty";
 
 enum EUinfinType {
 	LOCAL_S_PREFIX = "S",
@@ -56,4 +57,8 @@ function getUinfinChecksum(uinfin: string): string {
 	return checkSum;
 }
 
-export const uinfin = () => addRule("string", "uinfin", (uinfin: string) => validateUinfin(uinfin));
+export const uinfin = () =>
+	addRule("string", "uinfin", (uinfin: string) => {
+		if (isEmpty(uinfin)) return true;
+		return validateUinfin(uinfin);
+	});

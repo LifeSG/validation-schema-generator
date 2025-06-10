@@ -1,4 +1,5 @@
 import { addRule } from "../schema-generator";
+import isEmpty from "lodash/isEmpty";
 
 const ENTITY_TYPE_INDICATORS = [
 	"LP",
@@ -70,4 +71,8 @@ function validateUen(uen: string): boolean {
 	return false;
 }
 
-export const uen = () => addRule("string", "uen", (uen: string) => validateUen(uen));
+export const uen = () =>
+	addRule("string", "uen", (uen: string) => {
+		if (isEmpty(uen)) return true;
+		return validateUen(uen);
+	});

@@ -6,8 +6,7 @@ import { DateTimeHelper } from "../../utils";
 import { IFieldGenerator } from "../types";
 import { IDateRangeFieldSchema } from "./types";
 
-const isEmptyValue = (value: { from: string; to: string }) =>
-	!value || !value.from || !value.to || value.from === "" || value.to === "";
+const isEmptyValue = (value: { from: string; to: string }) => !value || !value.from || !value.to;
 
 const isValidDate = (value: string, formatter: DateTimeFormatter): boolean => {
 	if (!value || value === ERROR_MESSAGES.DATE.INVALID) return false;

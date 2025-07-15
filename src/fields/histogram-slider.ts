@@ -27,7 +27,7 @@ export const histogramSlider: IFieldGenerator<IHistogramSlider> = (id, { bins, i
 					"is-required",
 					isRequiredRule?.["errorMessage"] || ERROR_MESSAGES.COMMON.REQUIRED_OPTIONS,
 					(value) => {
-						if (!value || !isRequiredRule) return true;
+						if (!value || !isRequiredRule?.required) return true;
 						return !isNil(value.from) && !isNil(value.to);
 					}
 				)

@@ -118,6 +118,14 @@ describe("date-range-field", () => {
 			expect(TestHelper.getError(() => schema.validateSync({ field: invalid })).message).toBe(ERROR_MESSAGE);
 		});
 
+		it("should skip rule if value is empty", () => {
+			expect(() => schema.validateSync({ field: {} })).not.toThrowError();
+			expect(() => schema.validateSync({ field: { from: undefined, to: undefined } })).not.toThrowError();
+			expect(() => schema.validateSync({ field: { from: "", to: "" } })).not.toThrowError();
+			expect(() => schema.validateSync({ field: { from: valid.from } })).not.toThrowError();
+			expect(() => schema.validateSync({ field: { to: valid.to } })).not.toThrowError();
+		});
+
 		it("should use default error message if error message is not specified", () => {
 			schema = jsonToSchema({
 				section: {

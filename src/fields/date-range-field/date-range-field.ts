@@ -6,6 +6,9 @@ import { DateTimeHelper } from "../../utils";
 import { IFieldGenerator } from "../types";
 import { IDateRangeFieldSchema } from "./types";
 
+const isEmptyValue = (value: { from: string; to: string }) =>
+	!value || !value.from || !value.to || value.from === "" || value.to === "";
+
 const isValidDate = (value: string, formatter: DateTimeFormatter): boolean => {
 	if (!value || value === ERROR_MESSAGES.DATE.INVALID) return false;
 	try {
@@ -47,13 +50,12 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 					"is-empty-string",
 					isRequiredRule?.errorMessage || ERROR_MESSAGES.DATE_RANGE.REQUIRED,
 					(value) => {
-						if (!value || !isRequiredRule) return true;
-						return value.from?.length > 0 && value.to?.length > 0;
+						if (!value || !isRequiredRule || !isRequiredRule.required) return true;
+						return !isEmptyValue(value);
 					}
 				)
 				.test("is-date", ERROR_MESSAGES.DATE_RANGE.INVALID, (value) => {
-					if (!value || value.from === "" || value.to === "") return true;
-					if (value.from === undefined || value.to === undefined) return true;
+					if (isEmptyValue(value)) return true;
 					if (!isValidDate(value.from, dateFormatter) || !isValidDate(value.to, dateFormatter)) return false;
 					return (
 						!!DateTimeHelper.toLocalDateOrTime(value.from, dateFormat, "date") ||
@@ -62,6 +64,7 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 				})
 				.test("future", futureRule?.errorMessage || ERROR_MESSAGES.DATE_RANGE.MUST_BE_FUTURE, (value) => {
 					if (
+						isEmptyValue(value) ||
 						!isValidDate(value.from, dateFormatter) ||
 						!isValidDate(value.to, dateFormatter) ||
 						!futureRule?.["future"]
@@ -74,6 +77,7 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 				})
 				.test("past", pastRule?.errorMessage || ERROR_MESSAGES.DATE_RANGE.MUST_BE_PAST, (value) => {
 					if (
+						isEmptyValue(value) ||
 						!isValidDate(value.from, dateFormatter) ||
 						!isValidDate(value.to, dateFormatter) ||
 						!pastRule?.["past"]
@@ -90,6 +94,7 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 					(value) => {
 						if (variant === "week") return true;
 						if (
+							isEmptyValue(value) ||
 							!isValidDate(value.from, dateFormatter) ||
 							!isValidDate(value.to, dateFormatter) ||
 							!notFutureRule?.["notFuture"]
@@ -103,6 +108,7 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 				.test("not-past", notPastRule?.errorMessage || ERROR_MESSAGES.DATE_RANGE.CANNOT_BE_PAST, (value) => {
 					if (variant === "week") return true;
 					if (
+						isEmptyValue(value) ||
 						!isValidDate(value.from, dateFormatter) ||
 						!isValidDate(value.to, dateFormatter) ||
 						!notPastRule?.["notPast"]
@@ -120,6 +126,7 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 						),
 					(value) => {
 						if (
+							isEmptyValue(value) ||
 							!isValidDate(value.from, dateFormatter) ||
 							!isValidDate(value.to, dateFormatter) ||
 							!minDate
@@ -139,6 +146,7 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 						),
 					(value) => {
 						if (
+							isEmptyValue(value) ||
 							!isValidDate(value.from, dateFormatter) ||
 							!isValidDate(value.to, dateFormatter) ||
 							!maxDate
@@ -156,6 +164,7 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 					(value) => {
 						if (variant === "week") return true;
 						if (
+							isEmptyValue(value) ||
 							!isValidDate(value.from, dateFormatter) ||
 							!isValidDate(value.to, dateFormatter) ||
 							!excludedDatesRule
@@ -184,6 +193,7 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 					(value) => {
 						if (variant === "week") return true;
 						if (
+							isEmptyValue(value) ||
 							!isValidDate(value.from, dateFormatter) ||
 							!isValidDate(value.to, dateFormatter) ||
 							!noOfDaysRule?.["numberOfDays"]

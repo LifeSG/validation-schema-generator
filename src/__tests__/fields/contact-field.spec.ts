@@ -109,6 +109,29 @@ describe("contact-field", () => {
 			expect(() => schema.validateSync({ field: "+86 131-5558-5558" })).not.toThrowError();
 		});
 
+		it("should accept phone number without white space", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "contact-field",
+							somethingUnused: "test",
+							validation: [{ contactNumber: { internationalNumber: true }, errorMessage: ERROR_MESSAGE }],
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({ field: "+390653980905" })).not.toThrowError();
+			expect(() => schema.validateSync({ field: "+441624-675663" })).not.toThrowError();
+			expect(() => schema.validateSync({ field: "+6003-9875-9036" })).not.toThrowError();
+			expect(() => schema.validateSync({ field: "+612-1255-3456" })).not.toThrowError();
+			expect(() => schema.validateSync({ field: "+8197-958-4362" })).not.toThrowError();
+			expect(() => schema.validateSync({ field: "+6591234567" })).not.toThrowError();
+			expect(() => schema.validateSync({ field: "+84327016348" })).not.toThrowError();
+		});
+
 		it("should accept ambiguous calling codes as long as it is valid in a country", () => {
 			const schema = jsonToSchema({
 				section: {
@@ -169,13 +192,13 @@ describe("contact-field", () => {
 			expect(TestHelper.getError(() => schema.validateSync({ field: "+11 52-1234-5678" })).message).toBe(
 				ERROR_MESSAGE
 			); // invalid calling code
-			expect(TestHelper.getError(() => schema.validateSync({ field: "+81 0-1234-5678" })).message).toBe(
+			expect(TestHelper.getError(() => schema.validateSync({ field: "+84 0-1234-5678" })).message).toBe(
 				ERROR_MESSAGE
 			); // invalid area code
-			expect(TestHelper.getError(() => schema.validateSync({ field: "+81 8811 2211" })).message).toBe(
+			expect(TestHelper.getError(() => schema.validateSync({ field: "+84 8811 2211" })).message).toBe(
 				ERROR_MESSAGE
 			); // invalid number
-			expect(TestHelper.getError(() => schema.validateSync({ field: "+81 52 123-45678" })).message).toBe(
+			expect(TestHelper.getError(() => schema.validateSync({ field: "+84 52 123-45678" })).message).toBe(
 				ERROR_MESSAGE
 			); // invalid spaces
 		});
@@ -194,18 +217,14 @@ describe("contact-field", () => {
 				},
 			});
 
-			expect(TestHelper.getError(() => schema.validateSync({ field: "+2 20-1255-3456" })).message).toBe(
+			expect(TestHelper.getError(() => schema.validateSync({ field: "+999 123456789" })).message).toBe(
 				ERROR_MESSAGE
 			); // invalid calling code
-			expect(TestHelper.getError(() => schema.validateSync({ field: "+61 1-1255-3456" })).message).toBe(
+			expect(TestHelper.getError(() => schema.validateSync({ field: "+1 000-000-0000" })).message).toBe(
 				ERROR_MESSAGE
-			); // invalid area code
-			expect(TestHelper.getError(() => schema.validateSync({ field: "+44 20-8759-903" })).message).toBe(
-				ERROR_MESSAGE
-			); // invalid number
-			expect(TestHelper.getError(() => schema.validateSync({ field: "+81 97 958-43623" })).message).toBe(
-				ERROR_MESSAGE
-			); // invalid spaces
+			); // invalid number format
+			expect(TestHelper.getError(() => schema.validateSync({ field: "+44 123" })).message).toBe(ERROR_MESSAGE); // too short
+			expect(TestHelper.getError(() => schema.validateSync({ field: "123456789" })).message).toBe(ERROR_MESSAGE); // missing country code
 		});
 
 		it("should use default error message if error message is not specified", () => {

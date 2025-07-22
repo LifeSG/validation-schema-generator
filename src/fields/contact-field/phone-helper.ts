@@ -1,4 +1,4 @@
-import { CountryCode, parsePhoneNumber } from "libphonenumber-js";
+import { CountryCode, parsePhoneNumber, parsePhoneNumberFromString } from "libphonenumber-js";
 import { CountryData } from "./data";
 import { TCountry } from "./types";
 
@@ -12,6 +12,15 @@ const SINGAPORE_MOBILE_NUMBER_REGEX = /^(?!\+?6599)(?!^\+65\d{6}$)^(?:\+?(?:65)?
 
 export namespace PhoneHelper {
 	export const getParsedPhoneNumber = (value: string): IParsedPhoneNumber => {
+		const parsedValue = parsePhoneNumberFromString(value);
+		if (parsedValue) {
+			// Use countryCallingCode (string, without '+')
+			return {
+				prefix: parsedValue.countryCallingCode || "",
+				number: parsedValue.nationalNumber || "",
+			};
+		}
+		// fallback to split for manual input
 		const parsedValues = value.split(" ");
 		const hasPrefix = parsedValues.length > 1;
 
@@ -52,6 +61,8 @@ export namespace PhoneHelper {
 					? data[3] === replacedPrefix && data[0].toLowerCase() === countryName.toLowerCase()
 					: data[3] === replacedPrefix;
 			});
+
+			if (!countries.length) return false;
 
 			/**
 			 * this is not a foolproof way to determine a country by the calling code

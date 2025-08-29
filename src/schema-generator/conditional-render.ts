@@ -91,6 +91,10 @@ const parseChildrenConditionalRenders = (
 ) => {
 	let parsedYupSchema: ObjectShape = { ...yupSchema };
 
+	if (isEmpty(childrenSchema) || !isObject(childrenSchema)) {
+		return parsedYupSchema;
+	}
+
 	const parseIfValidChildren = (children: Record<string, TComponentSchema>) => {
 		if (!isEmpty(children) && isObject(children)) {
 			parsedYupSchema = {

@@ -105,6 +105,26 @@ describe("json-to-schema", () => {
 			expect(error.inner[0].message).toBe(ERROR_MESSAGE);
 		});
 
+		it("should gracefully handle missing schema children", () => {
+			const schema = jsonToSchema({
+				section1: {
+					uiType: "section",
+					children: undefined as any,
+				},
+				section2: {
+					uiType: "section",
+					children: {
+						div: {
+							uiType: "div",
+							children: undefined as any,
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({})).not.toThrowError();
+		});
+
 		describe("overrides", () => {
 			const SCHEMA: TSectionsSchema = {
 				section: {

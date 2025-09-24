@@ -137,7 +137,7 @@ describe("file-upload", () => {
 			).toBe(ERROR_MESSAGES.UPLOAD().INVALID);
 		});
 
-		it("should reject for multipart uploads if submitted values do not contain fileUrl", async () => {
+		it("should accept for multipart uploads even when fileUrl is not provided", async () => {
 			const schema = jsonToSchema({
 				section: {
 					uiType: "section",
@@ -154,9 +154,7 @@ describe("file-upload", () => {
 			expect(
 				async () => await schema.validate({ field: [{ fileName: FILENAME, fileUrl: "https://www.test.tld" }] })
 			).not.toThrowError();
-			expect(
-				(await TestHelper.getAsyncError(() => schema.validate({ field: [{ fileName: FILENAME }] }))).message
-			).toBe(ERROR_MESSAGES.UPLOAD().INVALID);
+			expect(async () => await schema.validate({ field: [{ fileName: FILENAME }] })).not.toThrowError();
 		});
 
 		it("should reject for multipart uploads if submitted values contains dataURL", async () => {

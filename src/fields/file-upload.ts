@@ -38,7 +38,7 @@ export const fileUpload: IFieldGenerator<IFileUploadSchema> = (id, { uploadOnAdd
 						dataURL: Yup.string(),
 						fileId: Yup.string(),
 						fileName: Yup.string(),
-						fileUrl: Yup.string().url(),
+						fileUrl: Yup.string().url().optional(),
 						uploadResponse: Yup.object(),
 					})
 				)
@@ -111,7 +111,7 @@ export const fileUpload: IFieldGenerator<IFileUploadSchema> = (id, { uploadOnAdd
 						}
 					} else if (uploadOnAddingFile.type === "multipart") {
 						for (const file of value) {
-							if (!file.fileUrl || file.dataURL) {
+							if (file.dataURL) {
 								isValid = false;
 								break;
 							}

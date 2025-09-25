@@ -20,6 +20,10 @@ export const getFieldSortOrder = (sections: TSectionsSchema): Record<string, num
 const generateFieldDependencies = (childrenSchema: Record<string, TComponentSchema>) => {
 	let dependencies: Record<string, string[]> = {};
 
+	if (isEmpty(childrenSchema) || !isObject(childrenSchema)) {
+		return dependencies;
+	}
+
 	Object.entries(childrenSchema).forEach(([id, componentSchema]) => {
 		dependencies[id] = [];
 

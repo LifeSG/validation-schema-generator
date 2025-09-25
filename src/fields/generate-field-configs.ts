@@ -47,6 +47,11 @@ export const generateFieldConfigs = (sections: TSectionsSchema) => {
 
 const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentSchema>) => {
 	let config: TFieldsConfig<TFieldSchema | TCustomFieldSchema> = {};
+
+	if (isEmpty(childrenSchema) || !isObject(childrenSchema)) {
+		return config;
+	}
+
 	Object.entries(childrenSchema).forEach(([id, componentSchema]) => {
 		if ("referenceKey" in componentSchema) {
 			const customComponentSchema = componentSchema as TCustomFieldSchema;

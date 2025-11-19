@@ -16,21 +16,21 @@ export interface IArrayFieldSchema<V = undefined>
 
 export const arrayField: IFieldGenerator<IArrayFieldSchema> = (id, { fieldSchema, validation }) => {
 	const isRequiredRule = validation?.find((rule) => "required" in rule);
-	const schema = jsonToSchema({ section: { uiType: "section", children: fieldSchema } });
+
+	// Create fresh schema instance per array item to prevent mutation conflicts during parallel async validation
+	const itemSchema = Yup.lazy(() => jsonToSchema({ section: { uiType: "section", children: fieldSchema } }));
 
 	return {
 		[id]: {
-			yupSchema: Yup.array()
-				.of(schema)
-				.test(
-					"is-empty-array",
-					isRequiredRule?.errorMessage || ERROR_MESSAGES.ARRAY_FIELD.REQUIRED,
-					(value) => {
-						if (!value || !isRequiredRule?.required) return true;
+			yupSchema: Yup.array(itemSchema).test(
+				"is-empty-array",
+				isRequiredRule?.errorMessage || ERROR_MESSAGES.ARRAY_FIELD.REQUIRED,
+				(value) => {
+					if (!value || !isRequiredRule?.required) return true;
 
-						return value.length > 0 && value.some((item) => !isEmpty(item));
-					}
-				),
+					return value.length > 0 && value.some((item) => !isEmpty(item));
+				}
+			),
 			validation,
 		},
 	};

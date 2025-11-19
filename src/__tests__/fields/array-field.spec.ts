@@ -1,6 +1,6 @@
 import { jsonToSchema } from "../../schema-generator";
 import { TestHelper } from "../../utils";
-import { ERROR_MESSAGE, ERROR_MESSAGE_2 } from "../common";
+import { ERROR_MESSAGE, ERROR_MESSAGE_2, ERROR_MESSAGE_3 } from "../common";
 
 describe("array-field", () => {
 	it("should be able to generate a validation schema", () => {
@@ -90,5 +90,53 @@ describe("array-field", () => {
 		expect(TestHelper.getError(() => schema.validateSync({ field: [{ nested: [{ input: "" }] }] })).message).toBe(
 			ERROR_MESSAGE
 		);
+	});
+
+	it("should validate each array item independently with async validation", async () => {
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					items: {
+						referenceKey: "array-field",
+						fieldSchema: {
+							type: {
+								uiType: "select",
+								options: [
+									{ label: "Type A", value: "A" },
+									{ label: "Type B", value: "B" },
+									{ label: "Other", value: "other" },
+								],
+							},
+							description: {
+								uiType: "text-field",
+								label: "Description",
+								showIf: [
+									{
+										type: [{ filled: true }, { equals: "other" }],
+									},
+								],
+								validation: [{ required: true, errorMessage: ERROR_MESSAGE_3 }],
+							},
+						},
+					},
+				},
+			},
+		});
+
+		await expect(
+			schema.validate({ items: [{ type: "other", description: "Custom type" }] })
+		).resolves.toBeDefined();
+		await expect(schema.validate({ items: [{ type: "A" }] })).resolves.toBeDefined();
+		await expect(schema.validate({ items: [{ type: "other" }] })).rejects.toThrow(ERROR_MESSAGE_3);
+		await expect(
+			schema.validate({ items: [{ type: "other", description: "Custom type" }, { type: "A" }] })
+		).resolves.toBeDefined();
+		await expect(
+			schema.validate({ items: [{ type: "other", description: "Custom type" }, { type: "other" }] })
+		).rejects.toThrow(ERROR_MESSAGE_3);
+		await expect(
+			schema.validate({ items: [{ type: "other", description: "Custom type" }, { type: "A" }] })
+		).resolves.toBeDefined();
 	});
 });

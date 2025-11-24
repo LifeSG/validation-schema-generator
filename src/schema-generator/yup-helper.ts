@@ -87,10 +87,10 @@ export namespace YupHelper {
 					{
 						const matches = rule.matches.match(/\/(.*)\/([a-z]+)?/);
 						try {
-							yupSchema = (yupSchema as Yup.StringSchema).matches(
-								new RegExp(matches[1], matches[2]),
-								rule.errorMessage
-							);
+							yupSchema = (yupSchema as Yup.StringSchema).matches(new RegExp(matches[1], matches[2]), {
+								excludeEmptyString: true,
+								message: rule.errorMessage,
+							});
 						} catch (error) {
 							console.error(`error applying "${condition}" condition to ${yupSchema.type} schema`);
 						}

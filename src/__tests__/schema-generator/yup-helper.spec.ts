@@ -56,6 +56,13 @@ describe("YupHelper", () => {
 			);
 		});
 
+		it("should ignore matches validation for empty string (excludeEmptyString)", () => {
+			const schema = YupHelper.mapRules(YupHelper.mapSchemaType("string"), [
+				{ matches: "/^hello/", errorMessage: ERROR_MESSAGE },
+			]);
+			expect(() => schema.validateSync("")).not.toThrowError();
+		});
+
 		const generateConditionalSchema = (type: TYupSchemaType, is: any) =>
 			Yup.object().shape({
 				field1: YupHelper.mapRules(YupHelper.mapSchemaType(type), [

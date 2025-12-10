@@ -73,10 +73,10 @@ export namespace YupHelper {
 					}
 					break;
 				case rule.length > 0:
-				case rule.min > 0:
-				case rule.max > 0:
-				case !!rule.lessThan:
-				case !!rule.moreThan:
+				case !isNaN(rule.min):
+				case !isNaN(rule.max):
+				case !isNaN(rule.lessThan):
+				case !isNaN(rule.moreThan):
 					try {
 						yupSchema = (yupSchema as unknown)[condition](rule[condition], rule.errorMessage);
 					} catch (error) {

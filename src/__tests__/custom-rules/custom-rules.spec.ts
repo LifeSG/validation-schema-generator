@@ -28,6 +28,7 @@ describe("custom-rules", () => {
 		${"string"}  | ${"equalsField"}           | ${"text-field"}    | ${{ equalsField: "field1" }}    | ${"hello"}      | ${"help"}
 		${"string"}  | ${"equalsField (empty)"}   | ${"text-field"}    | ${{ equalsField: "field1" }}    | ${undefined}    | ${"help"}
 		${"string"}  | ${"notMatches"}            | ${"text-field"}    | ${{ notMatches: "/^(hello)/" }} | ${"hi"}         | ${"hello"}
+		${"string"}  | ${"noWhitespaceOnly"}      | ${"text-field"}    | ${{ noWhitespaceOnly: true }}   | ${"  .  "}      | ${"      "}
 		${"number"}  | ${"filled"}                | ${"numeric-field"} | ${{ filled: true }}             | ${1}            | ${undefined}
 		${"number"}  | ${"empty"}                 | ${"numeric-field"} | ${{ empty: true }}              | ${undefined}    | ${1}
 		${"number"}  | ${"equals"}                | ${"numeric-field"} | ${{ equals: 1 }}                | ${1}            | ${2}

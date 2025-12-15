@@ -18,6 +18,13 @@ export const notMatches = () =>
 		const parsedRegex = new RegExp(matches[1], matches[2]);
 		return !parsedRegex.test(value);
 	});
+export const noWhitespaceOnly = () =>
+	addRule("string", "noWhitespaceOnly", (value: string, noWhitespaceOnly: boolean) => {
+		if (ValueHelper.isEmpty(value) || !noWhitespaceOnly) {
+			return true;
+		}
+		return /\S/.test(value);
+	});
 export const withinDays = () =>
 	addRule("string", "withinDays", (value: string, withinDays: IDaysRangeRule) => {
 		if (isEmpty(value)) return true;

@@ -1,6 +1,7 @@
 import isEmpty from "lodash/isEmpty";
 import isEqual from "lodash/isEqual";
-import { IDaysRangeRule, addRule } from "../schema-generator";
+import isBoolean from "lodash/isBoolean";
+import { IDaysRangeRule, IWhitespaceRule, addRule } from "../schema-generator";
 import { DateTimeHelper, ValueHelper } from "../utils";
 
 export const filled = () => addRule("mixed", "filled", (value) => !ValueHelper.isEmpty(value));
@@ -18,12 +19,27 @@ export const notMatches = () =>
 		const parsedRegex = new RegExp(matches[1], matches[2]);
 		return !parsedRegex.test(value);
 	});
+/** @deprecated use `whitespace` */
 export const noWhitespaceOnly = () =>
 	addRule("string", "noWhitespaceOnly", (value: string, noWhitespaceOnly: boolean) => {
 		if (ValueHelper.isEmpty(value) || !noWhitespaceOnly) {
 			return true;
 		}
 		return /\S/.test(value);
+	});
+export const whitespace = () =>
+	addRule("string", "whitespace", (value: string, whitespace: IWhitespaceRule) => {
+		if (
+			ValueHelper.isEmpty(value) ||
+			!whitespace ||
+			(typeof whitespace === "object" && !isBoolean(whitespace.noLeadingOrTrailingWhitespace))
+		) {
+			return true;
+		}
+		if (typeof whitespace === "object" && !whitespace.noLeadingOrTrailingWhitespace) {
+			return /\S/.test(value);
+		}
+		return /^(?!\s+$)(?!\s).*(?<!\s)$/.test(value);
 	});
 export const withinDays = () =>
 	addRule("string", "withinDays", (value: string, withinDays: IDaysRangeRule) => {

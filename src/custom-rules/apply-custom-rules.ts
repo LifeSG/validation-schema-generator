@@ -3,7 +3,17 @@ import { excludes } from "./excludes";
 import { includes } from "./includes";
 import { uen } from "./uen";
 import { uinfin } from "./uinfin";
-import { beyondDays, empty, equals, filled, notEquals, notMatches, noWhitespaceOnly, withinDays } from "./values";
+import {
+	beyondDays,
+	empty,
+	equals,
+	filled,
+	notEquals,
+	notMatches,
+	noWhitespaceOnly,
+	whitespace,
+	withinDays,
+} from "./values";
 
 /**
  * applies inbuilt custom rules
@@ -18,6 +28,7 @@ export const applyCustomRules = () => {
 	filled();
 	notEquals();
 	noWhitespaceOnly();
+	whitespace();
 	notMatches();
 	equalsField();
 	notEqualsField();

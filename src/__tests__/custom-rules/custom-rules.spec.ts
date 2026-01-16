@@ -1,5 +1,5 @@
 import { LocalDate } from "@js-joda/core";
-import { jsonToSchema } from "../../schema-generator";
+import { IWhitespaceRule, jsonToSchema } from "../../schema-generator";
 import { TestHelper } from "../../utils";
 
 const ERROR_MESSAGE = "test error message";
@@ -12,6 +12,9 @@ describe("custom-rules", () => {
 	afterEach(() => {
 		jest.restoreAllMocks();
 	});
+	const nlotwTrue: IWhitespaceRule = { noLeadingOrTrailingWhitespace: true };
+	const nlotwFalse: IWhitespaceRule = { noLeadingOrTrailingWhitespace: false };
+
 	it.each`
 		type         | condition                  | uiType             | config                          | valid           | invalid
 		${"string"}  | ${"uinfin"}                | ${"text-field"}    | ${{ uinfin: true }}             | ${"S1234567D"}  | ${"S1234567A"}
@@ -29,6 +32,12 @@ describe("custom-rules", () => {
 		${"string"}  | ${"equalsField (empty)"}   | ${"text-field"}    | ${{ equalsField: "field1" }}    | ${undefined}    | ${"help"}
 		${"string"}  | ${"notMatches"}            | ${"text-field"}    | ${{ notMatches: "/^(hello)/" }} | ${"hi"}         | ${"hello"}
 		${"string"}  | ${"noWhitespaceOnly"}      | ${"text-field"}    | ${{ noWhitespaceOnly: true }}   | ${"  .  "}      | ${"      "}
+		${"string"}  | ${"whitespace"}            | ${"text-field"}    | ${{ whitespace: true }}         | ${""}           | ${"      "}
+		${"string"}  | ${"whitespace"}            | ${"text-field"}    | ${{ whitespace: true }}         | ${"hello   hi"} | ${"      "}
+		${"string"}  | ${"whitespace"}            | ${"text-field"}    | ${{ whitespace: nlotwTrue }}    | ${""}           | ${"      "}
+		${"string"}  | ${"whitespace"}            | ${"text-field"}    | ${{ whitespace: nlotwTrue }}    | ${"hello   hi"} | ${" hello  "}
+		${"string"}  | ${"whitespace"}            | ${"text-field"}    | ${{ whitespace: nlotwFalse }}   | ${""}           | ${"      "}
+		${"string"}  | ${"whitespace"}            | ${"text-field"}    | ${{ whitespace: nlotwFalse }}   | ${" hello  "}   | ${"      "}
 		${"number"}  | ${"filled"}                | ${"numeric-field"} | ${{ filled: true }}             | ${1}            | ${undefined}
 		${"number"}  | ${"empty"}                 | ${"numeric-field"} | ${{ empty: true }}              | ${undefined}    | ${1}
 		${"number"}  | ${"equals"}                | ${"numeric-field"} | ${{ equals: 1 }}                | ${1}            | ${2}

@@ -67,7 +67,6 @@ interface IRule {
 	max?: number | undefined;
 	matches?: string | undefined;
 	notMatches?: string | undefined;
-	noWhitespaceOnly?: boolean | undefined;
 	email?: boolean | undefined;
 	url?: boolean | undefined;
 	uuid?: boolean | undefined;
@@ -85,6 +84,11 @@ interface IRule {
 	uen?: boolean | undefined;
 	equalsField?: string | undefined;
 	notEqualsField?: string | undefined;
+	whitespace?: boolean | IWhitespaceRule | undefined;
+	/**
+	 * @deprecated Use `whitespace` rule instead.
+	 */
+	noWhitespaceOnly?: boolean | undefined;
 }
 
 export interface IValidationRule extends IRule {
@@ -266,4 +270,8 @@ export interface IDaysRangeRule {
 
 export interface IWithinDaysRangeRule extends IDaysRangeRule {
 	inclusive?: boolean | undefined;
+}
+
+export interface IWhitespaceRule {
+	noLeadingOrTrailingWhitespace?: boolean | undefined;
 }

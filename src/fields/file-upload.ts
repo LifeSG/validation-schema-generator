@@ -10,8 +10,11 @@ interface IFileUploadValidationRule extends IValidationRule {
 	fileType?: string[] | undefined;
 	/** max acceptable file size in kb */
 	maxSizeInKb?: number | undefined;
-	/** To be used with file types. When TRUE, checks that uploaded file extensions are within accepted file types  */
-	strictFileExt?: boolean | undefined;
+	/**
+	 * @example ["jpeg", "jpg"] // for .jpeg and .jpg extensions
+	 * @description Only works with fileType validation. Checks that uploaded files' extensions matches the specified extensions.
+	 */
+	strictFileExt?: string[] | undefined;
 }
 
 export interface IFileUploadSchema<V = undefined>
@@ -104,7 +107,7 @@ export const fileUpload: IFieldGenerator<IFileUploadSchema> = (id, { uploadOnAdd
 				.test(
 					"strict-file-ext",
 					strictFileExtRule?.errorMessage ||
-						ERROR_MESSAGES.UPLOAD().STRICT_FILE_EXT(fileTypeRule?.fileType || [""]),
+						ERROR_MESSAGES.UPLOAD().STRICT_FILE_EXT(strictFileExtRule?.strictFileExt || [""]),
 					async (value) => {
 						if (
 							!value ||
@@ -115,6 +118,7 @@ export const fileUpload: IFieldGenerator<IFileUploadSchema> = (id, { uploadOnAdd
 							return true;
 
 						let isValid = true;
+						const formattedStrictFileExts = strictFileExtRule.strictFileExt.map((ext) => ext.toLowerCase());
 
 						for (const file of value) {
 							const extensionFromFilename = file?.fileName
@@ -123,7 +127,7 @@ export const fileUpload: IFieldGenerator<IFileUploadSchema> = (id, { uploadOnAdd
 									: undefined
 								: undefined;
 
-							if (!extensionFromFilename || !fileTypeRule?.fileType?.includes(extensionFromFilename)) {
+							if (!extensionFromFilename || !formattedStrictFileExts.includes(extensionFromFilename)) {
 								isValid = false;
 								break;
 							}

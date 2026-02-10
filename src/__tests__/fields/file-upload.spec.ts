@@ -139,16 +139,17 @@ describe("file-upload", () => {
 		});
 
 		it.each([
-			[["jpg"], [{ fileName: FILENAME, dataURL: JPG_BASE64 }]],
+			[["jpg"], [{ fileName: FILENAME, dataURL: JPG_BASE64 }], ["jpg"]],
 			[
 				["jpg", "jpeg", "pdf", "png"],
 				[
 					{ fileName: FILENAME, dataURL: JPG_BASE64 },
 					{ fileName: "hello.jpeg", dataURL: JPG_1KB_BASE64 },
 				],
+				["JPG", "JPEG"],
 			],
-		])("should accept the expected fileTypes", async (acceptedFileTypes, files) => {
-			const validation = [{ fileType: acceptedFileTypes }, { strictFileExt: true }];
+		])("should accept the expected fileTypes", async (acceptedFileTypes, files, acceptedFileExtensions) => {
+			const validation = [{ fileType: acceptedFileTypes }, { strictFileExt: acceptedFileExtensions }];
 
 			schema = generateSchema(validation);
 			expect(
@@ -160,7 +161,7 @@ describe("file-upload", () => {
 		});
 
 		it("should reject files without expected fileTypes", async () => {
-			const validation = [{ fileType: ["pdf"] }, { strictFileExt: true }];
+			const validation = [{ fileType: ["pdf"] }, { strictFileExt: ["pdf"] }];
 
 			const files = [
 				{ fileName: "without-extension", dataURL: JPG_BASE64 },
@@ -182,31 +183,43 @@ describe("file-upload", () => {
 			expect(result.errors.includes(ERROR_MESSAGES.UPLOAD().STRICT_FILE_EXT(["pdf"]))).toEqual(true);
 		});
 
-		it("should reject jpeg files if not explicitly included in accepted fileTypes", async () => {
-			const validation = [{ fileType: ["jpg"] }, { strictFileExt: true }];
+		it.each([
+			[["jpg"], ["jpg"]],
+			[["jpg"], ["JPEG"]],
+		])(
+			"should reject files if not explicitly included in accepted fileTypes",
+			async (acceptedFileTypes, acceptedFileExtensions) => {
+				const validation = [{ fileType: acceptedFileTypes }, { strictFileExt: acceptedFileExtensions }];
 
-			const files = [
-				{ fileName: FILENAME, dataURL: JPG_BASE64 },
-				{ fileName: "hello.jpeg", dataURL: JPG_1KB_BASE64 },
-			];
-			schema = generateSchema(validation);
+				const files = [
+					{ fileName: "hello.jpeg", dataURL: JPG_1KB_BASE64 }, // passes fileType check, but fails first strictFileExt check
+					{ fileName: FILENAME, dataURL: JPG_BASE64 }, // passes fileType check, but fails second strictFileExt check
+				];
+				schema = generateSchema(validation);
 
-			const result = await TestHelper.getAsyncError(() =>
-				schema.validate(
-					{
-						field: files,
-					},
-					{ abortEarly: false }
-				)
-			);
+				const result = await TestHelper.getAsyncError(() =>
+					schema.validate(
+						{
+							field: files,
+						},
+						{ abortEarly: false }
+					)
+				);
 
-			expect(result.errors.length).toEqual(1);
-			expect(result.errors.includes(ERROR_MESSAGES.UPLOAD().STRICT_FILE_EXT(["jpg"]))).toEqual(true);
-		});
+				expect(result.errors.length).toEqual(1);
+				expect(result.errors.includes(ERROR_MESSAGES.UPLOAD().STRICT_FILE_EXT(acceptedFileExtensions))).toEqual(
+					true
+				);
+			}
+		);
 
 		it("should print the correct default error message", async () => {
 			const acceptedFileTypes = ["jpg", "jpeg", "pdf", "png"];
-			const validation = [{ fileType: acceptedFileTypes, errorMessage: ERROR_MESSAGE }, { strictFileExt: true }];
+
+			const validation = [
+				{ fileType: acceptedFileTypes, errorMessage: ERROR_MESSAGE },
+				{ strictFileExt: acceptedFileTypes },
+			];
 
 			const files = [
 				{ fileName: FILENAME, dataURL: JPG_BASE64 },
@@ -227,7 +240,7 @@ describe("file-upload", () => {
 		});
 
 		it("should allow default errorMessage to be overriden", async () => {
-			const validation = [{ fileType: ["jpg"] }, { strictFileExt: true, errorMessage: ERROR_MESSAGE }];
+			const validation = [{ fileType: ["jpg"] }, { strictFileExt: ["jpg"], errorMessage: ERROR_MESSAGE }];
 
 			const files = [
 				{ fileName: FILENAME, dataURL: JPG_BASE64 },

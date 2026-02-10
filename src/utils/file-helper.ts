@@ -16,13 +16,10 @@ export namespace FileHelper {
 	 * convert to uppercase
 	 * joins array with comma
 	 * add `or` before last extension
-	 * lists both .JPG and .JPEG
 	 */
 	export const extensionsToSentence = (list: string[]) => {
 		const formattedList = list.map((extension) => `.${extension.toUpperCase()}`);
-		const jpgIndex = formattedList.indexOf(".JPG");
-		if (jpgIndex > -1) formattedList.splice(jpgIndex + 1, 0, ".JPEG");
-		return new Intl.ListFormat("en-GB", { style: "long", type: "disjunction" }).format(formattedList);
+		return new Intl.ListFormat("en-GB", { style: "long", type: "disjunction" }).format(new Set(formattedList));
 	};
 
 	/**

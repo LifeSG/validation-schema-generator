@@ -68,9 +68,9 @@ export const ERROR_MESSAGES = {
 	UPLOAD: (unit = "file", unitPlural = `${unit}s`) => ({
 		DIMENSIONS: (width: number, height: number) => `Upload failed. ${unit} needs to be within ${width}x${height}.`,
 		FILE_TYPE: (fileTypes: string[]) =>
-			`Upload failed. Only ${FileHelper.extensionsToSentence(fileTypes)} ${
-				fileTypes.length !== 1 ? "files are" : "file is"
-			} accepted.`,
+			`Upload failed. Only ${FileHelper.extensionsToSentence(fileTypes, {
+				setBothJpegAndJpgIfEitherExists: true,
+			})} ${fileTypes.length !== 1 ? "files are" : "file is"} accepted.`,
 		MAX_FILES: (max: number) =>
 			`Upload failed. You can only upload maximum of ${max} ${max !== 1 ? unitPlural : unit}.`,
 		MAX_FILE_SIZE: (maxSize: number) =>

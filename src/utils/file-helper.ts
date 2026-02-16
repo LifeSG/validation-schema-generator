@@ -17,9 +17,36 @@ export namespace FileHelper {
 	 * joins array with comma
 	 * add `or` before last extension
 	 */
-	export const extensionsToSentence = (list: string[]) => {
-		const formattedList = list.map((extension) => `.${extension.toUpperCase()}`);
+	export const extensionsToSentence = (list: string[], options?: { setBothJpegAndJpgIfEitherExists?: boolean }) => {
+		let formattedList = list.map((extension) => `.${extension.toUpperCase()}`);
+
+		if (options?.setBothJpegAndJpgIfEitherExists) {
+			formattedList = setBothJpegAndJpgIfEitherExists(formattedList);
+		}
+
 		return new Intl.ListFormat("en-GB", { style: "long", type: "disjunction" }).format(new Set(formattedList));
+	};
+
+	// ensures both .JPG and .JPEG are included if at least either one is included
+	const setBothJpegAndJpgIfEitherExists = (list: string[]) => {
+		const newList = [...list];
+
+		const hasJpg = list.includes(".JPG");
+		const hasJpeg = list.includes(".JPEG");
+
+		// Return unchanged if both are present or neither is present
+		if ((hasJpg && hasJpeg) || (!hasJpg && !hasJpeg)) {
+			return newList;
+		}
+
+		const { index, toAdd } =
+			newList.indexOf(".JPG") > -1
+				? { index: newList.indexOf(".JPG"), toAdd: ".JPEG" }
+				: { index: newList.indexOf(".JPEG"), toAdd: ".JPG" };
+
+		newList.splice(index + 1, 0, toAdd);
+
+		return newList;
 	};
 
 	/**

@@ -10,6 +10,11 @@ interface IFileUploadValidationRule extends IValidationRule {
 	fileType?: string[] | undefined;
 	/** max acceptable file size in kb */
 	maxSizeInKb?: number | undefined;
+	/**
+	 * @example ["jpeg", "jpg"] // for .jpeg and .jpg extensions
+	 * @description Must work in conjunction with fileType validation. Checks that uploaded files' extensions matches the specified extensions.
+	 */
+	fileExtension?: string[] | undefined;
 }
 
 export interface IFileUploadSchema<V = undefined>
@@ -24,6 +29,7 @@ export const fileUpload: IFieldGenerator<IFileUploadSchema> = (id, { uploadOnAdd
 	const lengthRule = validation?.find((rule) => "length" in rule);
 	const maxRule = validation?.find((rule) => "max" in rule);
 	let maxFilesRule: { maxFiles: number; errorMessage?: string } = undefined;
+	const fileExtensionRule: IFileUploadValidationRule = validation?.find((rule) => "fileExtension" in rule);
 	if (lengthRule) {
 		maxFilesRule = { maxFiles: lengthRule.length, errorMessage: lengthRule.errorMessage };
 	} else if (maxRule) {
@@ -91,6 +97,37 @@ export const fileUpload: IFieldGenerator<IFileUploadSchema> = (id, { uploadOnAdd
 								? fileTypeRule.fileType?.includes(fileType.ext)
 								: true;
 							if (!validFileType) {
+								isValid = false;
+								break;
+							}
+						}
+						return isValid;
+					}
+				)
+				.test(
+					"file-extension",
+					fileExtensionRule?.errorMessage ||
+						ERROR_MESSAGES.UPLOAD().FILE_EXTENSION(fileExtensionRule?.fileExtension || [""]),
+					async (value) => {
+						if (
+							!value ||
+							!Array.isArray(value) ||
+							!fileTypeRule?.fileType ||
+							!fileExtensionRule?.fileExtension
+						)
+							return true;
+
+						let isValid = true;
+						const formattedFileExtensions = fileExtensionRule.fileExtension.map((ext) => ext.toLowerCase());
+
+						for (const file of value) {
+							const extensionFromFilename = file?.fileName
+								? file.fileName.includes(".")
+									? file.fileName.split(".").pop().toLowerCase()
+									: undefined
+								: undefined;
+
+							if (!extensionFromFilename || !formattedFileExtensions.includes(extensionFromFilename)) {
 								isValid = false;
 								break;
 							}

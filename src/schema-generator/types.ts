@@ -16,6 +16,7 @@ import {
 	IMultiSelectSchema,
 	INestedMultiSelectSchema,
 	INumericFieldSchema,
+	IOtpVerificationFieldSchema,
 	IRadioSchema,
 	IRangeSelectSchema,
 	ISelectSchema,
@@ -224,6 +225,7 @@ export type TFieldSchema<V = undefined> =
 	| IMultiSelectSchema<V>
 	| INestedMultiSelectSchema<V>
 	| INumericFieldSchema<V>
+	| IOtpVerificationFieldSchema<V>
 	| IRadioSchema<V>
 	| IRangeSelectSchema<V>
 	| ISelectSchema<V>

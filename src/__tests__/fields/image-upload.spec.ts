@@ -122,6 +122,94 @@ describe("image-upload", () => {
 	});
 
 	describe.each`
+		scenario                  | ruleValue      | validFileName  | invalidFileName
+		${"plain string pattern"} | ${"^hello"}    | ${"hello.jpg"} | ${"world.jpg"}
+		${"regex with flags"}     | ${"/^HELLO/i"} | ${"hello.jpg"} | ${"world.jpg"}
+	`("matches rule - $scenario", ({ ruleValue, validFileName, invalidFileName }) => {
+		let schema: Yup.ObjectSchema<ObjectShape>;
+
+		beforeEach(() => {
+			schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "image-upload",
+							validation: [{ matches: ruleValue, errorMessage: ERROR_MESSAGE }],
+						},
+					},
+				},
+			});
+		});
+
+		it("should accept if submitted value fulfills criteria", () => {
+			expect(
+				async () =>
+					await schema.validate({
+						field: [{ fileName: validFileName, dataURL: JPG_BASE64 }],
+					})
+			).not.toThrowError();
+		});
+
+		it("should reject if submitted value does not fulfill criteria", async () => {
+			expect(
+				(
+					await TestHelper.getAsyncError(() =>
+						schema.validate({
+							field: [{ fileName: invalidFileName, dataURL: JPG_BASE64 }],
+						})
+					)
+				).message
+			).toBe(ERROR_MESSAGE);
+		});
+
+		it("should use default error message if error message is not specified", async () => {
+			schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "image-upload",
+							validation: [{ matches: ruleValue }],
+						},
+					},
+				},
+			});
+
+			expect(
+				(
+					await TestHelper.getAsyncError(() =>
+						schema.validate({
+							field: [{ fileName: invalidFileName, dataURL: JPG_BASE64 }],
+						})
+					)
+				).message
+			).toBe(ERROR_MESSAGES.UPLOAD("photo").INVALID_FILE_NAME);
+		});
+	});
+
+	it("should skip matches validation if invalid regex is provided", () => {
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "image-upload",
+						validation: [{ matches: "[invalid" }],
+					},
+				},
+			},
+		});
+
+		expect(
+			async () =>
+				await schema.validate({
+					field: [{ fileName: FILENAME, dataURL: JPG_BASE64 }],
+				})
+		).not.toThrowError();
+	});
+
+	describe.each`
 		scenario            | prop                                                         | valid         | invalid           | errorMessage
 		${"dimensions"}     | ${{ compress: true, dimensions: { width: 10, height: 10 } }} | ${JPG_BASE64} | ${JPG_1KB_BASE64} | ${ERROR_MESSAGES.UPLOAD("photo").DIMENSIONS(10, 10)}
 		${"outputType=jpg"} | ${{ outputType: "jpg" }}                                     | ${JPG_BASE64} | ${PNG_BASE64}     | ${ERROR_MESSAGES.UPLOAD("photo").FILE_TYPE(["jpg"])}

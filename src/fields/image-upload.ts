@@ -30,6 +30,7 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 ) => {
 	const isRequiredRule = validation?.find((rule) => "required" in rule);
 	const maxFileSizeRule = validation?.find((rule) => "maxSizeInKb" in rule);
+	const matchesRule = validation?.find((rule) => "matches" in rule);
 
 	const lengthRule = validation?.find((rule) => "length" in rule);
 	const maxRule = validation?.find((rule) => "max" in rule);
@@ -113,6 +114,22 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 								fileDimensions?.width <= dimensions.width && fileDimensions?.height <= dimensions.height
 							);
 						});
+					}
+				)
+				.test(
+					"matches",
+					matchesRule?.errorMessage || ERROR_MESSAGES.UPLOAD("photo").INVALID_FILE_NAME,
+					(value) => {
+						if (!value || !Array.isArray(value) || !matchesRule?.matches) return true;
+						try {
+							const parsed = matchesRule.matches.match(/^\/(.+)\/([gimsuy]*)$/);
+							const pattern = parsed
+								? new RegExp(parsed[1], parsed[2] || "")
+								: new RegExp(matchesRule.matches);
+							return value.every((file) => pattern.test(file.fileName));
+						} catch {
+							return true;
+						}
 					}
 				),
 			validation,

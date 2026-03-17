@@ -15,7 +15,6 @@ interface IImageUploadValidationRule extends IValidationRule {
 	// rule is supported but no validation is needed as it only needs to validation the outputType
 	fileType?: TImageUploadAcceptedFileType[] | undefined;
 	maxSizeInKb?: number | undefined;
-	matches?: string | undefined;
 }
 
 export interface IImageUploadSchema<V = undefined>

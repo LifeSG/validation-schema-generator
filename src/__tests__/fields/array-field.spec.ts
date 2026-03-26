@@ -139,4 +139,123 @@ describe("array-field", () => {
 			schema.validate({ items: [{ type: "other", description: "Custom type" }, { type: "A" }] })
 		).resolves.toBeDefined();
 	});
+
+	describe("unique validation", () => {
+		it("should validate unique field values across array items", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						fruits: {
+							referenceKey: "array-field",
+							fieldSchema: {
+								name: {
+									uiType: "text-field",
+								},
+							},
+							validation: [
+								{
+									unique: [{ field: "name", errorMessage: ERROR_MESSAGE }],
+									errorMessage: ERROR_MESSAGE,
+								},
+							],
+						},
+					},
+				},
+			});
+
+			// Valid - all unique values
+			expect(() =>
+				schema.validateSync({
+					fruits: [{ name: "Apple" }, { name: "Banana" }],
+				})
+			).not.toThrowError();
+
+			// Invalid - duplicate name
+			expect(
+				TestHelper.getError(() =>
+					schema.validateSync({
+						fruits: [{ name: "Apple" }, { name: "Apple" }],
+					})
+				).message
+			).toBe(ERROR_MESSAGE);
+		});
+
+		it("should validate multiple unique fields", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						fruits: {
+							referenceKey: "array-field",
+							fieldSchema: {
+								name: {
+									uiType: "text-field",
+								},
+								colour: {
+									uiType: "text-field",
+								},
+							},
+							validation: [
+								{
+									unique: [{ field: "name" }, { field: "colour" }],
+								},
+							],
+						},
+					},
+				},
+			});
+
+			// Valid - all unique values
+			expect(() =>
+				schema.validateSync({
+					fruits: [
+						{ name: "Apple", colour: "Red" },
+						{ name: "Banana", colour: "Yellow" },
+					],
+				})
+			).not.toThrowError();
+
+			// Invalid - duplicate colour
+			expect(() =>
+				schema.validateSync({
+					fruits: [
+						{ name: "Apple", colour: "Red" },
+						{ name: "Cherry", colour: "Red" },
+					],
+				})
+			).toThrowError();
+		});
+
+		it("should use default error message when errorMessage is not provided", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						fruits: {
+							referenceKey: "array-field",
+							fieldSchema: {
+								name: {
+									uiType: "text-field",
+								},
+							},
+							validation: [
+								{
+									unique: [{ field: "name" }],
+								},
+							],
+						},
+					},
+				},
+			});
+
+			expect(
+				TestHelper.getError(() =>
+					schema.validateSync({
+						fruits: [{ name: "Apple" }, { name: "Apple" }],
+					})
+				).message
+			).toBe("One or more fields are not unique");
+		});
+	});
 });

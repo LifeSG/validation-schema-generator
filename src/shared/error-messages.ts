@@ -87,5 +87,6 @@ export const ERROR_MESSAGES = {
 	ARRAY_FIELD: {
 		INVALID: "One or more of the sections is incomplete",
 		REQUIRED: "At least one section must be filled in",
+		UNIQUE: "One or more fields are not unique",
 	},
 };

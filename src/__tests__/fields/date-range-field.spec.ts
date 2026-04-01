@@ -81,6 +81,215 @@ describe("date-range-field", () => {
 		).toBe(ERROR_MESSAGES.DATE_RANGE.INVALID);
 	});
 
+	describe("dateFormat", () => {
+		it("should support custom date format error message", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "date-range-field",
+							validation: [{ dateFormat: true, errorMessage: ERROR_MESSAGE }],
+						},
+					},
+				},
+			});
+
+			expect(
+				TestHelper.getError(() => schema.validateSync({ field: { from: "invalid from", to: "invalid to" } }))
+					.message
+			).toBe(ERROR_MESSAGE);
+		});
+
+		it("should use default error message if dateFormat rule has no errorMessage", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "date-range-field",
+							validation: [{ dateFormat: true }],
+						},
+					},
+				},
+			});
+
+			expect(
+				TestHelper.getError(() => schema.validateSync({ field: { from: "invalid from", to: "invalid to" } }))
+					.message
+			).toBe(ERROR_MESSAGES.DATE_RANGE.INVALID);
+		});
+
+		it("should pass validation for valid dates even with dateFormat rule", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType: "date-range-field",
+							validation: [{ dateFormat: true, errorMessage: ERROR_MESSAGE }],
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({ field: { from: "2023-01-01", to: "2023-02-01" } })).not.toThrowError();
+		});
+	});
+
+	describe("when condition", () => {
+		const CONDITION_FIELD_ID = "condition-field";
+
+		beforeEach(() => {
+			jest.restoreAllMocks();
+			jest.spyOn(LocalDate, "now").mockReturnValue(LocalDate.parse("2023-01-01"));
+		});
+
+		afterEach(() => {
+			jest.restoreAllMocks();
+		});
+
+		it("should validate as required when condition is met", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						[CONDITION_FIELD_ID]: {
+							uiType: "text-field",
+						},
+						field: {
+							uiType: "date-range-field",
+							validation: [
+								{
+									when: {
+										[CONDITION_FIELD_ID]: {
+											is: [{ filled: true }],
+											then: [{ required: true, errorMessage: ERROR_MESSAGE }],
+										},
+									},
+								},
+							],
+						},
+					},
+				},
+			});
+
+			expect(
+				TestHelper.getError(() =>
+					schema.validateSync({
+						[CONDITION_FIELD_ID]: "hello",
+						field: { from: undefined, to: undefined },
+					})
+				).message
+			).toBe(ERROR_MESSAGE);
+		});
+
+		it("should not validate as required when condition is not met", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						[CONDITION_FIELD_ID]: {
+							uiType: "text-field",
+						},
+						field: {
+							uiType: "date-range-field",
+							validation: [
+								{
+									when: {
+										[CONDITION_FIELD_ID]: {
+											is: [{ filled: true }],
+											then: [{ required: true, errorMessage: ERROR_MESSAGE }],
+										},
+									},
+								},
+							],
+						},
+					},
+				},
+			});
+
+			expect(() =>
+				schema.validateSync({
+					[CONDITION_FIELD_ID]: "",
+					field: { from: undefined, to: undefined },
+				})
+			).not.toThrowError();
+		});
+
+		describe.each`
+			rule               | ruleValue         | invalid                                     | valid
+			${"future"}        | ${true}           | ${{ from: "2021-01-01", to: "2022-01-01" }} | ${{ from: "2023-01-02", to: "2023-01-03" }}
+			${"past"}          | ${true}           | ${{ from: "2023-01-01", to: "2024-01-01" }} | ${{ from: "2022-10-31", to: "2022-12-31" }}
+			${"notFuture"}     | ${true}           | ${{ from: "2023-01-01", to: "2023-01-02" }} | ${{ from: "2022-12-31", to: "2023-01-01" }}
+			${"notPast"}       | ${true}           | ${{ from: "2022-12-31", to: "2023-01-01" }} | ${{ from: "2023-01-01", to: "2023-01-02" }}
+			${"minDate"}       | ${"2023-01-02"}   | ${{ from: "2021-01-01", to: "2023-01-01" }} | ${{ from: "2023-01-02", to: "2023-01-08" }}
+			${"maxDate"}       | ${"2023-01-02"}   | ${{ from: "2023-01-03", to: "2024-01-03" }} | ${{ from: "2022-01-02", to: "2023-01-02" }}
+			${"excludedDates"} | ${["2023-01-02"]} | ${{ from: "2023-01-01", to: "2023-01-02" }} | ${{ from: "2023-01-01", to: "2023-01-03" }}
+			${"numberOfDays"}  | ${10}             | ${{ from: "2023-01-01", to: "2023-01-02" }} | ${{ from: "2023-01-01", to: "2023-01-10" }}
+		`("$rule", ({ rule, ruleValue, invalid, valid }) => {
+			it(`should apply $rule when condition is met`, () => {
+				const schema = jsonToSchema({
+					section: {
+						uiType: "section",
+						children: {
+							[CONDITION_FIELD_ID]: {
+								uiType: "text-field",
+							},
+							field: {
+								uiType: "date-range-field",
+								validation: [
+									{
+										when: {
+											[CONDITION_FIELD_ID]: {
+												is: [{ filled: true }],
+												then: [{ [rule]: ruleValue, errorMessage: ERROR_MESSAGE }],
+											},
+										},
+									},
+								],
+							},
+						},
+					},
+				});
+
+				expect(
+					TestHelper.getError(() => schema.validateSync({ [CONDITION_FIELD_ID]: "hello", field: invalid }))
+						.message
+				).toBe(ERROR_MESSAGE);
+				expect(() => schema.validateSync({ [CONDITION_FIELD_ID]: "hello", field: valid })).not.toThrowError();
+			});
+
+			it(`should not apply $rule when condition is not met`, () => {
+				const schema = jsonToSchema({
+					section: {
+						uiType: "section",
+						children: {
+							[CONDITION_FIELD_ID]: {
+								uiType: "text-field",
+							},
+							field: {
+								uiType: "date-range-field",
+								validation: [
+									{
+										when: {
+											[CONDITION_FIELD_ID]: {
+												is: [{ filled: true }],
+												then: [{ [rule]: ruleValue, errorMessage: ERROR_MESSAGE }],
+											},
+										},
+									},
+								],
+							},
+						},
+					},
+				});
+
+				expect(() => schema.validateSync({ [CONDITION_FIELD_ID]: "", field: invalid })).not.toThrowError();
+			});
+		});
+	});
+
 	describe.each`
 		rule               | ruleValue         | valid                                       | invalid                                     | errorMessage
 		${"future"}        | ${true}           | ${{ from: "2023-01-02", to: "2023-01-03" }} | ${{ from: "2021-01-01", to: "2022-01-01" }} | ${ERROR_MESSAGES.DATE_RANGE.MUST_BE_FUTURE}

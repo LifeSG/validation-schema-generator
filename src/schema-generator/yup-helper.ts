@@ -100,10 +100,7 @@ export namespace YupHelper {
 					{
 						Object.keys(rule.when).forEach((fieldId) => {
 							const isRule = rule.when[fieldId].is;
-							const thenRule = mapRules(
-								YupHelper.mapSchemaType(yupSchema.type as TYupSchemaType),
-								rule.when[fieldId].then
-							);
+							const thenRule = mapRules(yupSchema.clone(), rule.when[fieldId].then);
 							const otherwiseRule =
 								rule.when[fieldId].otherwise &&
 								mapRules(
@@ -148,6 +145,13 @@ export namespace YupHelper {
 					console.error(`error applying "${customRuleKey}" condition to ${yupSchema.type} schema`);
 				}
 			}
+
+			// record all conditions, regardless valid or not, to meta for reference in validation phase
+			Object.keys(rule).forEach((_) => {
+				yupSchema = yupSchema.meta({
+					rules: [...(yupSchema.describe().meta?.["rules"] || []), rule],
+				});
+			});
 		});
 
 		return yupSchema;

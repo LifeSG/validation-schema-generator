@@ -1,6 +1,7 @@
 import { IFieldSchemaBase, IValidationRule } from "../../schema-generator";
 
 export interface IDateRangeInputValidationRule extends IValidationRule {
+	dateFormat?: boolean | undefined;
 	future?: boolean | undefined;
 	past?: boolean | undefined;
 	notFuture?: boolean | undefined;

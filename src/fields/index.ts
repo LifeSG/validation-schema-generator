@@ -15,6 +15,7 @@ export * from "./image-upload";
 export * from "./masked-field";
 export * from "./multi-select";
 export * from "./nested-multi-select";
+export * from "./otp-verification-field";
 export * from "./numeric-field";
 export * from "./radio";
 export * from "./range-select";

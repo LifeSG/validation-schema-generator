@@ -18,6 +18,7 @@ import { maskedField } from "./masked-field";
 import { multiSelect } from "./multi-select";
 import { nestedMultiSelect } from "./nested-multi-select";
 import { numericField } from "./numeric-field";
+import { otpVerificationField } from "./otp-verification-field";
 import { radio } from "./radio";
 import { rangeSelect } from "./range-select";
 import { referenceKey } from "./reference-key";
@@ -120,6 +121,9 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 				break;
 			case "numeric-field":
 				config = { ...config, ...numericField(id, componentSchema) };
+				break;
+			case "otp-verification-field":
+				config = { ...config, ...otpVerificationField(id, componentSchema) };
 				break;
 			case "radio":
 				config = { ...config, ...radio(id, componentSchema) };

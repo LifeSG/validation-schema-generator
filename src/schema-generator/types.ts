@@ -85,6 +85,7 @@ interface IRule {
 	equalsField?: string | undefined;
 	notEqualsField?: string | undefined;
 	whitespace?: boolean | IWhitespaceRule | undefined;
+	htmlSafe?: boolean | undefined;
 	/**
 	 * @deprecated Use `whitespace` rule instead.
 	 */

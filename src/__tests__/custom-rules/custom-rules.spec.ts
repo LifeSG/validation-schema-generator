@@ -30,6 +30,7 @@ describe("custom-rules", () => {
 		${"string"}  | ${"notEquals"}             | ${"text-field"}    | ${{ notEquals: "hello" }}       | ${"hi"}         | ${"hello"}
 		${"string"}  | ${"equalsField"}           | ${"text-field"}    | ${{ equalsField: "field1" }}    | ${"hello"}      | ${"help"}
 		${"string"}  | ${"equalsField (empty)"}   | ${"text-field"}    | ${{ equalsField: "field1" }}    | ${undefined}    | ${"help"}
+		${"string"}  | ${"htmlSafe"}              | ${"text-field"}    | ${{ htmlSafe: true }}           | ${"O'CONNOR"}   | ${"TAN&LEE"}
 		${"string"}  | ${"notMatches"}            | ${"text-field"}    | ${{ notMatches: "/^(hello)/" }} | ${"hi"}         | ${"hello"}
 		${"string"}  | ${"noWhitespaceOnly"}      | ${"text-field"}    | ${{ noWhitespaceOnly: true }}   | ${"  .  "}      | ${"      "}
 		${"string"}  | ${"whitespace"}            | ${"text-field"}    | ${{ whitespace: true }}         | ${""}           | ${"      "}
@@ -202,9 +203,10 @@ describe("custom-rules", () => {
 	});
 
 	it.each`
-		type        | config              | valid                                                                | invalid
-		${"uinfin"} | ${{ uinfin: true }} | ${["S1111111D", "T8017681Z", "F4769209K", "G5825195Q", "M1234567K"]} | ${["S1234567A"]}
-		${"uen"}    | ${{ uen: true }}    | ${["200012345A", "12345678A", "T09LL0001B"]}                         | ${["1234A567A", "T09L10001B"]}
+		type          | config                | valid                                                                | invalid
+		${"uinfin"}   | ${{ uinfin: true }}   | ${["S1111111D", "T8017681Z", "F4769209K", "G5825195Q", "M1234567K"]} | ${["S1234567A"]}
+		${"uen"}      | ${{ uen: true }}      | ${["200012345A", "12345678A", "T09LL0001B"]}                         | ${["1234A567A", "T09L10001B"]}
+		${"htmlSafe"} | ${{ htmlSafe: true }} | ${["TAN AH KOW", "O'CONNOR", "A/B TEST", "LEE (ALIAS)", "A.B. @ C"]} | ${["<script>", "LEE_123", "TAN&LEE", "张三", "Jane🙂"]}
 	`("should validate $type value", ({ config, valid, invalid }) => {
 		const schema = jsonToSchema({
 			section: {

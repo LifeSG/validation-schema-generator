@@ -1,5 +1,6 @@
 import { equalsField, notEqualsField } from "./equals-field";
 import { excludes } from "./excludes";
+import { htmlSafe } from "./html-safe";
 import { includes } from "./includes";
 import { uen } from "./uen";
 import { uinfin } from "./uinfin";
@@ -34,4 +35,5 @@ export const applyCustomRules = () => {
 	notEqualsField();
 	withinDays();
 	beyondDays();
+	htmlSafe();
 };

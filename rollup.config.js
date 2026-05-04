@@ -1,9 +1,9 @@
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
+import terser from "@rollup/plugin-terser";
+import typescript from "@rollup/plugin-typescript";
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
-import { terser } from "rollup-plugin-terser";
-import typescript from "rollup-plugin-typescript2";
 import pkg from "./package.json";
 
 const plugins = [
@@ -11,11 +11,10 @@ const plugins = [
 	nodeResolve({ browser: true }),
 	commonjs(), // converts CommonJS to ES6 modules
 	typescript({
-		useTsconfigDeclarationDir: true,
 		tsconfig: "tsconfig.json",
-		tsconfigOverride: {
-			// Override base tsconfig.json during build
-			exclude: ["**/__tests__/**"],
+		compilerOptions: {
+			noEmit: false,
+			outDir: "dist",
 		},
 	}),
 	json(),
@@ -26,13 +25,15 @@ export default {
 	input: "src/index.ts",
 	output: [
 		{
-			file: `dist/${pkg.module}`,
+			dir: "dist",
+			entryFileNames: pkg.module,
 			format: "esm",
 			sourcemap: true,
 			exports: "named",
 		},
 		{
-			file: `dist/${pkg.main}`,
+			dir: "dist",
+			entryFileNames: pkg.main,
 			format: "cjs",
 			sourcemap: true,
 			exports: "named",

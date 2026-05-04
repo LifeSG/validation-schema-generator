@@ -16,11 +16,8 @@ interface IArrayFieldValidationRule extends IValidationRule {
 	unique?: IArrayFieldUniqueRule[] | undefined;
 }
 
-export interface IArrayFieldSchema<V = undefined> extends ICustomFieldSchemaBase<
-	"array-field",
-	V,
-	IArrayFieldValidationRule
-> {
+export interface IArrayFieldSchema<V = undefined>
+	extends ICustomFieldSchemaBase<"array-field", V, IArrayFieldValidationRule> {
 	fieldSchema: Record<string, TComponentSchema>;
 }
 

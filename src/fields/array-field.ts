@@ -1,8 +1,8 @@
 import isEmpty from "lodash/isEmpty";
 import * as Yup from "yup";
-import { ICustomFieldSchemaBase, IValidationRule, TComponentSchema, jsonToSchema } from "../schema-generator";
+import type { ICustomFieldSchemaBase, IValidationRule, TComponentSchema } from "../schema-generator/types";
 import { ERROR_MESSAGES } from "../shared";
-import { IFieldGenerator } from "./types";
+import { TFieldsConfig, TSchemaGenerator } from "./types";
 
 export interface IArrayFieldUniqueRule {
 	field: string;
@@ -21,12 +21,16 @@ export interface IArrayFieldSchema<V = undefined>
 	fieldSchema: Record<string, TComponentSchema>;
 }
 
-export const arrayField: IFieldGenerator<IArrayFieldSchema> = (id, { fieldSchema, validation }) => {
+export const arrayField = (
+	id: string,
+	{ fieldSchema, validation }: IArrayFieldSchema,
+	generateSchema: TSchemaGenerator
+): TFieldsConfig<IArrayFieldSchema> => {
 	const isRequiredRule = validation?.find((rule) => "required" in rule);
 	const uniqueRule = validation?.find((rule) => "unique" in rule) as IArrayFieldValidationRule | undefined;
 
 	// Create fresh schema instance per array item to prevent mutation conflicts during parallel async validation
-	const itemSchema = Yup.lazy(() => jsonToSchema({ section: { uiType: "section", children: fieldSchema } }));
+	const itemSchema = Yup.lazy(() => generateSchema({ section: { uiType: "section", children: fieldSchema } }));
 
 	let yupSchema = Yup.array(itemSchema).test(
 		"is-empty-array",

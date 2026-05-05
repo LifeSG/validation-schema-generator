@@ -12,8 +12,8 @@ const plugins = [
 	commonjs(), // converts CommonJS to ES6 modules
 	typescript({
 		tsconfig: "tsconfig.json",
+		exclude: ["**/__tests__/**"],
 		compilerOptions: {
-			noEmit: false,
 			outDir: "dist",
 		},
 	}),

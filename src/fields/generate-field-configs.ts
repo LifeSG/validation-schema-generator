@@ -1,6 +1,6 @@
 import isEmpty from "lodash/isEmpty";
 import isObject from "lodash/isObject";
-import { TComponentSchema, TCustomFieldSchema, TFieldSchema, TSectionsSchema } from "../schema-generator";
+import type { TComponentSchema, TCustomFieldSchema, TFieldSchema, TSectionsSchema } from "../schema-generator/types";
 import { arrayField } from "./array-field";
 import { checkbox } from "./checkbox";
 import { chips } from "./chips";
@@ -27,7 +27,7 @@ import { switchField } from "./switch";
 import { textField } from "./text-field";
 import { textarea } from "./textarea";
 import { timeField } from "./time-field";
-import { TFieldsConfig } from "./types";
+import { TFieldsConfig, TSchemaGenerator } from "./types";
 import { unitNumberField } from "./unit-number-field";
 
 /**
@@ -37,15 +37,18 @@ import { unitNumberField } from "./unit-number-field";
  *
  * a field config generator may come up with multiple fields and change the validation config (e.g. chips with textarea)
  */
-export const generateFieldConfigs = (sections: TSectionsSchema) => {
+export const generateFieldConfigs = (sections: TSectionsSchema, generateSchema: TSchemaGenerator) => {
 	let config: TFieldsConfig<TFieldSchema | TCustomFieldSchema> = {};
 	Object.values(sections).forEach(({ children }) => {
-		config = { ...config, ...generateChildrenFieldConfigs(children) };
+		config = { ...config, ...generateChildrenFieldConfigs(children, generateSchema) };
 	});
 	return config;
 };
 
-const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentSchema>) => {
+const generateChildrenFieldConfigs = (
+	childrenSchema: Record<string, TComponentSchema>,
+	generateSchema: TSchemaGenerator
+) => {
 	let config: TFieldsConfig<TFieldSchema | TCustomFieldSchema> = {};
 
 	if (isEmpty(childrenSchema) || !isObject(childrenSchema)) {
@@ -57,7 +60,7 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 			const customComponentSchema = componentSchema as TCustomFieldSchema;
 			switch (customComponentSchema.referenceKey) {
 				case "array-field":
-					config = { ...config, ...arrayField(id, customComponentSchema) };
+					config = { ...config, ...arrayField(id, customComponentSchema, generateSchema) };
 					break;
 				default:
 					config = { ...config, ...referenceKey(id) };
@@ -72,7 +75,7 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 				config = { ...config, ...checkbox(id, componentSchema) };
 				componentSchema.options.forEach((option) => {
 					if (!isEmpty(option.children) && isObject(option.children)) {
-						config = { ...config, ...generateChildrenFieldConfigs(option.children) };
+						config = { ...config, ...generateChildrenFieldConfigs(option.children, generateSchema) };
 					}
 				});
 				break;
@@ -125,7 +128,7 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 				config = { ...config, ...radio(id, componentSchema) };
 				componentSchema.options.forEach((option) => {
 					if (!isEmpty(option.children) && isObject(option.children)) {
-						config = { ...config, ...generateChildrenFieldConfigs(option.children) };
+						config = { ...config, ...generateChildrenFieldConfigs(option.children, generateSchema) };
 					}
 				});
 				break;
@@ -167,7 +170,7 @@ const generateChildrenFieldConfigs = (childrenSchema: Record<string, TComponentS
 			case "accordion":
 			case "grid":
 				if (!isEmpty(children) && isObject(children)) {
-					config = { ...config, ...generateChildrenFieldConfigs(children) };
+					config = { ...config, ...generateChildrenFieldConfigs(children, generateSchema) };
 				}
 				break;
 		}

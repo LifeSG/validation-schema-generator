@@ -3,8 +3,9 @@ import isEmpty from "lodash/isEmpty";
 import merge from "lodash/merge";
 import * as Yup from "yup";
 import { ObjectShape } from "yup/lib/object";
-import { IFieldConfig, TFieldsConfig, generateFieldConfigs } from "../fields";
-import { ObjectHelper } from "../utils";
+import { generateFieldConfigs } from "../fields/generate-field-configs";
+import type { IFieldConfig, TFieldsConfig } from "../fields/types";
+import { ObjectHelper } from "../utils/object-helper";
 import { parseConditionalRenders } from "./conditional-render";
 import {
 	ISectionSchema,
@@ -28,7 +29,7 @@ export const jsonToSchema = <V = undefined>(
 ) => {
 	const yupSchema: ObjectShape = {};
 	const overriddenSections = overrideSchema(sections, overrides);
-	const [fieldConfigs, whenPairIds] = parseWhenKeys(generateFieldConfigs(overriddenSections));
+	const [fieldConfigs, whenPairIds] = parseWhenKeys(generateFieldConfigs(overriddenSections, jsonToSchema));
 	Object.entries(fieldConfigs).forEach(([id, { yupSchema: yupFieldSchema, validation }]) => {
 		yupSchema[id] = YupHelper.mapRules(yupFieldSchema, validation || []);
 	});

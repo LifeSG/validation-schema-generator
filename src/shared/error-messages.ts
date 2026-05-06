@@ -1,6 +1,6 @@
 import capitalize from "lodash/capitalize";
-import { FileHelper } from "../utils";
-import { IDaysRangeRule } from "../schema-generator";
+import type { IDaysRangeRule } from "../schema-generator/types";
+import { FileHelper } from "../utils/file-helper";
 
 export const ERROR_MESSAGES = {
 	COMMON: {

@@ -4,7 +4,7 @@
  *
  */
 const { resolve, join, basename } = require("path");
-const { readFile, writeFile, copy } = require("fs-extra");
+const { copyFile, readFile, writeFile } = require("fs/promises");
 const packagePath = process.cwd();
 const distPath = join(packagePath, "./dist");
 
@@ -30,7 +30,7 @@ async function createPackageFile() {
 async function includeFileInBuild(file) {
 	const sourcePath = resolve(packagePath, file);
 	const targetPath = resolve(distPath, basename(file));
-	await copy(sourcePath, targetPath);
+	await copyFile(sourcePath, targetPath);
 	console.log(`Copied ${sourcePath} to ${targetPath}`);
 }
 

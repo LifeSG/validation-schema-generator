@@ -1,7 +1,7 @@
 import { DateTimeFormatter, LocalDate, LocalDateTime, LocalTime, ResolverStyle } from "@js-joda/core";
 import { Locale } from "@js-joda/locale_en-us";
+import type { IDaysRangeRule, IWithinDaysRangeRule } from "../schema-generator/types";
 import { ERROR_MESSAGES } from "../shared/error-messages";
-import { IDaysRangeRule, IWithinDaysRangeRule } from "../schema-generator";
 
 export namespace DateTimeHelper {
 	// TODO: split into individual functions by type when parsing/formatting gets more complicated

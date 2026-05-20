@@ -46,6 +46,7 @@ export const CONDITIONS = [
 	"integer",
 	"lessThan",
 	"moreThan",
+	"decimals",
 	"when",
 	"filled",
 	"empty",
@@ -75,6 +76,7 @@ interface IRule {
 	integer?: boolean | undefined;
 	lessThan?: number | undefined;
 	moreThan?: number | undefined;
+	decimals?: number | undefined;
 	empty?: boolean | undefined;
 	equals?: unknown | undefined;
 	notEquals?: unknown | undefined;

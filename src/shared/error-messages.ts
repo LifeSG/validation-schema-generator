@@ -54,6 +54,10 @@ export const ERROR_MESSAGES = {
 	EMAIL: {
 		INVALID: "Invalid email address",
 	},
+	OTP_VERIFICATION: {
+		EMAIL_VERIFICATION_REQUIRED: "Please verify your email.",
+		PHONE_VERIFICATION_REQUIRED: "Please verify your contact number.",
+	},
 	GENERIC: {
 		INVALID: "Invalid input",
 		UNSUPPORTED: "This component is not supported by the engine",

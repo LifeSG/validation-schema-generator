@@ -54,6 +54,9 @@ export const ERROR_MESSAGES = {
 	EMAIL: {
 		INVALID: "Invalid email address",
 	},
+	NUMERIC: {
+		INVALID_DECIMALS: (decimals: number) => `Up to ${decimals} decimal place${decimals === 1 ? "" : "s"} only.`,
+	},
 	GENERIC: {
 		INVALID: "Invalid input",
 		UNSUPPORTED: "This component is not supported by the engine",

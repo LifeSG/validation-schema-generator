@@ -3,21 +3,32 @@ interface IImageDimensions {
 	height: number;
 }
 
-const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47];
+// reference: https://github.com/sindresorhus/is-png/blob/main/index.js
+const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 const isPng = (buffer: Buffer): boolean =>
-	buffer.length >= 24 && PNG_SIGNATURE.every((byte, index) => buffer[index] === byte);
+	buffer.length >= 8 && PNG_SIGNATURE.every((byte, index) => buffer[index] === byte);
 
-// IHDR chunk (width/height) always starts right after the 8-byte signature + 8-byte chunk header
-const getPngDimensions = (buffer: Buffer): IImageDimensions => ({
-	width: buffer.readUInt32BE(16),
-	height: buffer.readUInt32BE(20),
-});
+// dimension parsing ported from https://github.com/image-size/image-size/blob/main/lib/types/png.ts
+const PNG_FRIED_CHUNK_NAME = "CgBI";
+const getPngDimensions = (buffer: Buffer): IImageDimensions | undefined => {
+	if (buffer.length < 24) return undefined;
+	// bytes 12-16 hold the chunk name right after the signature; compare it to detect a fried PNG
+	const isFried = buffer.toString("ascii", 12, 16) === PNG_FRIED_CHUNK_NAME;
+	const offset = isFried ? 32 : 16;
+	if (buffer.length < offset + 8) return undefined;
+	// IHDR chunk stores width then height as two big-endian 4-byte integers
+	return { width: buffer.readUInt32BE(offset), height: buffer.readUInt32BE(offset + 4) };
+};
 
-const isJpg = (buffer: Buffer): boolean => buffer.length >= 4 && buffer[0] === 0xff && buffer[1] === 0xd8;
+const isJpg = (buffer: Buffer): boolean =>
+	buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
 
-// SOFn markers that carry frame dimensions, excluding DHT (0xC4), JPG ext (0xC8) and DAC (0xCC)
-const JPG_SOF_MARKERS = new Set([0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf]);
+// reference: https://github.com/sindresorhus/is-jpg/blob/main/index.js
+// only baseline (0xC0), baseline optimized (0xC1) and progressive (0xC2) SOF markers carry frame dimensions
+// original logic deliberately skips other SOF variants (https://github.com/image-size/image-size/blob/main/lib/types/jpg.ts)
+const JPG_SOF_MARKERS = new Set([0xc0, 0xc1, 0xc2]);
 
+// dimension parsing ported from https://github.com/image-size/image-size/blob/main/lib/types/jpg.ts
 const getJpgDimensions = (buffer: Buffer): IImageDimensions | undefined => {
 	let offset = 2;
 	while (offset + 9 <= buffer.length) {

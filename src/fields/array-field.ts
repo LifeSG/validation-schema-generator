@@ -53,17 +53,20 @@ export const arrayField = (
 				let hasError = false;
 
 				uniqueRule.unique.forEach(({ field, errorMessage }) => {
-					const fieldValues = value.map((item) => item?.[field]);
+					// single pass dedup instead of nested findIndex to avoid O(n^2) over submitted array length
+					const seenAtIndex = new Map<unknown, number>();
 
-					fieldValues.forEach((val, idx) => {
+					value.forEach((item, idx) => {
+						const val = item?.[field];
 						if (!val) return;
-						const isDuplicate = fieldValues.findIndex((v) => v === val) !== idx;
-						if (isDuplicate) {
+						if (seenAtIndex.has(val)) {
 							errors[idx] = {
 								...errors[idx],
 								[field]: errorMessage || ERROR_MESSAGES.ARRAY_FIELD.UNIQUE,
 							};
 							hasError = true;
+						} else {
+							seenAtIndex.set(val, idx);
 						}
 					});
 				});

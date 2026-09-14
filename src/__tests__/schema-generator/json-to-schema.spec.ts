@@ -1,8 +1,8 @@
 import { LocalDate } from "@js-joda/core";
 import { ObjectSchema } from "yup";
 import { ObjectShape } from "yup/lib/object";
-import { TSectionsSchema, jsonToSchema } from "../../schema-generator";
-import { ERROR_MESSAGES } from "../../shared";
+import { TComponentSchema, TSectionsSchema, jsonToSchema } from "../../schema-generator";
+import { ERROR_MESSAGES, MAX_SCHEMA_NESTING_DEPTH } from "../../shared";
 import { TestHelper } from "../../utils";
 import { ERROR_MESSAGE, ERROR_MESSAGE_2, ERROR_MESSAGE_3, ERROR_MESSAGE_4 } from "../common";
 
@@ -59,6 +59,52 @@ describe("json-to-schema", () => {
 			expect(error.inner[0].message).toBe(ERROR_MESSAGE);
 			expect(error.inner[1].message).toBe(ERROR_MESSAGE_3);
 			expect(error.inner[2].message).toBe(ERROR_MESSAGE_4);
+		});
+
+		it("should not exceed the call stack when schema config is nested beyond the max depth", () => {
+			jest.spyOn(console, "error").mockImplementation(() => undefined);
+
+			let node: TComponentSchema = {
+				uiType: "text-field",
+				validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+			};
+			for (let i = 0; i < MAX_SCHEMA_NESTING_DEPTH + 10; i++) {
+				node = { uiType: "div", children: { child: node } };
+			}
+
+			let schema: ObjectSchema<ObjectShape>;
+			expect(() => {
+				schema = jsonToSchema({ section: { uiType: "section", children: { root: node } } });
+			}).not.toThrow();
+
+			expect(console.error).toHaveBeenCalledWith(expect.stringContaining("schema nesting depth exceeded"));
+			expect(schema.describe().fields).toEqual({});
+		});
+
+		it("should not exceed the call stack when checkbox/radio options are nested beyond the max depth", () => {
+			jest.spyOn(console, "error").mockImplementation(() => undefined);
+
+			const totalLevels = MAX_SCHEMA_NESTING_DEPTH + 10;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- deeply recursive fixture, typing it as TComponentSchema blows up TS's type-checker
+			let children: any = {
+				leaf: { uiType: "text-field", validation: [{ required: true, errorMessage: ERROR_MESSAGE }] },
+			};
+			for (let i = 0; i < totalLevels; i++) {
+				children = {
+					[`level${i}`]: { uiType: "checkbox", options: [{ label: "opt", value: "opt", children }] },
+				};
+			}
+
+			let schema: ObjectSchema<ObjectShape>;
+			expect(() => {
+				schema = jsonToSchema({ section: { uiType: "section", children } });
+			}).not.toThrow();
+
+			expect(console.error).toHaveBeenCalledWith(expect.stringContaining("schema nesting depth exceeded"));
+			const fields = schema.describe().fields;
+			// the outermost level (processed at depth 0) generates a field, the innermost leaf (beyond the cap) does not
+			expect(fields[`level${totalLevels - 1}`]).toBeDefined();
+			expect(fields.leaf).toBeUndefined();
 		});
 
 		it("should throw error if there are unknown fields", () => {

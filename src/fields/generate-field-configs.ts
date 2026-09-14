@@ -1,6 +1,7 @@
 import isEmpty from "lodash/isEmpty";
 import isObject from "lodash/isObject";
 import type { TComponentSchema, TCustomFieldSchema, TFieldSchema, TSectionsSchema } from "../schema-generator/types";
+import { MAX_SCHEMA_NESTING_DEPTH } from "../shared";
 import { arrayField } from "./array-field";
 import { checkbox } from "./checkbox";
 import { chips } from "./chips";
@@ -47,11 +48,18 @@ export const generateFieldConfigs = (sections: TSectionsSchema, generateSchema: 
 
 const generateChildrenFieldConfigs = (
 	childrenSchema: Record<string, TComponentSchema>,
-	generateSchema: TSchemaGenerator
+	generateSchema: TSchemaGenerator,
+	depth = 0
 ) => {
 	let config: TFieldsConfig<TFieldSchema | TCustomFieldSchema> = {};
 
 	if (isEmpty(childrenSchema) || !isObject(childrenSchema)) {
+		return config;
+	}
+
+	// bail out of runaway/malicious nesting depth to prevent call stack exhaustion
+	if (depth > MAX_SCHEMA_NESTING_DEPTH) {
+		console.error(`schema nesting depth exceeded ${MAX_SCHEMA_NESTING_DEPTH}, skipping remaining children`);
 		return config;
 	}
 
@@ -75,7 +83,10 @@ const generateChildrenFieldConfigs = (
 				config = { ...config, ...checkbox(id, componentSchema) };
 				componentSchema.options.forEach((option) => {
 					if (!isEmpty(option.children) && isObject(option.children)) {
-						config = { ...config, ...generateChildrenFieldConfigs(option.children, generateSchema) };
+						config = {
+							...config,
+							...generateChildrenFieldConfigs(option.children, generateSchema, depth + 1),
+						};
 					}
 				});
 				break;
@@ -128,7 +139,10 @@ const generateChildrenFieldConfigs = (
 				config = { ...config, ...radio(id, componentSchema) };
 				componentSchema.options.forEach((option) => {
 					if (!isEmpty(option.children) && isObject(option.children)) {
-						config = { ...config, ...generateChildrenFieldConfigs(option.children, generateSchema) };
+						config = {
+							...config,
+							...generateChildrenFieldConfigs(option.children, generateSchema, depth + 1),
+						};
 					}
 				});
 				break;
@@ -170,7 +184,7 @@ const generateChildrenFieldConfigs = (
 			case "accordion":
 			case "grid":
 				if (!isEmpty(children) && isObject(children)) {
-					config = { ...config, ...generateChildrenFieldConfigs(children, generateSchema) };
+					config = { ...config, ...generateChildrenFieldConfigs(children, generateSchema, depth + 1) };
 				}
 				break;
 		}

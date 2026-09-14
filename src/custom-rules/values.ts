@@ -25,8 +25,13 @@ export const notMatches = () =>
 		if (value.length > MAX_MATCHES_INPUT_LENGTH) {
 			return false;
 		}
-		const parsedRegex = new RegExp(matches[1], matches[2]);
-		return !parsedRegex.test(value);
+		try {
+			const parsedRegex = new RegExp(matches[1], matches[2]);
+			return !parsedRegex.test(value);
+		} catch (error) {
+			console.error(`error applying "notMatches" rule: ${error}`);
+			return true;
+		}
 	});
 /** @deprecated use `whitespace` */
 export const noWhitespaceOnly = () =>

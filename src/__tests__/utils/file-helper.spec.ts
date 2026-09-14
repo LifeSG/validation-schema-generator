@@ -1,5 +1,8 @@
 import { FileHelper } from "../../utils";
 
+// minimal JPEG header magic-bytes.js needs to identify the file type
+const JPG_HEADER_BASE64 = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46]).toString("base64");
+
 describe("file-helper", () => {
 	describe("extensionsToSentence", () => {
 		describe("setBothJpegAndJpgIfEitherExists", () => {
@@ -71,6 +74,34 @@ describe("file-helper", () => {
 				const result = FileHelper.extensionsToSentence(extensions);
 				expect(result).toBe(expected);
 			});
+		});
+	});
+
+	describe("getTypeFromBase64", () => {
+		it("should derive file type from the buffer's magic bytes", async () => {
+			const result = await FileHelper.getTypeFromBase64(JPG_HEADER_BASE64);
+			expect(result.ext).toBe("jpg");
+		});
+
+		it("should return an unknown type instead of throwing for malformed base64", async () => {
+			const result = await FileHelper.getTypeFromBase64("not-valid-base64!!!");
+			expect(result).toEqual({ mime: undefined, ext: undefined });
+		});
+
+		it("should return an unknown type instead of throwing for an empty base64 string", async () => {
+			const result = await FileHelper.getTypeFromBase64("");
+			expect(result).toEqual({ mime: undefined, ext: undefined });
+		});
+
+		it("should return an unknown type when base64 length exceeds the provided maxSizeInKb cap", async () => {
+			// cap of ~0 bytes rejects any non-empty payload
+			const result = await FileHelper.getTypeFromBase64(JPG_HEADER_BASE64, 0.0001);
+			expect(result).toEqual({ mime: undefined, ext: undefined });
+		});
+
+		it("should still derive file type when within the provided maxSizeInKb cap", async () => {
+			const result = await FileHelper.getTypeFromBase64(JPG_HEADER_BASE64, 1);
+			expect(result.ext).toBe("jpg");
 		});
 	});
 });

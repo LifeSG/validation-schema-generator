@@ -2,6 +2,7 @@ import isEqual from "lodash/isEqual";
 import * as Yup from "yup";
 import { TYupSchemaType, addRule } from "../../schema-generator";
 import { YupHelper } from "../../schema-generator/yup-helper";
+import { MAX_MATCHES_INPUT_LENGTH } from "../../shared";
 import { TestHelper } from "../../utils";
 import { ERROR_MESSAGE, ERROR_MESSAGE_2 } from "../common";
 
@@ -59,11 +60,21 @@ describe("YupHelper", () => {
 			);
 		});
 
-		it("should ignore matches validation for empty string (excludeEmptyString)", () => {
-			const schema = YupHelper.mapRules(YupHelper.mapSchemaType("string"), [
-				{ matches: "/^hello/", errorMessage: ERROR_MESSAGE },
-			]);
-			expect(() => schema.validateSync("")).not.toThrowError();
+		describe("matches", () => {
+			it("should ignore empty string (excludeEmptyString)", () => {
+				const schema = YupHelper.mapRules(YupHelper.mapSchemaType("string"), [
+					{ matches: "/^hello/", errorMessage: ERROR_MESSAGE },
+				]);
+				expect(() => schema.validateSync("")).not.toThrowError();
+			});
+
+			it("should reject values longer than the max supported length", () => {
+				const schema = YupHelper.mapRules(YupHelper.mapSchemaType("string"), [
+					{ matches: "/^hello/", errorMessage: ERROR_MESSAGE },
+				]);
+				const oversizedValue = `hello${"a".repeat(MAX_MATCHES_INPUT_LENGTH)}`;
+				expect(TestHelper.getError(() => schema.validateSync(oversizedValue)).message).toBe(ERROR_MESSAGE);
+			});
 		});
 
 		const generateConditionalSchema = (type: TYupSchemaType, is: any) =>

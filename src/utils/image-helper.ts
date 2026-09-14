@@ -1,3 +1,5 @@
+import { DEFAULT_MAX_BASE64_LENGTH } from "../shared/constants";
+
 interface IImageDimensions {
 	width: number;
 	height: number;
@@ -49,8 +51,15 @@ const getJpgDimensions = (buffer: Buffer): IImageDimensions | undefined => {
 };
 
 export namespace ImageHelper {
-	export const getDimensionsFromBase64 = (base64: string): IImageDimensions | undefined => {
-		const buffer = Buffer.from(base64.split(";base64,").pop(), "base64");
+	/**
+	 * @param maxSizeInKb optional cap on the decoded file size, derived from the field's maxSizeInKb validation rule; defaults to ~100MB
+	 */
+	export const getDimensionsFromBase64 = (base64: string, maxSizeInKb?: number): IImageDimensions | undefined => {
+		// base64 encoding inflates size by ~4/3, so convert the decoded-byte cap to a base64 character cap
+		const maxBase64Length = maxSizeInKb > 0 ? Math.ceil(((maxSizeInKb * 1024) / 3) * 4) : DEFAULT_MAX_BASE64_LENGTH;
+		const payload = base64?.split(";base64,").pop();
+		if (!payload || payload.length > maxBase64Length) return undefined;
+		const buffer = Buffer.from(payload, "base64");
 		if (isPng(buffer)) return getPngDimensions(buffer);
 		if (isJpg(buffer)) return getJpgDimensions(buffer);
 		return undefined;

@@ -2,6 +2,7 @@ import isEmpty from "lodash/isEmpty";
 import isEqual from "lodash/isEqual";
 import isBoolean from "lodash/isBoolean";
 import { IDaysRangeRule, IWhitespaceRule, addRule } from "../schema-generator";
+import { MAX_MATCHES_INPUT_LENGTH } from "../shared";
 import { DateTimeHelper, ValueHelper } from "../utils";
 
 export const filled = () => addRule("mixed", "filled", (value) => !ValueHelper.isEmpty(value));
@@ -15,7 +16,10 @@ export const notMatches = () =>
 		if (ValueHelper.isEmpty(value)) {
 			return true;
 		}
-		const matches = regex.match(/\/(.*)\/([a-z]+)?/);
+		// cap tested value length to bound worst-case regex backtracking cost (ReDoS mitigation)
+		if (value.length > MAX_MATCHES_INPUT_LENGTH) {
+			return false;
+		}
 		const parsedRegex = new RegExp(matches[1], matches[2]);
 		return !parsedRegex.test(value);
 	});

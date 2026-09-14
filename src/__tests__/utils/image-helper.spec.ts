@@ -120,5 +120,18 @@ describe("image-helper", () => {
 
 			expect(ImageHelper.getDimensionsFromBase64(base64)).toEqual({ width: 32, height: 16 });
 		});
+
+		it("should return undefined when the payload exceeds the provided maxSizeInKb cap", () => {
+			const dataUrl = toBase64DataUrl("image/png", buildPngBuffer({ width: 100, height: 50 }));
+
+			// cap of ~0 bytes rejects any non-empty payload
+			expect(ImageHelper.getDimensionsFromBase64(dataUrl, 0.0001)).toBeUndefined();
+		});
+
+		it("should still parse dimensions when within the provided maxSizeInKb cap", () => {
+			const dataUrl = toBase64DataUrl("image/png", buildPngBuffer({ width: 100, height: 50 }));
+
+			expect(ImageHelper.getDimensionsFromBase64(dataUrl, 1)).toEqual({ width: 100, height: 50 });
+		});
 	});
 });

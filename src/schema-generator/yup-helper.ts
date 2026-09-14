@@ -85,7 +85,12 @@ export namespace YupHelper {
 					break;
 				case !!rule.matches:
 					{
-						const matches = rule.matches.match(/\/(.*)\/([a-z]+)?/);
+						// against non-string schemas instead of relying on a thrown/caught type error
+						if (yupSchema.type !== "string") {
+							console.error(`error applying "${condition}" condition to ${yupSchema.type} schema`);
+							break;
+						}
+						const matches = rule.matches.match(/^\/(.*)\/([a-z]+)?$/);
 						try {
 							const pattern = matches ? new RegExp(matches[1], matches[2]) : new RegExp(rule.matches);
 							yupSchema = (yupSchema as Yup.StringSchema).test({

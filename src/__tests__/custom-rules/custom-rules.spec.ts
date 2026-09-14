@@ -239,6 +239,11 @@ describe("custom-rules", () => {
 				},
 			});
 
+		it("should pass when the regex config is malformed", () => {
+			const schema = buildSchema("not-a-delimited-regex");
+			expect(() => schema.validateSync({ field: "anything" })).not.toThrowError();
+		});
+
 		it("should reject values longer than the max supported length", () => {
 			const schema = buildSchema("/^hello/");
 			const oversizedValue = "a".repeat(MAX_MATCHES_INPUT_LENGTH + 1);

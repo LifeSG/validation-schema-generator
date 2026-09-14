@@ -13,7 +13,12 @@ export const notEquals = () =>
 	addRule("mixed", "notEquals", (value, match) => !ValueHelper.isEmpty(value) && !isEqual(value, match));
 export const notMatches = () =>
 	addRule("string", "notMatches", (value: string, regex: string) => {
-		if (ValueHelper.isEmpty(value)) {
+		if (ValueHelper.isEmpty(value) || typeof regex !== "string") {
+			return true;
+		}
+		const matches = regex.match(/^\/(.*)\/([a-z]+)?$/);
+		if (!matches) {
+			console.error(`invalid "notMatches" regex config: ${regex}`);
 			return true;
 		}
 		// cap tested value length to bound worst-case regex backtracking cost (ReDoS mitigation)

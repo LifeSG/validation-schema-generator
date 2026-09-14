@@ -84,6 +84,10 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 					if (!value || !Array.isArray(value)) return true;
 					let isValid = true;
 					for (const file of value) {
+						if (!file?.dataURL) {
+							isValid = false;
+							break;
+						}
 						const base64 = file.dataURL.split(";base64,").pop();
 						const fileType = await FileHelper.getTypeFromBase64(base64, maxFileSizeRule?.["maxSizeInKb"]);
 						const validFileType = fileType.ext === outputType;

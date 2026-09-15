@@ -1,5 +1,6 @@
 import * as Yup from "yup";
 import { ERROR_MESSAGES, MAX_MATCHES_INPUT_LENGTH } from "../shared";
+import { RegexHelper } from "../utils";
 import {
 	CONDITIONS,
 	IConditionalValidationRule,
@@ -90,23 +91,18 @@ export namespace YupHelper {
 							console.error(`error applying "${condition}" condition to ${yupSchema.type} schema`);
 							break;
 						}
-						const matches = rule.matches.match(/^\/(.*)\/([a-z]+)?$/);
-						try {
-							const pattern = matches ? new RegExp(matches[1], matches[2]) : new RegExp(rule.matches);
-							yupSchema = (yupSchema as Yup.StringSchema).test({
-								name: "matches",
-								message: rule.errorMessage,
-								params: { regex: pattern },
-								// cap tested value length to bound worst-case regex backtracking cost (ReDoS mitigation)
-								test: (value: string) =>
-									value == null ||
-									(value === ""
-										? true
-										: value.length <= MAX_MATCHES_INPUT_LENGTH && pattern.test(value)),
-							});
-						} catch (error) {
-							console.error(`error applying "${condition}" condition to ${yupSchema.type} schema`);
-						}
+						const pattern = RegexHelper.compile(rule.matches);
+						if (!pattern) break;
+						yupSchema = (yupSchema as Yup.StringSchema).test({
+							name: "matches",
+							message: rule.errorMessage,
+							params: { regex: pattern },
+							// cap tested value length to bound worst-case regex backtracking cost (ReDoS mitigation)
+							test: (value: unknown) => {
+								if (value == null || typeof value !== "string" || value === "") return true;
+								return value.length <= MAX_MATCHES_INPUT_LENGTH && pattern.test(value);
+							},
+						});
 					}
 					break;
 				case !!rule.when:

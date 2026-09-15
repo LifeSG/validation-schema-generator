@@ -3,7 +3,7 @@ import isEqual from "lodash/isEqual";
 import isBoolean from "lodash/isBoolean";
 import { IDaysRangeRule, IWhitespaceRule, addRule } from "../schema-generator";
 import { MAX_MATCHES_INPUT_LENGTH } from "../shared";
-import { DateTimeHelper, ValueHelper } from "../utils";
+import { DateTimeHelper, RegexHelper, ValueHelper } from "../utils";
 
 export const filled = () => addRule("mixed", "filled", (value) => !ValueHelper.isEmpty(value));
 export const empty = () => addRule("mixed", "empty", (value) => ValueHelper.isEmpty(value));
@@ -16,22 +16,13 @@ export const notMatches = () =>
 		if (ValueHelper.isEmpty(value) || typeof regex !== "string") {
 			return true;
 		}
-		const matches = regex.match(/^\/(.*)\/([a-z]+)?$/);
-		if (!matches) {
-			console.error(`invalid "notMatches" regex config: ${regex}`);
-			return true;
-		}
+		const pattern = RegexHelper.compile(regex);
+		if (!pattern) return true;
 		// cap tested value length to bound worst-case regex backtracking cost (ReDoS mitigation)
 		if (value.length > MAX_MATCHES_INPUT_LENGTH) {
 			return false;
 		}
-		try {
-			const parsedRegex = new RegExp(matches[1], matches[2]);
-			return !parsedRegex.test(value);
-		} catch (error) {
-			console.error(`error applying "notMatches" rule: ${error}`);
-			return true;
-		}
+		return !pattern.test(value);
 	});
 /** @deprecated use `whitespace` */
 export const noWhitespaceOnly = () =>

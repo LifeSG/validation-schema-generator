@@ -2,7 +2,7 @@ import * as Yup from "yup";
 import { IFieldSchemaBase, IValidationRule } from "../schema-generator";
 import { IFieldGenerator } from "./types";
 import { ERROR_MESSAGES, MAX_MATCHES_INPUT_LENGTH } from "../shared";
-import { FileHelper, ImageHelper } from "../utils";
+import { FileHelper, ImageHelper, RegexHelper } from "../utils";
 
 type TImageUploadAcceptedFileType = "jpg" | "gif" | "png" | "heic" | "heif" | "webp";
 type TImageUploadOutputFileType = "jpg" | "png";
@@ -128,21 +128,15 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 					matchesRule?.errorMessage || ERROR_MESSAGES.UPLOAD("photo").INVALID_FILE_NAME,
 					(value) => {
 						if (!value || !Array.isArray(value) || !matchesRule?.matches) return true;
-						try {
-							const parsed = matchesRule.matches.match(/^\/(.+)\/([gimsuy]*)$/);
-							const pattern = parsed
-								? new RegExp(parsed[1], parsed[2] || "")
-								: new RegExp(matchesRule.matches);
-							// cap tested filename length to bound worst-case regex backtracking cost (ReDoS mitigation)
-							return value.every(
-								(file) =>
-									typeof file.fileName === "string" &&
-									file.fileName.length <= MAX_MATCHES_INPUT_LENGTH &&
-									pattern.test(file.fileName)
-							);
-						} catch {
-							return true;
-						}
+						const pattern = RegexHelper.compile(matchesRule.matches);
+						if (!pattern) return true;
+						// cap tested filename length to bound worst-case regex backtracking cost (ReDoS mitigation)
+						return value.every(
+							(file) =>
+								typeof file.fileName === "string" &&
+								file.fileName.length <= MAX_MATCHES_INPUT_LENGTH &&
+								pattern.test(file.fileName)
+						);
 					}
 				),
 			validation,

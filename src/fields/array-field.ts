@@ -49,10 +49,9 @@ export const arrayField = (
 			(value) => {
 				if (!value) return true;
 
-				const errors: Record<string, string>[] = [];
 				let hasError = false;
 
-				uniqueRule.unique.forEach(({ field, errorMessage }) => {
+				uniqueRule.unique.forEach(({ field }) => {
 					// single pass dedup instead of nested findIndex to avoid O(n^2) over submitted array length
 					const seenAtIndex = new Map<unknown, number>();
 
@@ -60,10 +59,6 @@ export const arrayField = (
 						const val = item?.[field];
 						if (!val) return;
 						if (seenAtIndex.has(val)) {
-							errors[idx] = {
-								...errors[idx],
-								[field]: errorMessage || ERROR_MESSAGES.ARRAY_FIELD.UNIQUE,
-							};
 							hasError = true;
 						} else {
 							seenAtIndex.set(val, idx);

@@ -1,4 +1,5 @@
 import { FileHelper } from "../../utils";
+import { DEFAULT_MAX_BASE64_LENGTH } from "../../shared/constants";
 
 // minimal JPEG header magic-bytes.js needs to identify the file type
 const JPG_HEADER_BASE64 = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46]).toString("base64");
@@ -90,6 +91,12 @@ describe("file-helper", () => {
 
 		it("should return an unknown type instead of throwing for an empty base64 string", async () => {
 			const result = await FileHelper.getTypeFromBase64("");
+			expect(result).toEqual({ mime: undefined, ext: undefined });
+		});
+
+		it("should return an unknown type when base64 length exceeds the default max length", async () => {
+			const oversizedBase64 = "a".repeat(DEFAULT_MAX_BASE64_LENGTH + 1);
+			const result = await FileHelper.getTypeFromBase64(oversizedBase64);
 			expect(result).toEqual({ mime: undefined, ext: undefined });
 		});
 

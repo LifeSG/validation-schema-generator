@@ -1,4 +1,5 @@
 import { ImageHelper, PNG_SIGNATURE } from "../../utils";
+import { DEFAULT_MAX_BASE64_LENGTH } from "../../shared/constants";
 
 // builds a minimal PNG buffer with width/height at the byte offsets the parser reads
 const buildPngBuffer = ({
@@ -119,6 +120,12 @@ describe("image-helper", () => {
 			const base64 = buildPngBuffer({ width: 32, height: 16 }).toString("base64");
 
 			expect(ImageHelper.getDimensionsFromBase64(base64)).toEqual({ width: 32, height: 16 });
+		});
+
+		it("should return undefined when the payload exceeds the default max length", () => {
+			const oversizedBase64 = "a".repeat(DEFAULT_MAX_BASE64_LENGTH + 1);
+
+			expect(ImageHelper.getDimensionsFromBase64(oversizedBase64)).toBeUndefined();
 		});
 
 		it("should return undefined when the payload exceeds the provided maxSizeInKb cap", () => {

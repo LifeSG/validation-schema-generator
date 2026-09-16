@@ -1,4 +1,5 @@
 import getFileInfo from "magic-bytes.js";
+import { DEFAULT_MAX_BASE64_LENGTH } from "../shared/constants";
 
 export namespace FileHelper {
 	/**
@@ -51,9 +52,20 @@ export namespace FileHelper {
 
 	/**
 	 * reliably derive file type by checking magic number of the buffer
+	 * @param maxSizeInKb optional cap on the decoded file size, derived from the field's maxSizeInKb validation rule; defaults to ~100MB
 	 */
-	export const getTypeFromBase64 = async (base64: string) => {
-		const binaryString = atob(base64);
+	export const getTypeFromBase64 = async (base64: string, maxSizeInKb?: number) => {
+		// base64 encoding inflates size by ~4/3, so convert the decoded-byte cap to a base64 character cap
+		const maxBase64Length = maxSizeInKb > 0 ? Math.ceil(((maxSizeInKb * 1024) / 3) * 4) : DEFAULT_MAX_BASE64_LENGTH;
+		if (!base64 || base64.length > maxBase64Length) {
+			return { mime: undefined, ext: undefined };
+		}
+		let binaryString: string;
+		try {
+			binaryString = atob(base64);
+		} catch (error) {
+			return { mime: undefined, ext: undefined };
+		}
 		const len = binaryString.length;
 		const bytes = new Uint8Array(len);
 		for (let i = 0; i < len; i++) {

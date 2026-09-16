@@ -6,6 +6,7 @@ import { ObjectShape } from "yup/lib/object";
 import { generateFieldConfigs } from "../fields/generate-field-configs";
 import type { IFieldConfig, TFieldsConfig } from "../fields/types";
 import { ObjectHelper } from "../utils/object-helper";
+import { MAX_SCHEMA_NESTING_DEPTH } from "../shared";
 import { parseConditionalRenders } from "./conditional-render";
 import {
 	ISectionSchema,
@@ -47,9 +48,16 @@ export const jsonToSchema = <V = undefined>(
 
 export const overrideSchema = (
 	schema: TSectionsSchema | Record<string, TComponentSchema>,
-	overrides: RecursivePartial<Record<string, ISectionSchema | TComponentSchema>>
+	overrides: RecursivePartial<Record<string, ISectionSchema | TComponentSchema>>,
+	depth = 0
 ) => {
 	if (isEmpty(overrides) || typeof schema === "string") return schema;
+
+	// bail out of runaway/malicious nesting depth to prevent call stack exhaustion
+	if (depth > MAX_SCHEMA_NESTING_DEPTH) {
+		console.error(`schema nesting depth exceeded ${MAX_SCHEMA_NESTING_DEPTH}, skipping remaining overrides`);
+		return schema;
+	}
 
 	const overriddenSchema = cloneDeep(schema);
 	Object.keys(overriddenSchema).forEach((childId) => {
@@ -61,7 +69,8 @@ export const overrideSchema = (
 		if (overriddenSchema[childId]?.children) {
 			overriddenSchema[childId].children = overrideSchema(
 				overriddenSchema[childId].children as Record<string, TComponentSchema>,
-				overrides
+				overrides,
+				depth + 1
 			);
 		}
 	});

@@ -1,8 +1,8 @@
 import * as Yup from "yup";
 import { IFieldSchemaBase, IValidationRule } from "../schema-generator";
 import { IFieldGenerator } from "./types";
-import { ERROR_MESSAGES } from "../shared";
-import { FileHelper, ImageHelper } from "../utils";
+import { ERROR_MESSAGES, MAX_MATCHES_INPUT_LENGTH } from "../shared";
+import { FileHelper, ImageHelper, RegexHelper } from "../utils";
 
 type TImageUploadAcceptedFileType = "jpg" | "gif" | "png" | "heic" | "heif" | "webp";
 type TImageUploadOutputFileType = "jpg" | "png";
@@ -84,8 +84,12 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 					if (!value || !Array.isArray(value)) return true;
 					let isValid = true;
 					for (const file of value) {
+						if (!file?.dataURL) {
+							isValid = false;
+							break;
+						}
 						const base64 = file.dataURL.split(";base64,").pop();
-						const fileType = await FileHelper.getTypeFromBase64(base64);
+						const fileType = await FileHelper.getTypeFromBase64(base64, maxFileSizeRule?.["maxSizeInKb"]);
 						const validFileType = fileType.ext === outputType;
 						if (!validFileType) {
 							isValid = false;
@@ -109,7 +113,10 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 							return true;
 
 						return value.every((file) => {
-							const fileDimensions = ImageHelper.getDimensionsFromBase64(file.dataURL);
+							const fileDimensions = ImageHelper.getDimensionsFromBase64(
+								file.dataURL,
+								maxFileSizeRule?.["maxSizeInKb"]
+							);
 							return (
 								fileDimensions?.width <= dimensions.width && fileDimensions?.height <= dimensions.height
 							);
@@ -121,15 +128,15 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 					matchesRule?.errorMessage || ERROR_MESSAGES.UPLOAD("photo").INVALID_FILE_NAME,
 					(value) => {
 						if (!value || !Array.isArray(value) || !matchesRule?.matches) return true;
-						try {
-							const parsed = matchesRule.matches.match(/^\/(.+)\/([gimsuy]*)$/);
-							const pattern = parsed
-								? new RegExp(parsed[1], parsed[2] || "")
-								: new RegExp(matchesRule.matches);
-							return value.every((file) => pattern.test(file.fileName));
-						} catch {
-							return true;
-						}
+						const pattern = RegexHelper.compile(matchesRule.matches);
+						if (!pattern) return true;
+						// cap tested filename length to bound worst-case regex backtracking cost (ReDoS mitigation)
+						return value.every(
+							(file) =>
+								typeof file.fileName === "string" &&
+								file.fileName.length <= MAX_MATCHES_INPUT_LENGTH &&
+								pattern.test(file.fileName)
+						);
 					}
 				),
 			validation,

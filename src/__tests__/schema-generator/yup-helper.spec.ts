@@ -2,6 +2,7 @@ import isEqual from "lodash/isEqual";
 import * as Yup from "yup";
 import { TYupSchemaType, addRule } from "../../schema-generator";
 import { YupHelper } from "../../schema-generator/yup-helper";
+import { MAX_MATCHES_INPUT_LENGTH } from "../../shared";
 import { TestHelper } from "../../utils";
 import { ERROR_MESSAGE, ERROR_MESSAGE_2 } from "../common";
 
@@ -59,11 +60,36 @@ describe("YupHelper", () => {
 			);
 		});
 
-		it("should ignore matches validation for empty string (excludeEmptyString)", () => {
-			const schema = YupHelper.mapRules(YupHelper.mapSchemaType("string"), [
-				{ matches: "/^hello/", errorMessage: ERROR_MESSAGE },
-			]);
-			expect(() => schema.validateSync("")).not.toThrowError();
+		describe("matches", () => {
+			it("should ignore empty string (excludeEmptyString)", () => {
+				const schema = YupHelper.mapRules(YupHelper.mapSchemaType("string"), [
+					{ matches: "/^hello/", errorMessage: ERROR_MESSAGE },
+				]);
+				expect(() => schema.validateSync("")).not.toThrowError();
+			});
+
+			it("should fall back to treating a non-delimited config as a bare pattern", () => {
+				const schema = YupHelper.mapRules(YupHelper.mapSchemaType("string"), [
+					{ matches: "^hello", errorMessage: ERROR_MESSAGE },
+				]);
+				expect(() => schema.validateSync("hello world")).not.toThrowError();
+				expect(TestHelper.getError(() => schema.validateSync("hi there")).message).toBe(ERROR_MESSAGE);
+			});
+
+			it("should reject values longer than the max supported length", () => {
+				const schema = YupHelper.mapRules(YupHelper.mapSchemaType("string"), [
+					{ matches: "/^hello/", errorMessage: ERROR_MESSAGE },
+				]);
+				const oversizedValue = `hello${"a".repeat(MAX_MATCHES_INPUT_LENGTH)}`;
+				expect(TestHelper.getError(() => schema.validateSync(oversizedValue)).message).toBe(ERROR_MESSAGE);
+			});
+
+			it("should skip the condition when applied to a non-string schema", () => {
+				const schema = YupHelper.mapRules(YupHelper.mapSchemaType("array"), [
+					{ matches: "/^hello/", errorMessage: ERROR_MESSAGE },
+				]);
+				expect(() => schema.validateSync(["hello"])).not.toThrowError();
+			});
 		});
 
 		const generateConditionalSchema = (type: TYupSchemaType, is: any) =>

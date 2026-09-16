@@ -1,5 +1,6 @@
 import { LocalDate } from "@js-joda/core";
 import { IWhitespaceRule, jsonToSchema } from "../../schema-generator";
+import { MAX_MATCHES_INPUT_LENGTH } from "../../shared";
 import { TestHelper } from "../../utils";
 
 const ERROR_MESSAGE = "test error message";
@@ -225,5 +226,30 @@ describe("custom-rules", () => {
 		invalid.forEach((invalidValues: string) =>
 			expect(() => schema.validateSync({ field: invalidValues })).toThrowError()
 		);
+	});
+
+	describe("notMatches", () => {
+		const buildSchema = (notMatches: string) =>
+			jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: { uiType: "text-field", validation: [{ notMatches, errorMessage: ERROR_MESSAGE }] },
+					},
+				},
+			});
+
+		it("should pass when the regex config is malformed", () => {
+			const schema = buildSchema("not-a-delimited-regex");
+			expect(() => schema.validateSync({ field: "anything" })).not.toThrowError();
+		});
+
+		it("should reject values longer than the max supported length", () => {
+			const schema = buildSchema("/^hello/");
+			const oversizedValue = "a".repeat(MAX_MATCHES_INPUT_LENGTH + 1);
+			expect(TestHelper.getError(() => schema.validateSync({ field: oversizedValue })).message).toBe(
+				ERROR_MESSAGE
+			);
+		});
 	});
 });

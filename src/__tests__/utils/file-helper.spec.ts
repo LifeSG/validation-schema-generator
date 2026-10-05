@@ -2,7 +2,8 @@ import { FileHelper } from "../../utils";
 import { DEFAULT_MAX_BASE64_LENGTH } from "../../shared/constants";
 
 // minimal JPEG header magic-bytes.js needs to identify the file type
-const JPG_HEADER_BASE64 = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46]).toString("base64");
+const JPG_HEADER = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46]);
+const JPG_HEADER_BASE64 = JPG_HEADER.toString("base64");
 
 describe("file-helper", () => {
 	describe("extensionsToSentence", () => {
@@ -109,6 +110,20 @@ describe("file-helper", () => {
 		it("should still derive file type when within the provided maxSizeInKb cap", async () => {
 			const result = await FileHelper.getTypeFromBase64(JPG_HEADER_BASE64, 1);
 			expect(result.ext).toBe("jpg");
+		});
+
+		it("should derive file type from a large payload without a maxSizeInKb cap", async () => {
+			const largeBase64 = Buffer.concat([JPG_HEADER, Buffer.alloc(1024 * 1024)]).toString("base64");
+
+			const result = await FileHelper.getTypeFromBase64(largeBase64);
+
+			expect(result.ext).toBe("jpg");
+		});
+
+		it("should return an unknown type if malformed characters appear beyond the decoded prefix", async () => {
+			const base64 = Buffer.concat([JPG_HEADER, Buffer.alloc(100 * 1024)]).toString("base64") + "!!!!";
+			const result = await FileHelper.getTypeFromBase64(base64);
+			expect(result).toEqual({ mime: undefined, ext: undefined });
 		});
 	});
 });

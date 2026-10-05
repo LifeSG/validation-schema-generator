@@ -140,5 +140,46 @@ describe("image-helper", () => {
 
 			expect(ImageHelper.getDimensionsFromBase64(dataUrl, 1)).toEqual({ width: 100, height: 50 });
 		});
+
+		describe("large payloads", () => {
+			// APPn segment filled with zeros; max segment length is 0xffff
+			const buildAppSegment = () => {
+				const segment = Buffer.alloc(2 + 0xffff);
+				segment.set([0xff, 0xe1], 0);
+				segment.writeUInt16BE(0xffff, 2);
+				return segment;
+			};
+			const buildLargeJpg = (appSegments: number, trailingBytes = 0) => {
+				const jpg = buildJpgBuffer({ width: 200, height: 150 });
+				const soi = jpg.subarray(0, 2);
+				const rest = jpg.subarray(2);
+				const segments = Array.from({ length: appSegments }, buildAppSegment);
+				return Buffer.concat([soi, ...segments, rest, Buffer.alloc(trailingBytes)]);
+			};
+
+			it("should parse dimensions of a large PNG without a maxSizeInKb cap", () => {
+				const png = Buffer.concat([buildPngBuffer({ width: 100, height: 50 }), Buffer.alloc(5 * 1024 * 1024)]);
+
+				expect(ImageHelper.getDimensionsFromBase64(toBase64DataUrl("image/png", png))).toEqual({
+					width: 100,
+					height: 50,
+				});
+			});
+
+			it("should parse dimensions of a JPG whose SOF follows large APPn segments", () => {
+				const jpg = buildLargeJpg(4, 5 * 1024 * 1024);
+
+				expect(ImageHelper.getDimensionsFromBase64(toBase64DataUrl("image/jpeg", jpg))).toEqual({
+					width: 200,
+					height: 150,
+				});
+			});
+
+			it("should return undefined if the JPG SOF lies beyond the decoded prefix", () => {
+				const jpg = buildLargeJpg(20);
+
+				expect(ImageHelper.getDimensionsFromBase64(toBase64DataUrl("image/jpeg", jpg))).toBeUndefined();
+			});
+		});
 	});
 });

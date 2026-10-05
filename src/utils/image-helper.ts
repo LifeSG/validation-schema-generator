@@ -50,6 +50,9 @@ const getJpgDimensions = (buffer: Buffer): IImageDimensions | undefined => {
 	return undefined;
 };
 
+// PNG IHDR sits within the first 40 bytes and JPEG SOF follows the APPn segments, so ~1MB decoded is ample
+const DIMENSIONS_BASE64_PREFIX_LENGTH = Math.ceil((1024 * 1024) / 3) * 4;
+
 export namespace ImageHelper {
 	/**
 	 * @param maxSizeInKb optional cap on the decoded file size, derived from the field's maxSizeInKb validation rule; defaults to ~100MB
@@ -59,7 +62,7 @@ export namespace ImageHelper {
 		const maxBase64Length = maxSizeInKb > 0 ? Math.ceil(((maxSizeInKb * 1024) / 3) * 4) : DEFAULT_MAX_BASE64_LENGTH;
 		const payload = base64?.split(";base64,").pop();
 		if (!payload || payload.length > maxBase64Length) return undefined;
-		const buffer = Buffer.from(payload, "base64");
+		const buffer = Buffer.from(payload.slice(0, DIMENSIONS_BASE64_PREFIX_LENGTH), "base64");
 		if (isPng(buffer)) return getPngDimensions(buffer);
 		if (isJpg(buffer)) return getJpgDimensions(buffer);
 		return undefined;

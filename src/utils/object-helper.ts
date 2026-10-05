@@ -1,5 +1,6 @@
 import isEmpty from "lodash/isEmpty";
 import isNil from "lodash/isNil";
+import isPlainObject from "lodash/isPlainObject";
 
 export namespace ObjectHelper {
 	export const upsert = <T>(data: Record<string, T>, key: string, value: T): Record<string, T> => {
@@ -49,6 +50,20 @@ export namespace ObjectHelper {
 				}
 			}
 		}
+	};
+
+	/**
+	 * Iteratively checks whether plain objects / arrays nest deeper than maxDepth, without risking stack exhaustion
+	 */
+	export const exceedsDepth = (data: unknown, maxDepth: number): boolean => {
+		const stack: [unknown, number][] = [[data, 0]];
+		while (stack.length) {
+			const [value, depth] = stack.pop();
+			if (!Array.isArray(value) && !isPlainObject(value)) continue;
+			if (depth > maxDepth) return true;
+			Object.values(value).forEach((child) => stack.push([child, depth + 1]));
+		}
+		return false;
 	};
 
 	/**

@@ -2,7 +2,7 @@ import isEqual from "lodash/isEqual";
 import * as Yup from "yup";
 import { TYupSchemaType, addRule } from "../../schema-generator";
 import { YupHelper } from "../../schema-generator/yup-helper";
-import { MAX_MATCHES_INPUT_LENGTH } from "../../shared";
+import { MAX_MATCHES_INPUT_LENGTH, MAX_SCHEMA_NESTING_DEPTH } from "../../shared";
 import { TestHelper } from "../../utils";
 import { ERROR_MESSAGE, ERROR_MESSAGE_2 } from "../common";
 
@@ -241,6 +241,24 @@ describe("YupHelper", () => {
 				{ notMatches: "/hello/", errorMessage: ERROR_MESSAGE_2 },
 			]);
 			expect(TestHelper.getError(() => schema.validateSync(null))?.message).toBe(ERROR_MESSAGE);
+		});
+
+		it("should bail out of when-rule recursion once depth exceeds MAX_SCHEMA_NESTING_DEPTH", () => {
+			const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => undefined);
+
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- deeply recursive fixture
+			let rule: any = { required: true, errorMessage: ERROR_MESSAGE };
+			for (let i = 0; i < MAX_SCHEMA_NESTING_DEPTH + 100000; i++) {
+				rule = { when: { field2: { is: [{ filled: true }], then: [rule], yupSchema: Yup.string() } } };
+			}
+
+			expect(() => YupHelper.mapRules(Yup.string(), [rule])).not.toThrow();
+			expect(console.error).toHaveBeenCalledWith(
+				expect.stringContaining(
+					`mapRules nesting depth exceeded ${MAX_SCHEMA_NESTING_DEPTH}, skipping remaining rules`
+				)
+			);
+			consoleErrorSpy.mockRestore();
 		});
 	});
 

@@ -1,8 +1,10 @@
 import { LocalDate } from "@js-joda/core";
+import * as Yup from "yup";
 import { ObjectSchema } from "yup";
 import { ObjectShape } from "yup/lib/object";
 import { TComponentSchema, TSectionsSchema, jsonToSchema } from "../../schema-generator";
-import { ERROR_MESSAGES, MAX_SCHEMA_NESTING_DEPTH } from "../../shared";
+import { _testExports } from "../../schema-generator/json-to-schema";
+import { ERROR_MESSAGES, MAX_CONFIG_OBJECT_DEPTH, MAX_SCHEMA_NESTING_DEPTH } from "../../shared";
 import { TestHelper } from "../../utils";
 import { ERROR_MESSAGE, ERROR_MESSAGE_2, ERROR_MESSAGE_3, ERROR_MESSAGE_4 } from "../common";
 
@@ -61,9 +63,7 @@ describe("json-to-schema", () => {
 			expect(error.inner[2].message).toBe(ERROR_MESSAGE_4);
 		});
 
-		it("should not exceed the call stack when schema config is nested beyond the max depth", () => {
-			jest.spyOn(console, "error").mockImplementation(() => undefined);
-
+		it("should throw once schema config nesting exceeds MAX_CONFIG_OBJECT_DEPTH (reached before the per-field MAX_SCHEMA_NESTING_DEPTH soft-degrade)", () => {
 			let node: TComponentSchema = {
 				uiType: "text-field",
 				validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
@@ -72,18 +72,12 @@ describe("json-to-schema", () => {
 				node = { uiType: "div", children: { child: node } };
 			}
 
-			let schema: ObjectSchema<ObjectShape>;
-			expect(() => {
-				schema = jsonToSchema({ section: { uiType: "section", children: { root: node } } });
-			}).not.toThrow();
-
-			expect(console.error).toHaveBeenCalledWith(expect.stringContaining("schema nesting depth exceeded"));
-			expect(schema.describe().fields).toEqual({});
+			expect(() => jsonToSchema({ section: { uiType: "section", children: { root: node } } })).toThrow(
+				`schema config nesting exceeds the maximum depth of ${MAX_CONFIG_OBJECT_DEPTH}`
+			);
 		});
 
-		it("should not exceed the call stack when checkbox/radio options are nested beyond the max depth", () => {
-			jest.spyOn(console, "error").mockImplementation(() => undefined);
-
+		it("should throw once checkbox/radio option nesting exceeds MAX_CONFIG_OBJECT_DEPTH (reached before the per-field MAX_SCHEMA_NESTING_DEPTH soft-degrade)", () => {
 			const totalLevels = MAX_SCHEMA_NESTING_DEPTH + 10;
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- deeply recursive fixture, typing it as TComponentSchema blows up TS's type-checker
 			let children: any = {
@@ -95,16 +89,84 @@ describe("json-to-schema", () => {
 				};
 			}
 
-			let schema: ObjectSchema<ObjectShape>;
-			expect(() => {
-				schema = jsonToSchema({ section: { uiType: "section", children } });
-			}).not.toThrow();
+			expect(() => jsonToSchema({ section: { uiType: "section", children } })).toThrow(
+				`schema config nesting exceeds the maximum depth of ${MAX_CONFIG_OBJECT_DEPTH}`
+			);
+		});
 
-			expect(console.error).toHaveBeenCalledWith(expect.stringContaining("schema nesting depth exceeded"));
-			const fields = schema.describe().fields;
-			// the outermost level (processed at depth 0) generates a field, the innermost leaf (beyond the cap) does not
-			expect(fields[`level${totalLevels - 1}`]).toBeDefined();
-			expect(fields.leaf).toBeUndefined();
+		describe("max config object depth", () => {
+			const DEPTH_ERROR = `schema config nesting exceeds the maximum depth of ${MAX_CONFIG_OBJECT_DEPTH}`;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- deeply recursive fixture
+			const nestDivs = (levels: number): any => {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any -- deeply recursive fixture
+				let node: any = { uiType: "text-field" };
+				for (let i = 0; i < levels; i++) {
+					node = { uiType: "div", children: { [`child${i}`]: node } };
+				}
+				return { section: { uiType: "section", children: { root: node } } };
+			};
+
+			it("should throw a descriptive error if sections are nested beyond the max depth", () => {
+				expect(() => jsonToSchema(nestDivs(20000))).toThrow(DEPTH_ERROR);
+			});
+
+			it("should throw a descriptive error if overrides are nested beyond the max depth", () => {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any -- deeply recursive fixture
+				let overrides: any = { label: "x" };
+				for (let i = 0; i < 20000; i++) overrides = { children: overrides };
+
+				expect(() => jsonToSchema(nestDivs(1), overrides)).toThrow(DEPTH_ERROR);
+			});
+
+			it("should throw a descriptive error if when rules are nested beyond the max depth", () => {
+				let rule: Record<string, unknown> = { required: true };
+				for (let i = 0; i < 20000; i++) rule = { when: { field2: { is: [{ filled: true }], then: [rule] } } };
+
+				expect(() =>
+					jsonToSchema({
+						section: {
+							uiType: "section",
+							children: {
+								field1: { uiType: "text-field", validation: [rule] },
+								field2: { uiType: "text-field" },
+							},
+						},
+					})
+				).toThrow(DEPTH_ERROR);
+			});
+
+			it("should not exceed the call stack for configs just within the max depth", () => {
+				jest.spyOn(console, "error").mockImplementation(() => undefined);
+				const levels = Math.floor(MAX_CONFIG_OBJECT_DEPTH / 2) - 5;
+				const overrides = { root: { children: { child0: { label: "x" } } } };
+
+				expect(() => jsonToSchema(nestDivs(levels), overrides).validateSync({})).not.toThrow();
+			});
+		});
+
+		// the MAX_CONFIG_OBJECT_DEPTH pre-check above always throws before a when-rule chain can reach
+		// addSchemaToWhenRules' own MAX_SCHEMA_NESTING_DEPTH guard, so it's exercised directly here instead
+		describe("addSchemaToWhenRules nesting guard", () => {
+			it("should bail out and log once when-rule recursion exceeds MAX_SCHEMA_NESTING_DEPTH", () => {
+				jest.spyOn(console, "error").mockImplementation(() => undefined);
+
+				let rule: Record<string, unknown> = { required: true };
+				for (let i = 0; i < MAX_SCHEMA_NESTING_DEPTH + 100000; i++) {
+					rule = { when: { field2: { is: [{ filled: true }], then: [rule] } } };
+				}
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any -- minimal stub, only `yupSchema`/`validation` are read
+				const fieldConfigs = {
+					field1: { yupSchema: Yup.string(), validation: [rule] },
+					field2: { yupSchema: Yup.string(), validation: [] },
+				} as any;
+
+				expect(() => _testExports.addSchemaToWhenRules("field1", fieldConfigs, [rule] as never)).not.toThrow();
+				expect(console.error).toHaveBeenCalledWith(
+					expect.stringContaining(
+						`when-rule nesting depth exceeded ${MAX_SCHEMA_NESTING_DEPTH}, skipping remaining when rules`
+					)
+				);
+			});
 		});
 
 		it("should throw error if there are unknown fields", () => {

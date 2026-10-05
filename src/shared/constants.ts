@@ -6,3 +6,6 @@ export const DEFAULT_MAX_BASE64_LENGTH = 100 * 1024 * 1024;
 
 // caps recursion depth over nested schema config (children / option.children) to prevent stack exhaustion
 export const MAX_SCHEMA_NESTING_DEPTH = 50;
+
+// hard cap on raw object nesting of sections/overrides, checked iteratively before any recursive processing
+export const MAX_CONFIG_OBJECT_DEPTH = 100;

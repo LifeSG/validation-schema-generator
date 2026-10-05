@@ -87,4 +87,39 @@ describe("object-helper", () => {
 			});
 		});
 	});
+
+	describe("exceedsDepth", () => {
+		const nest = (levels: number) => {
+			let data: Record<string, unknown> = { leaf: 1 };
+			for (let i = 0; i < levels; i++) data = { a: [data] };
+			return data;
+		};
+
+		it("should return false if nesting is within the max depth", () => {
+			expect(ObjectHelper.exceedsDepth(nest(5), 10)).toBe(false);
+		});
+
+		it("should return true if nesting exceeds the max depth", () => {
+			expect(ObjectHelper.exceedsDepth(nest(6), 10)).toBe(true);
+		});
+
+		it("should not exceed the call stack on extremely deep data", () => {
+			expect(ObjectHelper.exceedsDepth(nest(100000), 10)).toBe(true);
+		});
+
+		it("should terminate on circular references", () => {
+			const data: Record<string, unknown> = {};
+			data.self = data;
+			expect(ObjectHelper.exceedsDepth(data, 10)).toBe(true);
+		});
+
+		it.each`
+			type           | value
+			${"undefined"} | ${undefined}
+			${"null"}      | ${null}
+			${"primitive"} | ${"string"}
+		`("should return false for $type", ({ value }) => {
+			expect(ObjectHelper.exceedsDepth(value, 0)).toBe(false);
+		});
+	});
 });

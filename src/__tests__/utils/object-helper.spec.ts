@@ -52,6 +52,22 @@ describe("object-helper", () => {
 
 			expect(result).toEqual(expected);
 		});
+
+		it("should not resolve a key to an inherited Object.prototype member", () => {
+			const data = { a: { b: 1 } };
+
+			const result = ObjectHelper.getNestedValueByKey(data, "constructor");
+
+			expect(result).toBeUndefined();
+		});
+
+		it("should not resolve a nested key to an inherited Object.prototype member", () => {
+			const data = { a: { b: 1 } };
+
+			const result = ObjectHelper.getNestedValueByKey(data, "hasOwnProperty");
+
+			expect(result).toBeUndefined();
+		});
 	});
 
 	describe("removeNil", () => {

@@ -663,6 +663,24 @@ describe("json-to-schema", () => {
 			expect(() => schema.validateSync({})).not.toThrowError();
 		});
 
+		it("should not crash when a showIf/shown source field id collides with an inherited Object.prototype member", () => {
+			const uiType = "text-field";
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: {
+						field: {
+							uiType,
+							showIf: [{ constructor: [{ shown: true }] }],
+							validation: [{ required: true, errorMessage: ERROR_MESSAGE }],
+						},
+					},
+				},
+			});
+
+			expect(() => schema.validateSync({})).not.toThrowError();
+		});
+
 		it("should support shown conditions declared out of order", () => {
 			const uiType = "text-field";
 			const schema = jsonToSchema({

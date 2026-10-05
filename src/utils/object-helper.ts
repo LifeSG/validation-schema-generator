@@ -34,7 +34,8 @@ export namespace ObjectHelper {
 		options: GetNestedValueByKeyOptions = {}
 	): Record<string, T> => {
 		const { skipRoot, searchIn } = options;
-		if (!skipRoot && key in data) {
+		// use hasOwnProperty instead of `in` so inherited Object.prototype members (e.g. "constructor") aren't mistaken for data
+		if (!skipRoot && Object.prototype.hasOwnProperty.call(data, key)) {
 			return { [key]: data[key] };
 		}
 

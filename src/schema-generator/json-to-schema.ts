@@ -122,6 +122,13 @@ const addSchemaToWhenRules = (
 		.forEach((fieldValidationConfig) => {
 			const parsedConfig = { ...fieldValidationConfig };
 			Object.keys(parsedConfig.when).forEach((whenFieldId) => {
+				const whenFieldConfig = fieldConfigs[whenFieldId];
+				if (!whenFieldConfig?.yupSchema) {
+					console.error(`when rule on field "${id}" references unknown field "${whenFieldId}", skipping`);
+					delete parsedConfig.when[whenFieldId];
+					return;
+				}
+
 				// when
 				whenPairIds.push([id, whenFieldId]);
 				parsedConfig.when[whenFieldId] = {

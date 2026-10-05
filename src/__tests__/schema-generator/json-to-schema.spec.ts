@@ -365,6 +365,39 @@ describe("json-to-schema", () => {
 				TestHelper.getError(() => schema.validateSync({ field1: undefined, field2: "b", field3: "c" })).message
 			).toBe(ERROR_MESSAGE);
 		});
+
+		it("should skip when rules referencing an unknown field instead of throwing", () => {
+			jest.spyOn(console, "error").mockImplementation(() => undefined);
+
+			let schema: ObjectSchema<ObjectShape>;
+			expect(() => {
+				schema = jsonToSchema({
+					section: {
+						uiType: "section",
+						children: {
+							field1: {
+								uiType: "text-field",
+								validation: [
+									{
+										when: {
+											unknownField: {
+												is: [{ filled: true }],
+												then: [{ required: true, errorMessage: ERROR_MESSAGE }],
+											},
+										},
+									},
+								],
+							},
+						},
+					},
+				});
+			}).not.toThrow();
+
+			expect(console.error).toHaveBeenCalledWith(
+				expect.stringContaining('when rule on field "field1" references unknown field "unknownField"')
+			);
+			expect(() => schema.validateSync({})).not.toThrow();
+		});
 	});
 
 	describe("conditionalRender", () => {

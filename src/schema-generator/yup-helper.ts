@@ -104,7 +104,7 @@ export namespace YupHelper {
 							name: "matches",
 							message: rule.errorMessage,
 							params: { regex: pattern },
-							// cap tested value length to bound worst-case regex backtracking cost (ReDoS mitigation)
+							// cap tested value length to bound polynomial regex backtracking cost
 							test: (value: unknown) => {
 								if (value == null || typeof value !== "string" || value === "") return true;
 								return value.length <= MAX_MATCHES_INPUT_LENGTH && pattern.test(value);

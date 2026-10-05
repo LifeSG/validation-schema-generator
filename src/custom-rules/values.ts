@@ -18,7 +18,7 @@ export const notMatches = () =>
 		}
 		const pattern = RegexHelper.compile(regex);
 		if (!pattern) return true;
-		// cap tested value length to bound worst-case regex backtracking cost (ReDoS mitigation)
+		// cap tested value length to bound polynomial regex backtracking cost
 		if (value.length > MAX_MATCHES_INPUT_LENGTH) {
 			return false;
 		}

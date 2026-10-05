@@ -130,7 +130,7 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 						if (!value || !Array.isArray(value) || !matchesRule?.matches) return true;
 						const pattern = RegexHelper.compile(matchesRule.matches);
 						if (!pattern) return true;
-						// cap tested filename length to bound worst-case regex backtracking cost (ReDoS mitigation)
+						// cap tested filename length to bound polynomial regex backtracking cost
 						return value.every(
 							(file) =>
 								typeof file.fileName === "string" &&

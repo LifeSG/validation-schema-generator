@@ -2,6 +2,7 @@ import { addRule } from "../schema-generator";
 
 export const excludes = () =>
 	addRule("array", "excludes", (values: unknown[], matches: unknown | unknown[]) => {
+		if (!Array.isArray(values)) return true;
 		if (!Array.isArray(matches)) {
 			return !values.includes(matches);
 		} else {

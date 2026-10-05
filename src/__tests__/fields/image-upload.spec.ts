@@ -43,6 +43,32 @@ describe("image-upload", () => {
 		expect((await TestHelper.getAsyncError(() => schema.validate({ field: [] }))).message).toBe(ERROR_MESSAGE);
 	});
 
+	it("should reject malformed submitted file items without throwing", async () => {
+		const schema = jsonToSchema({
+			section: {
+				uiType: "section",
+				children: {
+					field: {
+						uiType: "image-upload",
+						compress: true,
+						dimensions: { width: 100, height: 100 },
+						validation: [{ maxSizeInKb: 1024 }, { matches: "/^[a-z]+\\.jpg$/" }],
+					},
+				},
+			},
+		});
+
+		const malformedValues = [
+			[null],
+			[{ dataURL: 123, fileName: FILENAME }],
+			[{ dataURL: JPG_BASE64, fileName: 123 }],
+		];
+		for (const field of malformedValues) {
+			const error = await TestHelper.getAsyncError(() => schema.validate({ field }));
+			expect(error.name).toBe("ValidationError");
+		}
+	});
+
 	describe.each`
 		rule             | ruleValue | valid           | invalid                     | errorMessage
 		${"maxSizeInKb"} | ${1}      | ${[JPG_BASE64]} | ${[JPG_1KB_BASE64]}         | ${ERROR_MESSAGES.UPLOAD("photo").MAX_FILE_SIZE(1)}

@@ -18,6 +18,6 @@
 
 <!-- Put an `x` in items that apply -->
 
--   [ ] Changes follow the project guidelines in [CONTRIBUTING.md](https://github.com/LifeSG/react-design-system/blob/master/CONTRIBUTING.md)
+-   [ ] Changes follow the project guidelines in [CONTRIBUTING.md](https://github.com/LifeSG/validation-schema-generator/blob/main/CONTRIBUTING.md)
 -   [ ] Updated documentation
 -   [ ] Added/updated unit tests

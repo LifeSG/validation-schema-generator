@@ -1,3 +1,4 @@
+import vm from "vm";
 import isEqual from "lodash/isEqual";
 import * as Yup from "yup";
 import { TYupSchemaType, addRule } from "../../schema-generator";
@@ -252,7 +253,17 @@ describe("YupHelper", () => {
 				rule = { when: { field2: { is: [{ filled: true }], then: [rule], yupSchema: Yup.string() } } };
 			}
 
-			expect(() => YupHelper.mapRules(Yup.string(), [rule])).not.toThrow();
+			expect(() =>
+				vm.runInNewContext(
+					"fn(schema, rules)",
+					{
+						fn: YupHelper.mapRules,
+						schema: Yup.string(),
+						rules: [rule],
+					},
+					{ timeout: 1000 }
+				)
+			).not.toThrow();
 			expect(console.error).toHaveBeenCalledWith(
 				expect.stringContaining(
 					`mapRules nesting depth exceeded ${MAX_SCHEMA_NESTING_DEPTH}, skipping remaining rules`

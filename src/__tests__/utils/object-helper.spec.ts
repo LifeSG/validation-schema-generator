@@ -1,3 +1,4 @@
+import vm from "vm";
 import { ObjectHelper } from "../../utils";
 
 describe("object-helper", () => {
@@ -120,13 +121,33 @@ describe("object-helper", () => {
 		});
 
 		it("should not exceed the call stack on extremely deep data", () => {
-			expect(ObjectHelper.exceedsDepth(nest(100000), 10)).toBe(true);
+			const result = vm.runInNewContext(
+				"fn(data, maxDepth)",
+				{
+					fn: ObjectHelper.exceedsDepth,
+					data: nest(100000),
+					maxDepth: 10,
+				},
+				{ timeout: 1000 }
+			);
+
+			expect(result).toBe(true);
 		});
 
 		it("should terminate on circular references", () => {
 			const data: Record<string, unknown> = {};
 			data.self = data;
-			expect(ObjectHelper.exceedsDepth(data, 10)).toBe(true);
+			const result = vm.runInNewContext(
+				"fn(data, maxDepth)",
+				{
+					fn: ObjectHelper.exceedsDepth,
+					data,
+					maxDepth: 10,
+				},
+				{ timeout: 1000 }
+			);
+
+			expect(result).toBe(true);
 		});
 
 		it.each`

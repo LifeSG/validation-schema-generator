@@ -1,3 +1,4 @@
+import vm from "vm";
 import { LocalDate } from "@js-joda/core";
 import * as Yup from "yup";
 import { ObjectSchema } from "yup";
@@ -107,7 +108,10 @@ describe("json-to-schema", () => {
 			};
 
 			it("should throw a descriptive error if sections are nested beyond the max depth", () => {
-				expect(() => jsonToSchema(nestDivs(20000))).toThrow(DEPTH_ERROR);
+				const sections = nestDivs(20000);
+				expect(() =>
+					vm.runInNewContext("fn(sections)", { fn: jsonToSchema, sections }, { timeout: 1000 })
+				).toThrow(DEPTH_ERROR);
 			});
 
 			it("should throw a descriptive error if overrides are nested beyond the max depth", () => {
@@ -115,23 +119,31 @@ describe("json-to-schema", () => {
 				let overrides: any = { label: "x" };
 				for (let i = 0; i < 20000; i++) overrides = { children: overrides };
 
-				expect(() => jsonToSchema(nestDivs(1), overrides)).toThrow(DEPTH_ERROR);
+				const sections = nestDivs(1);
+				expect(() =>
+					vm.runInNewContext(
+						"fn(sections, overrides)",
+						{ fn: jsonToSchema, sections, overrides },
+						{ timeout: 1000 }
+					)
+				).toThrow(DEPTH_ERROR);
 			});
 
 			it("should throw a descriptive error if when rules are nested beyond the max depth", () => {
 				let rule: Record<string, unknown> = { required: true };
 				for (let i = 0; i < 20000; i++) rule = { when: { field2: { is: [{ filled: true }], then: [rule] } } };
 
-				expect(() =>
-					jsonToSchema({
-						section: {
-							uiType: "section",
-							children: {
-								field1: { uiType: "text-field", validation: [rule] },
-								field2: { uiType: "text-field" },
-							},
+				const sections = {
+					section: {
+						uiType: "section",
+						children: {
+							field1: { uiType: "text-field", validation: [rule] },
+							field2: { uiType: "text-field" },
 						},
-					})
+					},
+				};
+				expect(() =>
+					vm.runInNewContext("fn(sections)", { fn: jsonToSchema, sections }, { timeout: 1000 })
 				).toThrow(DEPTH_ERROR);
 			});
 
@@ -160,7 +172,18 @@ describe("json-to-schema", () => {
 					field2: { yupSchema: Yup.string(), validation: [] },
 				} as any;
 
-				expect(() => _testExports.addSchemaToWhenRules("field1", fieldConfigs, [rule] as never)).not.toThrow();
+				expect(() =>
+					vm.runInNewContext(
+						"fn(id, configs, rules)",
+						{
+							fn: _testExports.addSchemaToWhenRules,
+							id: "field1",
+							configs: fieldConfigs,
+							rules: [rule],
+						},
+						{ timeout: 1000 }
+					)
+				).not.toThrow();
 				expect(console.error).toHaveBeenCalledWith(
 					expect.stringContaining(
 						`when-rule nesting depth exceeded ${MAX_SCHEMA_NESTING_DEPTH}, skipping remaining when rules`

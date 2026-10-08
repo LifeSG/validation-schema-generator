@@ -137,7 +137,10 @@ const addSchemaToWhenRules = (
 		.forEach((fieldValidationConfig) => {
 			const parsedConfig = { ...fieldValidationConfig };
 			Object.keys(parsedConfig.when).forEach((whenFieldId) => {
-				const whenFieldConfig = fieldConfigs[whenFieldId];
+				// avoid treating inherited Object.prototype names as configured field IDs
+				const whenFieldConfig = Object.prototype.hasOwnProperty.call(fieldConfigs, whenFieldId)
+					? fieldConfigs[whenFieldId]
+					: undefined;
 				if (!whenFieldConfig?.yupSchema) {
 					console.error(`when rule on field "${id}" references unknown field "${whenFieldId}", skipping`);
 					delete parsedConfig.when[whenFieldId];

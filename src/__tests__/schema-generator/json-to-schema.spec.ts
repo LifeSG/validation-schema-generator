@@ -169,6 +169,30 @@ describe("json-to-schema", () => {
 			});
 		});
 
+		describe("addSchemaToWhenRules field lookup", () => {
+			it("should treat inherited field configs as unknown fields", () => {
+				jest.spyOn(console, "error").mockImplementation(() => undefined);
+				const clone = jest.fn(() => Yup.string());
+				const fieldConfigs = Object.create({
+					inheritedField: { yupSchema: { clone }, validation: [] },
+				});
+				const validation = [{ when: { inheritedField: { is: "x", then: [] } } }] as never;
+
+				const [parsedValidation, whenPairIds] = _testExports.addSchemaToWhenRules(
+					"field1",
+					fieldConfigs,
+					validation
+				);
+
+				expect(clone).not.toHaveBeenCalled();
+				expect(whenPairIds).toEqual([]);
+				expect(parsedValidation[0].when).toEqual({});
+				expect(console.error).toHaveBeenCalledWith(
+					expect.stringContaining('when rule on field "field1" references unknown field "inheritedField"')
+				);
+			});
+		});
+
 		it("should throw error if there are unknown fields", () => {
 			const schema = jsonToSchema({
 				section: {

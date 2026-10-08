@@ -3,7 +3,7 @@ import { DEFAULT_MAX_BASE64_LENGTH } from "../shared/constants";
 
 // magic-bytes.js signatures sit within the first ~4KB (max offset 0x1000), so only that prefix needs decoding
 const MAGIC_BYTES_BASE64_PREFIX_LENGTH = 8192;
-const BASE64_PATTERN = /^[A-Za-z0-9+/]*={0,2}$/;
+const BASE64_PATTERN = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?(?![\s\S])/;
 
 export namespace FileHelper {
 	/**

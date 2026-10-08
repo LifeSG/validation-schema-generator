@@ -125,5 +125,16 @@ describe("file-helper", () => {
 			const result = await FileHelper.getTypeFromBase64(base64);
 			expect(result).toEqual({ mime: undefined, ext: undefined });
 		});
+
+		it("should return an unknown type if total base64 length is not a multiple of four", async () => {
+			const base64 = Buffer.concat([JPG_HEADER, Buffer.alloc(102401)]).toString("base64") + "A";
+			const result = await FileHelper.getTypeFromBase64(base64);
+			expect(result).toEqual({ mime: undefined, ext: undefined });
+		});
+
+		it("should return an unknown type if base64 has a trailing newline", async () => {
+			const result = await FileHelper.getTypeFromBase64(`${JPG_HEADER_BASE64}\n`);
+			expect(result).toEqual({ mime: undefined, ext: undefined });
+		});
 	});
 });

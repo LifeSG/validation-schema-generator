@@ -65,7 +65,8 @@ const topologicalSort = (dependencies: Record<string, string[]>) => {
 	const edges: Record<string, string[]> = Object.fromEntries(fieldIds.map((id) => [id, []]));
 	Object.entries(dependencies).forEach(([childId, parentIds]) => {
 		parentIds.forEach((parentId) => {
-			if (!edges[parentId]) {
+			// use hasOwnProperty instead of a truthy check so a parentId like "constructor" doesn't resolve to an inherited Object.prototype member
+			if (!Object.prototype.hasOwnProperty.call(edges, parentId)) {
 				edges[parentId] = [];
 			}
 			edges[parentId].push(childId);

@@ -67,8 +67,9 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 						if (!value || !Array.isArray(value) || !maxFileSizeRule?.["maxSizeInKb"]) return true;
 						return value.every(
 							(file) =>
+								typeof file?.dataURL === "string" &&
 								FileHelper.getFilesizeFromBase64(file.dataURL) <=
-								maxFileSizeRule?.["maxSizeInKb"] * 1024
+									maxFileSizeRule?.["maxSizeInKb"] * 1024
 						);
 					}
 				)
@@ -84,7 +85,7 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 					if (!value || !Array.isArray(value)) return true;
 					let isValid = true;
 					for (const file of value) {
-						if (!file?.dataURL) {
+						if (typeof file?.dataURL !== "string") {
 							isValid = false;
 							break;
 						}
@@ -113,6 +114,7 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 							return true;
 
 						return value.every((file) => {
+							if (typeof file?.dataURL !== "string") return false;
 							const fileDimensions = ImageHelper.getDimensionsFromBase64(
 								file.dataURL,
 								maxFileSizeRule?.["maxSizeInKb"]
@@ -130,10 +132,10 @@ export const imageUpload: IFieldGenerator<IImageUploadSchema> = (
 						if (!value || !Array.isArray(value) || !matchesRule?.matches) return true;
 						const pattern = RegexHelper.compile(matchesRule.matches);
 						if (!pattern) return true;
-						// cap tested filename length to bound worst-case regex backtracking cost (ReDoS mitigation)
+						// cap tested filename length to bound polynomial regex backtracking cost
 						return value.every(
 							(file) =>
-								typeof file.fileName === "string" &&
+								typeof file?.fileName === "string" &&
 								file.fileName.length <= MAX_MATCHES_INPUT_LENGTH &&
 								pattern.test(file.fileName)
 						);

@@ -58,7 +58,12 @@ const parseShownRule = (
 		.forEach(([fieldId, meta]) => {
 			const notShown = meta.sourceIds.every((rules) => {
 				if (rules.length) {
-					return rules.some((id) => !parsedYupSchema[id] || parsedYupSchema[id].describe().meta?.hidden);
+					// use hasOwnProperty instead of a truthy check so an id like "constructor" doesn't resolve to an inherited Object.prototype member
+					return rules.some(
+						(id) =>
+							!Object.prototype.hasOwnProperty.call(parsedYupSchema, id) ||
+							parsedYupSchema[id].describe().meta?.hidden
+					);
 				}
 				return false;
 			});
@@ -167,7 +172,10 @@ const canRender = (
 		const shownRuleSourceFieldIds = [];
 		const combinedSchema: Record<string, Yup.AnySchema> = {};
 		Object.entries(ruleGroup).forEach(([sourceFieldId, rules]) => {
-			const sourceYupSchemaDescription = yupSchema[sourceFieldId]?.describe();
+			// use hasOwnProperty instead of a truthy check so a sourceFieldId like "constructor" doesn't resolve to an inherited Object.prototype member
+			const sourceYupSchemaDescription = Object.prototype.hasOwnProperty.call(yupSchema, sourceFieldId)
+				? yupSchema[sourceFieldId]?.describe()
+				: undefined;
 
 			if (rules.find((rule) => rule.shown)) {
 				shownRuleSourceFieldIds.push(sourceFieldId);

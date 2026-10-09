@@ -1,6 +1,10 @@
 import getFileInfo from "magic-bytes.js";
 import { DEFAULT_MAX_BASE64_LENGTH } from "../shared/constants";
 
+// magic-bytes.js signatures sit within the first ~4KB (max offset 0x1000), so only that prefix needs decoding
+const MAGIC_BYTES_BASE64_PREFIX_LENGTH = 8192;
+const BASE64_PATTERN = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?(?![\s\S])/;
+
 export namespace FileHelper {
 	/**
 	 * estimate filesize from base64 string
@@ -57,12 +61,12 @@ export namespace FileHelper {
 	export const getTypeFromBase64 = async (base64: string, maxSizeInKb?: number) => {
 		// base64 encoding inflates size by ~4/3, so convert the decoded-byte cap to a base64 character cap
 		const maxBase64Length = maxSizeInKb > 0 ? Math.ceil(((maxSizeInKb * 1024) / 3) * 4) : DEFAULT_MAX_BASE64_LENGTH;
-		if (!base64 || base64.length > maxBase64Length) {
+		if (!base64 || base64.length > maxBase64Length || !BASE64_PATTERN.test(base64)) {
 			return { mime: undefined, ext: undefined };
 		}
 		let binaryString: string;
 		try {
-			binaryString = atob(base64);
+			binaryString = atob(base64.slice(0, MAGIC_BYTES_BASE64_PREFIX_LENGTH));
 		} catch (error) {
 			return { mime: undefined, ext: undefined };
 		}

@@ -82,6 +82,8 @@ describe("custom-rules", () => {
 		${"array"} | ${"excludes string"}           | ${{ excludes: "Apple" }}            | ${["Berry", "Durian"]}          | ${["Apple"]}
 		${"array"} | ${"includes array"}            | ${{ includes: ["Apple", "Berry"] }} | ${["Apple", "Berry", "Durian"]} | ${["Cherry"]}
 		${"array"} | ${"excludes array"}            | ${{ excludes: ["Apple", "Berry"] }} | ${["Cherry"]}                   | ${["Apple", "Berry", "Durian"]}
+		${"array"} | ${"includes (undefined)"}      | ${{ includes: "Apple" }}            | ${undefined}                    | ${["Berry"]}
+		${"array"} | ${"excludes (undefined)"}      | ${{ excludes: "Apple" }}            | ${undefined}                    | ${["Apple"]}
 		${"array"} | ${"equalsField"}               | ${{ equalsField: "field1" }}        | ${["Apple", "Berry"]}           | ${["Apple"]}
 		${"array"} | ${"equalsField (empty array)"} | ${{ equalsField: "field1" }}        | ${[]}                           | ${["Apple"]}
 		${"array"} | ${"equalsField (undefined)"}   | ${{ equalsField: "field1" }}        | ${undefined}                    | ${[]}

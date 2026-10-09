@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { ERROR_MESSAGES, MAX_MATCHES_INPUT_LENGTH } from "../shared";
+import { ERROR_MESSAGES, MAX_MATCHES_INPUT_LENGTH, MAX_SCHEMA_NESTING_DEPTH } from "../shared";
 import { RegexHelper } from "../utils";
 import {
 	CONDITIONS,
@@ -47,9 +47,16 @@ export namespace YupHelper {
 	 * Adds Yup validation and constraints based on specified rules
 	 * @param yupSchema Yup schema that was previously created from specified validation type
 	 * @param rules An array of validation rules to be mapped against validation type (e.g. a string schema might contain { maxLength: 255 })
+	 * @param depth current recursion depth, used to guard against runaway/malicious `when` nesting
 	 * @returns yupSchema with added constraints and validations
 	 */
-	export const mapRules = (yupSchema: Yup.AnySchema, rules: ICombinedRule[]): Yup.AnySchema => {
+	export const mapRules = (yupSchema: Yup.AnySchema, rules: ICombinedRule[], depth = 0): Yup.AnySchema => {
+		// bail out of runaway/malicious nesting depth to prevent call stack exhaustion
+		if (depth > MAX_SCHEMA_NESTING_DEPTH) {
+			console.error(`mapRules nesting depth exceeded ${MAX_SCHEMA_NESTING_DEPTH}, skipping remaining rules`);
+			return yupSchema;
+		}
+
 		rules.forEach((rule) => {
 			const condition = Object.keys(rule).filter((k) => CONDITIONS.includes(k as TCondition))?.[0] as TCondition;
 
@@ -97,7 +104,7 @@ export namespace YupHelper {
 							name: "matches",
 							message: rule.errorMessage,
 							params: { regex: pattern },
-							// cap tested value length to bound worst-case regex backtracking cost (ReDoS mitigation)
+							// cap tested value length to bound polynomial regex backtracking cost
 							test: (value: unknown) => {
 								if (value == null || typeof value !== "string" || value === "") return true;
 								return value.length <= MAX_MATCHES_INPUT_LENGTH && pattern.test(value);
@@ -109,19 +116,21 @@ export namespace YupHelper {
 					{
 						Object.keys(rule.when).forEach((fieldId) => {
 							const isRule = rule.when[fieldId].is;
-							const thenRule = mapRules(yupSchema.clone(), rule.when[fieldId].then);
+							const thenRule = mapRules(yupSchema.clone(), rule.when[fieldId].then, depth + 1);
 							const otherwiseRule =
 								rule.when[fieldId].otherwise &&
 								mapRules(
 									YupHelper.mapSchemaType(yupSchema.type as TYupSchemaType),
-									rule.when[fieldId].otherwise
+									rule.when[fieldId].otherwise,
+									depth + 1
 								);
 
 							if (Array.isArray(isRule) && (isRule as unknown[]).every((r) => typeof r === "object")) {
 								yupSchema = yupSchema.when(fieldId, (value: unknown) => {
 									const localYupSchema = mapRules(
 										rule.when[fieldId].yupSchema.clone(),
-										isRule as IConditionalValidationRule[]
+										isRule as IConditionalValidationRule[],
+										depth + 1
 									);
 									let fulfilled = false;
 									try {

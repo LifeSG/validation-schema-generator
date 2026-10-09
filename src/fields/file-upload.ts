@@ -60,6 +60,7 @@ export const fileUpload: IFieldGenerator<IFileUploadSchema> = (id, { uploadOnAdd
 						if (!value || !Array.isArray(value) || !maxFileSizeRule?.maxSizeInKb) return true;
 						return value.every((file) => {
 							if (uploadOnAddingFile.type === "base64") {
+								if (typeof file?.dataURL !== "string") return false;
 								return (
 									FileHelper.getFilesizeFromBase64(file.dataURL) <= maxFileSizeRule.maxSizeInKb * 1024
 								);
@@ -91,7 +92,7 @@ export const fileUpload: IFieldGenerator<IFileUploadSchema> = (id, { uploadOnAdd
 							return true;
 						let isValid = true;
 						for (const file of value) {
-							if (!file?.dataURL) {
+							if (typeof file?.dataURL !== "string") {
 								isValid = false;
 								break;
 							}
@@ -125,11 +126,10 @@ export const fileUpload: IFieldGenerator<IFileUploadSchema> = (id, { uploadOnAdd
 						const formattedFileExtensions = fileExtensionRule.fileExtension.map((ext) => ext.toLowerCase());
 
 						for (const file of value) {
-							const extensionFromFilename = file?.fileName
-								? file.fileName.includes(".")
+							const extensionFromFilename =
+								typeof file?.fileName === "string" && file.fileName.includes(".")
 									? file.fileName.split(".").pop().toLowerCase()
-									: undefined
-								: undefined;
+									: undefined;
 
 							if (!extensionFromFilename || !formattedFileExtensions.includes(extensionFromFilename)) {
 								isValid = false;
@@ -145,14 +145,14 @@ export const fileUpload: IFieldGenerator<IFileUploadSchema> = (id, { uploadOnAdd
 
 					if (uploadOnAddingFile.type === "base64") {
 						for (const file of value) {
-							if (!file.dataURL) {
+							if (!file?.dataURL) {
 								isValid = false;
 								break;
 							}
 						}
 					} else if (uploadOnAddingFile.type === "multipart") {
 						for (const file of value) {
-							if (file.dataURL) {
+							if (file?.dataURL) {
 								isValid = false;
 								break;
 							}

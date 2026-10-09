@@ -6,7 +6,7 @@ import { ObjectShape } from "yup/lib/object";
 import { generateFieldConfigs } from "../fields/generate-field-configs";
 import type { IFieldConfig, TFieldsConfig } from "../fields/types";
 import { ObjectHelper } from "../utils/object-helper";
-import { MAX_SCHEMA_NESTING_DEPTH } from "../shared";
+import { MAX_CONFIG_OBJECT_DEPTH, MAX_SCHEMA_NESTING_DEPTH } from "../shared";
 import { parseConditionalRenders } from "./conditional-render";
 import {
 	ISectionSchema,
@@ -28,6 +28,13 @@ export const jsonToSchema = <V = undefined>(
 	sections: TSectionsSchema<V>,
 	overrides?: RecursivePartial<Record<string, ISectionSchema | TComponentSchema>> | undefined
 ) => {
+	if (
+		ObjectHelper.exceedsDepth(sections, MAX_CONFIG_OBJECT_DEPTH) ||
+		ObjectHelper.exceedsDepth(overrides, MAX_CONFIG_OBJECT_DEPTH)
+	) {
+		throw new Error(`schema config nesting exceeds the maximum depth of ${MAX_CONFIG_OBJECT_DEPTH}`);
+	}
+
 	const yupSchema: ObjectShape = {};
 	const overriddenSections = overrideSchema(sections, overrides);
 	const [fieldConfigs, whenPairIds] = parseWhenKeys(generateFieldConfigs(overriddenSections, jsonToSchema));
@@ -95,7 +102,7 @@ const parseWhenKeys = (
 	const whenPairIds: [string, string][] = [];
 
 	Object.entries(parsedFieldConfigs).forEach(([id, { validation }]) => {
-		const [parsedFieldConfig, fieldWhenPairIds] = addSchemaToWhenRules(id, fieldConfigs, validation);
+		const [parsedFieldConfig, fieldWhenPairIds] = addSchemaToWhenRules(id, fieldConfigs, validation, 0);
 		whenPairIds.push(...fieldWhenPairIds);
 		parsedFieldConfigs[id].validation = parsedFieldConfig;
 	});
@@ -107,13 +114,21 @@ const parseWhenKeys = (
  * @param id id of the field with the when rule
  * @param fieldConfigs the entire config containing the yup schema and validation config of each field
  * @param fieldValidationConfig validation config of a single field
+ * @param depth current recursion depth, used to guard against runaway/malicious nesting
  * @returns an array containing the parsed field config and conditional field id pairs
  */
 const addSchemaToWhenRules = (
 	id: string,
 	fieldConfigs: TFieldsConfig<TFieldSchema | TCustomFieldSchema>,
-	fieldValidationConfig: TFieldValidation
+	fieldValidationConfig: TFieldValidation,
+	depth = 0
 ): [TFieldValidation, [string, string][]] => {
+	// bail out of runaway/malicious nesting depth to prevent call stack exhaustion
+	if (depth > MAX_SCHEMA_NESTING_DEPTH) {
+		console.error(`when-rule nesting depth exceeded ${MAX_SCHEMA_NESTING_DEPTH}, skipping remaining when rules`);
+		return [fieldValidationConfig || [], []];
+	}
+
 	const whenPairIds: [string, string][] = [];
 	const parsedFieldValidationConfig =
 		fieldValidationConfig?.filter((fieldValidationConfig) => !("when" in fieldValidationConfig)) || [];
@@ -122,18 +137,29 @@ const addSchemaToWhenRules = (
 		.forEach((fieldValidationConfig) => {
 			const parsedConfig = { ...fieldValidationConfig };
 			Object.keys(parsedConfig.when).forEach((whenFieldId) => {
+				// avoid treating inherited Object.prototype names as configured field IDs
+				const whenFieldConfig = Object.prototype.hasOwnProperty.call(fieldConfigs, whenFieldId)
+					? fieldConfigs[whenFieldId]
+					: undefined;
+				if (!whenFieldConfig?.yupSchema) {
+					console.error(`when rule on field "${id}" references unknown field "${whenFieldId}", skipping`);
+					delete parsedConfig.when[whenFieldId];
+					return;
+				}
+
 				// when
 				whenPairIds.push([id, whenFieldId]);
 				parsedConfig.when[whenFieldId] = {
 					...parsedConfig.when[whenFieldId],
-					yupSchema: fieldConfigs[whenFieldId].yupSchema.clone(),
+					yupSchema: whenFieldConfig.yupSchema.clone(),
 				};
 
 				// then
 				const [parsedThenRules, thenPairIds] = addSchemaToWhenRules(
 					id,
 					fieldConfigs,
-					parsedConfig.when[whenFieldId].then
+					parsedConfig.when[whenFieldId].then,
+					depth + 1
 				);
 				parsedConfig.when[whenFieldId].then = parsedThenRules;
 				whenPairIds.push(...thenPairIds);
@@ -145,4 +171,5 @@ const addSchemaToWhenRules = (
 
 export const _testExports = {
 	parseWhenKeys,
+	addSchemaToWhenRules,
 };

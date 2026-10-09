@@ -1,3 +1,4 @@
+import vm from "vm";
 import { ObjectHelper } from "../../utils";
 
 describe("object-helper", () => {
@@ -52,6 +53,22 @@ describe("object-helper", () => {
 
 			expect(result).toEqual(expected);
 		});
+
+		it("should not resolve a key to an inherited Object.prototype member", () => {
+			const data = { a: { b: 1 } };
+
+			const result = ObjectHelper.getNestedValueByKey(data, "constructor");
+
+			expect(result).toBeUndefined();
+		});
+
+		it("should not resolve a nested key to an inherited Object.prototype member", () => {
+			const data = { a: { b: 1 } };
+
+			const result = ObjectHelper.getNestedValueByKey(data, "hasOwnProperty");
+
+			expect(result).toBeUndefined();
+		});
 	});
 
 	describe("removeNil", () => {
@@ -85,6 +102,61 @@ describe("object-helper", () => {
 
 				expect(result).toEqual(expected);
 			});
+		});
+	});
+
+	describe("exceedsDepth", () => {
+		const nest = (levels: number) => {
+			let data: Record<string, unknown> = { leaf: 1 };
+			for (let i = 0; i < levels; i++) data = { a: [data] };
+			return data;
+		};
+
+		it("should return false if nesting is within the max depth", () => {
+			expect(ObjectHelper.exceedsDepth(nest(5), 10)).toBe(false);
+		});
+
+		it("should return true if nesting exceeds the max depth", () => {
+			expect(ObjectHelper.exceedsDepth(nest(6), 10)).toBe(true);
+		});
+
+		it("should not exceed the call stack on extremely deep data", () => {
+			const result = vm.runInNewContext(
+				"fn(data, maxDepth)",
+				{
+					fn: ObjectHelper.exceedsDepth,
+					data: nest(100000),
+					maxDepth: 10,
+				},
+				{ timeout: 1000 }
+			);
+
+			expect(result).toBe(true);
+		});
+
+		it("should terminate on circular references", () => {
+			const data: Record<string, unknown> = {};
+			data.self = data;
+			const result = vm.runInNewContext(
+				"fn(data, maxDepth)",
+				{
+					fn: ObjectHelper.exceedsDepth,
+					data,
+					maxDepth: 10,
+				},
+				{ timeout: 1000 }
+			);
+
+			expect(result).toBe(true);
+		});
+
+		it.each`
+			type           | value
+			${"undefined"} | ${undefined}
+			${"null"}      | ${null}
+			${"primitive"} | ${"string"}
+		`("should return false for $type", ({ value }) => {
+			expect(ObjectHelper.exceedsDepth(value, 0)).toBe(false);
 		});
 	});
 });

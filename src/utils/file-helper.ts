@@ -5,15 +5,23 @@ import { DEFAULT_MAX_BASE64_LENGTH } from "../shared/constants";
 const MAGIC_BYTES_BASE64_PREFIX_LENGTH = 8192;
 const BASE64_PATTERN = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?(?![\s\S])/;
 
+const BASE64_SEPARATOR = ";base64,";
+// generous allowance for a "data:<mime>;<params>" header
+const MAX_DATA_URL_HEADER_LENGTH = 256;
+
 export namespace FileHelper {
 	/**
 	 * estimate filesize from base64 string
 	 * https://stackoverflow.com/questions/53228948/how-to-get-image-file-size-from-base-64-string-in-javascript#answer-53229045
 	 */
-	export const getFilesizeFromBase64 = (base64: string): number => {
-		const length = base64.length;
-		const padding = base64.substring(length - 2, 2).match(/=/g)?.length || 0;
-		return length * 0.75 - padding;
+	export const getFilesizeFromBase64 = (dataURL: string): number => {
+		const separatorIndex = dataURL.indexOf(BASE64_SEPARATOR);
+		// the data: header is client controlled, so refuse oversized headers rather than letting them skew the estimate
+		if (separatorIndex > MAX_DATA_URL_HEADER_LENGTH) return Number.POSITIVE_INFINITY;
+		const base64 = separatorIndex === -1 ? dataURL : dataURL.slice(separatorIndex + BASE64_SEPARATOR.length);
+		// padding can only be the trailing 1-2 "=" characters
+		const padding = base64.endsWith("==") ? 2 : base64.endsWith("=") ? 1 : 0;
+		return base64.length * 0.75 - padding;
 	};
 
 	/**

@@ -101,6 +101,43 @@ describe("image-helper", () => {
 				expect(ImageHelper.getDimensionsFromBase64(dataUrl)).toBeUndefined();
 			});
 
+			it("should skip 0xFF fill bytes before a marker like real decoders do", () => {
+				const sof = Buffer.alloc(9);
+				sof.set([0xff, 0xc0], 0);
+				sof.writeUInt16BE(11, 2);
+				sof.writeUInt8(0x08, 4);
+				sof.writeUInt16BE(10000, 5); // height
+				sof.writeUInt16BE(10000, 7); // width
+				// fake small SOF hidden inside a COM segment, positioned where a naive parser would jump to
+				const fake = Buffer.alloc(9);
+				fake.set([0xff, 0xc0], 0);
+				fake.writeUInt16BE(11, 2);
+				fake.writeUInt8(0x08, 4);
+				fake.writeUInt16BE(16, 5);
+				fake.writeUInt16BE(16, 7);
+				const jump = 0xc000 + 0x0b; // naive parser reads "C0 xx" as a segment length
+				const buffer = Buffer.alloc(2 + 1 + 9 + jump + 20);
+				buffer.set([0xff, 0xd8, 0xff], 0);
+				sof.copy(buffer, 3);
+				buffer.set([0xff, 0xc0, 0x00, 0x0b], 2); // overwrite so the first marker is FF FF C0 ...
+				buffer.set([0xff, 0xff, 0xc0, 0x00, 0x0b, 0x08, 0x27, 0x10, 0x27, 0x10], 2);
+				fake.copy(buffer, 2 + 2 + jump);
+
+				expect(ImageHelper.getDimensionsFromBase64(toBase64DataUrl("image/jpeg", buffer))).toEqual({
+					width: 10000,
+					height: 10000,
+				});
+			});
+
+			it.each([0xc3, 0xc5, 0xc9, 0xcf])(
+				"should return undefined for unsupported SOF marker 0x%s",
+				(sofMarker) => {
+					const buffer = buildJpgBuffer({ width: 200, height: 150, sofMarker });
+
+					expect(ImageHelper.getDimensionsFromBase64(toBase64DataUrl("image/jpeg", buffer))).toBeUndefined();
+				}
+			);
+
 			it("should return undefined if a segment reports a zero/undersized length", () => {
 				const soi = Buffer.from([0xff, 0xd8]);
 				const corruptSegment = Buffer.from([0xff, 0xe0, 0x00, 0x00]); // length < 2

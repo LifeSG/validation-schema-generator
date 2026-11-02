@@ -24,6 +24,39 @@ describe("time-field", () => {
 		);
 	});
 
+	it.each`
+		value                            | is24HourFormat
+		${"5<script>:30"}                | ${true}
+		${"9abc:15"}                     | ${true}
+		${"0x5:30"}                      | ${true}
+		${" 5:30"}                       | ${true}
+		${"1<img src=x onerror=a>:30am"} | ${false}
+		${"1abc:30am"}                   | ${false}
+		${"1:3x"}                        | ${true}
+	`("should reject malformed time $value", ({ value, is24HourFormat }) => {
+		const schema = jsonToSchema({
+			section: { uiType: "section", children: { field: { uiType: "time-field", is24HourFormat } } },
+		});
+		expect(TestHelper.getError(() => schema.validateSync({ field: value })).message).toBe(
+			ERROR_MESSAGES.TIME.INVALID
+		);
+	});
+
+	it("should accept boundary times", () => {
+		const schema24 = jsonToSchema({
+			section: { uiType: "section", children: { field: { uiType: "time-field", is24HourFormat: true } } },
+		});
+		const schema12 = jsonToSchema({
+			section: { uiType: "section", children: { field: { uiType: "time-field" } } },
+		});
+		["0:00", "00:00", "23:59"].forEach((field) =>
+			expect(() => schema24.validateSync({ field })).not.toThrowError()
+		);
+		["12:00am", "1:00pm", "12:59PM"].forEach((field) =>
+			expect(() => schema12.validateSync({ field })).not.toThrowError()
+		);
+	});
+
 	it("should be able to validate 12-hour format in h:mma format", () => {
 		const schema = jsonToSchema({
 			section: {

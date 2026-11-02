@@ -31,15 +31,13 @@ export namespace TimeHelper {
 // NON-EXPORTABLES
 // =============================================================================
 const isValidHour = (hourString: string, is24HourFormat = false): boolean => {
-	const numValue = parseInt(hourString);
-	return Number(hourString) === numValue && is24HourFormat
-		? numValue >= 0 && numValue <= 23
-		: numValue >= 1 && numValue <= 12;
+	if (!/^\d{1,2}$/.test(hourString)) return false;
+	const numValue = Number(hourString);
+	return is24HourFormat ? numValue >= 0 && numValue <= 23 : numValue >= 1 && numValue <= 12;
 };
 
 const isValidMinutes = (minuteString: string): boolean => {
-	const numValue = parseInt(minuteString);
-	return Number(minuteString) === numValue && numValue >= 0 && numValue <= 59;
+	return /^\d{1,2}$/.test(minuteString) && Number(minuteString) <= 59;
 };
 
 const isValidTimePeriod = (timePeriodString: string): boolean => {

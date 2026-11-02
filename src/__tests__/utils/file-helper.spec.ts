@@ -6,6 +6,26 @@ const JPG_HEADER = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 
 const JPG_HEADER_BASE64 = JPG_HEADER.toString("base64");
 
 describe("file-helper", () => {
+	describe("getFilesizeFromBase64", () => {
+		it("should subtract only trailing padding", () => {
+			expect(FileHelper.getFilesizeFromBase64("QUJD")).toBe(3);
+			expect(FileHelper.getFilesizeFromBase64("QUI=")).toBe(2);
+			expect(FileHelper.getFilesizeFromBase64("QQ==")).toBe(1);
+		});
+
+		it("should ignore the data URL header", () => {
+			expect(FileHelper.getFilesizeFromBase64("data:text/plain;base64,QUJD")).toBe(3);
+		});
+
+		it("should not let '=' characters in the header lower the estimate", () => {
+			const payload = "A".repeat(4000);
+			const padded = `data:application/pdf;x=${"=".repeat(4000)};base64,${payload}`;
+			expect(FileHelper.getFilesizeFromBase64(padded)).toBe(Number.POSITIVE_INFINITY);
+			const shortPadded = `data:application/pdf;x=${"=".repeat(50)};base64,${payload}`;
+			expect(FileHelper.getFilesizeFromBase64(shortPadded)).toBe(3000);
+		});
+	});
+
 	describe("extensionsToSentence", () => {
 		describe("setBothJpegAndJpgIfEitherExists", () => {
 			it.each`

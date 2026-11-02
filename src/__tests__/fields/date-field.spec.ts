@@ -137,4 +137,23 @@ describe("date-field", () => {
 			expect(TestHelper.getError(() => schema.validateSync({ field: invalid })).message).toBe(errorMessage);
 		});
 	});
+
+	describe("minDate / maxDate with a custom dateFormat", () => {
+		it.each`
+			dateFormat      | minDate         | maxDate         | inRange         | belowMin        | aboveMax
+			${"dd/MM/uuuu"} | ${"05/01/2024"} | ${"20/01/2024"} | ${"10/01/2024"} | ${"01/01/2024"} | ${"25/01/2024"}
+			${"uuuu-dd-MM"} | ${"2024-05-01"} | ${"2024-20-01"} | ${"2024-10-01"} | ${"2024-01-01"} | ${"2024-25-01"}
+		`("should parse values using $dateFormat", ({ dateFormat, minDate, maxDate, inRange, belowMin, aboveMax }) => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: { field: { uiType: "date-field", dateFormat, validation: [{ minDate }, { maxDate }] } },
+				},
+			});
+			expect(() => schema.validateSync({ field: inRange })).not.toThrowError();
+			expect(() => schema.validateSync({ field: belowMin })).toThrowError();
+			expect(() => schema.validateSync({ field: aboveMax })).toThrowError();
+			expect(TestHelper.getError(() => schema.validateSync({ field: belowMin })).name).toBe("ValidationError");
+		});
+	});
 });

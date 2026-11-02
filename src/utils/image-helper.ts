@@ -31,6 +31,9 @@ const isJpg = (buffer: Buffer): boolean =>
 const JPG_SOF_MARKERS = new Set([0xc0, 0xc1, 0xc2]);
 
 // dimension parsing ported from https://github.com/image-size/image-size/blob/main/lib/types/jpg.ts
+// other frame types (lossless, differential, arithmetic) are not supported; fail closed instead of walking past them
+const JPG_UNSUPPORTED_SOF_MARKERS = new Set([0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf]);
+
 const getJpgDimensions = (buffer: Buffer): IImageDimensions | undefined => {
 	let offset = 2;
 	while (offset + 9 <= buffer.length) {
@@ -38,7 +41,13 @@ const getJpgDimensions = (buffer: Buffer): IImageDimensions | undefined => {
 			offset++;
 			continue;
 		}
+		// the spec allows any number of 0xFF fill bytes before a marker, and decoders skip them
+		while (offset + 9 <= buffer.length && buffer[offset + 1] === 0xff) {
+			offset++;
+		}
+		if (offset + 9 > buffer.length) break;
 		const marker = buffer[offset + 1];
+		if (JPG_UNSUPPORTED_SOF_MARKERS.has(marker)) return undefined;
 		if (JPG_SOF_MARKERS.has(marker)) {
 			return { height: buffer.readUInt16BE(offset + 5), width: buffer.readUInt16BE(offset + 7) };
 		}

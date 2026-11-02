@@ -5,6 +5,15 @@ import { IFieldGenerator } from "./types";
 
 export interface INumericFieldSchema<V = undefined> extends IFieldSchemaBase<"numeric-field", V> {}
 
+/**
+ * counts decimal places from the string form, accounting for exponent notation (e.g. 1e-7, 1.5e-7)
+ */
+const countDecimalPlaces = (value: number): number => {
+	const match = /^-?\d+(?:\.(\d+))?(?:e([+-]?\d+))?$/i.exec(String(value));
+	if (!match) return 0;
+	return Math.max(0, (match[1]?.length ?? 0) - Number(match[2] ?? 0));
+};
+
 export const numericField: IFieldGenerator<INumericFieldSchema> = (id, { validation }) => {
 	let schema = Yup.number();
 
@@ -15,8 +24,7 @@ export const numericField: IFieldGenerator<INumericFieldSchema> = (id, { validat
 				rule.errorMessage || ERROR_MESSAGES.NUMERIC.INVALID_DECIMALS(rule.decimals),
 				(value) => {
 					if (value === undefined || value === null) return true;
-					const decimalStr = String(value).split(".")[1];
-					return !decimalStr || decimalStr.length <= rule.decimals;
+					return countDecimalPlaces(value) <= rule.decimals;
 				}
 			);
 		}

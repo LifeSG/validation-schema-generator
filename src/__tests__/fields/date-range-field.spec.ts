@@ -350,4 +350,41 @@ describe("date-range-field", () => {
 			expect(TestHelper.getError(() => schema.validateSync({ field: invalid })).message).toBe(errorMessage);
 		});
 	});
+
+	describe("from must not be after to", () => {
+		it.each`
+			variant
+			${undefined}
+			${"week"}
+		`("should reject a reversed range (variant: $variant)", ({ variant }) => {
+			const schema = jsonToSchema({
+				section: { uiType: "section", children: { field: { uiType: "date-range-field", variant } } },
+			});
+			expect(
+				TestHelper.getError(() => schema.validateSync({ field: { from: "2023-02-01", to: "2023-01-01" } }))
+					.message
+			).toBe(ERROR_MESSAGES.DATE_RANGE.INVALID);
+			expect(() => schema.validateSync({ field: { from: "2023-01-01", to: "2023-01-01" } })).not.toThrowError();
+			expect(() => schema.validateSync({ field: { from: "2023-01-01", to: "2023-02-01" } })).not.toThrowError();
+		});
+
+		it("should compare dates using the configured dateFormat", () => {
+			const schema = jsonToSchema({
+				section: {
+					uiType: "section",
+					children: { field: { uiType: "date-range-field", dateFormat: "dd/MM/uuuu" } },
+				},
+			});
+			expect(() => schema.validateSync({ field: { from: "02/01/2023", to: "10/01/2023" } })).not.toThrowError();
+			expect(() => schema.validateSync({ field: { from: "10/01/2023", to: "02/01/2023" } })).toThrowError();
+		});
+
+		it("should not add a second error for incomplete or malformed ranges", () => {
+			const schema = jsonToSchema({
+				section: { uiType: "section", children: { field: { uiType: "date-range-field" } } },
+			});
+			expect(() => schema.validateSync({ field: { from: "2023-01-01" } })).not.toThrowError();
+			expect(() => schema.validateSync({ field: {} })).not.toThrowError();
+		});
+	});
 });

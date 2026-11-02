@@ -139,4 +139,26 @@ describe("nested-multi-select", () => {
 			).message
 		).toBe(ERROR_MESSAGES.COMMON.INVALID_OPTION);
 	});
+
+	describe("invalid value types", () => {
+		const schema = jsonToSchema({
+			section: { uiType: "section", children: { field: { uiType: "nested-multi-select", options } } },
+		});
+
+		it.each`
+			description                      | value
+			${"a number leaf"}               | ${{ fruitKey: { appleKey: 12345 } }}
+			${"a boolean leaf"}              | ${{ fruitKey: { appleKey: true } }}
+			${"a null leaf"}                 | ${{ fruitKey: { appleKey: null } }}
+			${"an array leaf"}               | ${{ fruitKey: { appleKey: ["Apple"] } }}
+			${"a number on a parent option"} | ${{ fruitKey: 99999 }}
+			${"a string on a parent option"} | ${{ fruitKey: "Apple" }}
+			${"an object on a leaf option"}  | ${{ fruitKey: { appleKey: { x: "Apple" } } }}
+			${"an array on a parent option"} | ${{ fruitKey: ["appleKey"] }}
+		`("should reject $description with a ValidationError", ({ value }) => {
+			const error = TestHelper.getError(() => schema.validateSync({ field: value }));
+			expect(error.name).toBe("ValidationError");
+			expect(error.message).toBe(ERROR_MESSAGES.COMMON.INVALID_OPTION);
+		});
+	});
 });

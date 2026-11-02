@@ -23,19 +23,22 @@ export const nestedMultiSelect: IFieldGenerator<INestedMultiSelectSchema> = (id,
 								return false;
 							}
 
-							if (typeof nestedValue === "string" && nestedValue !== option.value) {
+							if (typeof nestedValue === "string") {
+								// strings are only valid on leaf options and must match the option value
+								if (option.subItems || nestedValue !== option.value) {
+									return false;
+								}
+							} else if (nestedValue && typeof nestedValue === "object" && !Array.isArray(nestedValue)) {
+								// objects are only valid on options with sub items
+								if (!option.subItems || !Object.keys(nestedValue).length) {
+									return false;
+								}
+								if (!validateNestedValues(option.subItems, nestedValue)) {
+									return false;
+								}
+							} else {
+								// numbers, booleans, null, undefined and arrays are never valid
 								return false;
-							}
-
-							if (typeof nestedValue === "object") {
-								if (!Object.keys(nestedValue).length) {
-									return false;
-								}
-								const subOptions = option.subItems || [];
-								const subItemsValid = validateNestedValues(subOptions, nestedValue);
-								if (!subItemsValid) {
-									return false;
-								}
 							}
 						}
 

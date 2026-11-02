@@ -58,4 +58,37 @@ describe("numeric-field", () => {
 			ERROR_MESSAGES.NUMERIC.INVALID_DECIMALS(2)
 		);
 	});
+
+	describe("decimals with exponent notation", () => {
+		const build = (decimals: number) =>
+			jsonToSchema({
+				section: {
+					uiType: "section",
+					children: { field: { uiType: "numeric-field", validation: [{ decimals }] } },
+				},
+			});
+
+		it.each`
+			value     | decimals | valid
+			${1e-7}   | ${0}     | ${false}
+			${1e-7}   | ${2}     | ${false}
+			${1.5e-7} | ${2}     | ${false}
+			${1e-7}   | ${7}     | ${true}
+			${1.5e-7} | ${8}     | ${true}
+			${1e21}   | ${0}     | ${true}
+			${1.5e21} | ${0}     | ${true}
+			${0.5}    | ${0}     | ${false}
+			${12.34}  | ${2}     | ${true}
+			${12.345} | ${2}     | ${false}
+			${5}      | ${0}     | ${true}
+			${-0.25}  | ${2}     | ${true}
+		`("should return valid=$valid for $value with decimals $decimals", ({ value, decimals, valid }) => {
+			const schema = build(decimals);
+			if (valid) {
+				expect(() => schema.validateSync({ field: value })).not.toThrowError();
+			} else {
+				expect(() => schema.validateSync({ field: value })).toThrowError();
+			}
+		});
+	});
 });

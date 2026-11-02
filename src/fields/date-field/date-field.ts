@@ -71,7 +71,7 @@ export const dateField: IFieldGenerator<IDateFieldSchema> = (id, { dateFormat = 
 						ERROR_MESSAGES.DATE.MIN_DATE(minDate?.format(errorMessageDateFormatter)),
 					(value) => {
 						if (!isValidDate(value, dateFormatter) || !minDate) return true;
-						return !LocalDate.parse(value).isBefore(minDate);
+						return !LocalDate.parse(value, dateFormatter).isBefore(minDate);
 					}
 				)
 				.test(
@@ -80,7 +80,7 @@ export const dateField: IFieldGenerator<IDateFieldSchema> = (id, { dateFormat = 
 						ERROR_MESSAGES.DATE.MAX_DATE(maxDate?.format(errorMessageDateFormatter)),
 					(value) => {
 						if (!isValidDate(value, dateFormatter) || !maxDate) return true;
-						return !LocalDate.parse(value).isAfter(maxDate);
+						return !LocalDate.parse(value, dateFormatter).isAfter(maxDate);
 					}
 				)
 				.test(

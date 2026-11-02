@@ -83,6 +83,25 @@ export const dateRangeField: IFieldGenerator<IDateRangeFieldSchema> = (
 					},
 				})
 				.test({
+					name: "from-before-to",
+					test(value) {
+						if (
+							isEmptyValue(value) ||
+							!isValidDate(value.from, dateFormatter) ||
+							!isValidDate(value.to, dateFormatter)
+						)
+							return true;
+						const localDateFrom = DateTimeHelper.toLocalDateOrTime(
+							value.from as string,
+							dateFormat,
+							"date"
+						);
+						const localDateTo = DateTimeHelper.toLocalDateOrTime(value.to as string, dateFormat, "date");
+						if (!localDateFrom || !localDateTo || !localDateFrom.isAfter(localDateTo)) return true;
+						return this.createError({ message: ERROR_MESSAGES.DATE_RANGE.INVALID });
+					},
+				})
+				.test({
 					name: "future",
 					test(value, context) {
 						if (variant === "week") return true;
